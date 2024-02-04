@@ -1,0 +1,54 @@
+name: salad_of_achievement
+description: "A new Flutter project."
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.2.0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  flutter_localizations:
+    sdk: flutter
+  sqflite: ^2.3.2
+  path: ^1.8.3
+  circular_countdown_timer: ^0.2.3
+  flutter_launcher_icons: ^0.13.1 #أيقونة البرنامج
+  provider: ^6.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icons/
+
+  fonts:
+    - family: alfont
+      fonts:
+        - asset: assets/fonts/alfont_com_29LTAzer.ttf
+
+#أمر تغيير ايقونة التطبيق
+flutter_launcher_icons:
+  android: "launcher_icon"
+  # ios: true
+  # remove_alpha_ios: true
+  image_path: "assets/icons/icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  # web:
+  #   generate: true
+  #   image_path: "assets/AppIcon/icon.png"
+  #   background_color: "#hexcode"
+  #   theme_color: "#hexcode"
+  # windows:
+  #   generate: true
+  #   image_path: "assets/AppIcon/icon.png"
+  #   icon_size: 48 # min:48, max:256, default: 48
+  # macos:
+  #   generate: true
+  #   image_path: "assets/AppIcon/icon.png"
