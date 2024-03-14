@@ -1,7 +1,7 @@
 name: salad_of_achievement
 description: "A new Flutter project."
 publish_to: "none"
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -11,15 +11,23 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_localizations:
     sdk: flutter
-  sqflite: ^2.3.2
-  path: ^1.8.3
   circular_countdown_timer: ^0.2.3
   flutter_launcher_icons: ^0.13.1 #أيقونة البرنامج
   provider: ^6.1.1
+  path_provider: ^2.1.2
+  objectbox: ^2.4.0 #مكتبة قاعدة البيانات
+  objectbox_flutter_libs: ^2.4.0 #مكتبة قاعدة البيانات
+  hijri: ^3.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  #مكتبات قواعد البيانات
+  # ثم استخدم flutter pub run build_runner build
+  # لو صارت مشكلة تأكد من المسافات
+  build_runner: ^2.4.8
+  objectbox_generator: ^2.4.0
 
   flutter_lints: ^2.0.0
 

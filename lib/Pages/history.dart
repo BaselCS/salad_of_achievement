@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:salad_of_achievement/logical/provider/provider.dart';
 
 import '../utilities/const.dart';
 
@@ -11,7 +13,8 @@ class AppHistoryPAge extends StatelessWidget {
         backgroundColor: kInnerBackGroundColor,
         appBar: AppBar(
             centerTitle: true,
-            title: const FittedBox(fit: BoxFit.fill, child: Text('سجل الجلسات')),
+            title:
+                const FittedBox(fit: BoxFit.fill, child: Text('سجل الجلسات')),
             leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
@@ -26,31 +29,49 @@ class Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    DataProvider dataProvider = Provider.of<DataProvider>(context);
     return ListView.separated(
+      itemCount: dataProvider.history.length,
       itemBuilder: (BuildContext context, int index) {
         return ListTile(
             tileColor: kBorderColor,
             onTap: () {
-              // Navigator.pushNamed(context, '/session');
+              print(dataProvider.history.elementAt(index));
             },
             leading: Container(
-                decoration: const BoxDecoration(color: Colors.black, borderRadius: BorderRadius.all(Radius.circular(10))),
+                decoration: const BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
                 width: 100,
                 height: 40,
-                child: const Stars(isStar1: true, isStar2: true)),
+                child: Stars(
+                    isStar1: dataProvider.star1 <
+                        dataProvider.history.elementAt(index).todayTime!,
+                    isStar2: dataProvider.star2 <
+                        dataProvider.history.elementAt(index).todayTime!,
+                    isStar3: dataProvider.star3 <
+                        dataProvider.history.elementAt(index).todayTime!)),
             title: Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: Text('الأحد، ١٢ رجب ١٤٤٥', style: Theme.of(context).textTheme.bodySmall),
+              child: Text(dataProvider.history.elementAt(index).date!,
+                  style: Theme.of(context).textTheme.bodySmall),
             ),
             trailing: Padding(
               padding: const EdgeInsets.only(left: 8),
-              child: Text('١٢٠ دقيقة', style: Theme.of(context).textTheme.bodySmall!.copyWith(color: kActionColor)),
+              child: Text(
+                  "${dataProvider.history.elementAt(index).todayTime.toString()} دقيقة",
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall!
+                      .copyWith(color: kActionColor)),
             ));
       },
       separatorBuilder: (BuildContext context, int index) {
-        return Container(color: kWhiteColor.withOpacity(0.5), width: MediaQuery.of(context).size.width, height: 1);
+        return Container(
+            color: kWhiteColor.withOpacity(0.5),
+            width: MediaQuery.of(context).size.width,
+            height: 1);
       },
-      itemCount: 10,
     );
   }
 }

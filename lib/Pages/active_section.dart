@@ -2,8 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:salad_of_achievement/logical/models/data_model.dart';
 
-import '../main.dart';
+import '../logical/provider/provider.dart';
 import '../utilities/const.dart';
 import '../utilities/my_circular_count_down_timer.dart';
 
@@ -26,6 +27,7 @@ class ActiveSectionPage extends StatelessWidget {
   }
 }
 
+//يغير الأيقونة بس
 class Body extends StatefulWidget {
   const Body({super.key});
 
@@ -38,10 +40,9 @@ class _BodyState extends State<Body> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child:
+            Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
           const CountDownTimer(),
           const ActivityNameMenu(),
           CircleAvatar(
@@ -59,10 +60,13 @@ class _BodyState extends State<Body> {
                     setState(() {});
                   },
                   icon: Icon(theIcon, color: Colors.white, size: 30))),
-          const SaveCancelButtons(),
-        ],
-      ),
-    );
+          Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.0),
+                  color: Colors.black),
+              child: const CancelButton()),
+        ]));
   }
 }
 
@@ -75,55 +79,43 @@ class ActivityNameMenu extends StatefulWidget {
   State<ActivityNameMenu> createState() => _ActivityNameMenuState();
 }
 
+String? activityName;
+
 class _ActivityNameMenuState extends State<ActivityNameMenu> {
-  String value = 'عربي';
   @override
   Widget build(BuildContext context) {
+    DataProvider dataProvider = Provider.of<DataProvider>(context);
+    // dataProvider.activity.isNotEmpty
+    //     ? activityName = dataProvider.activity.firstOrNull!.name!
+    //     : '';
     return Container(
         padding: const EdgeInsets.all(4.0),
         width: MediaQuery.of(context).size.width * 0.4,
         height: MediaQuery.of(context).size.height * 0.05,
         clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0), color: kContainerColor),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16.0), color: kContainerColor),
         child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-              value: value,
-              onChanged: (String? newValue) {
-                setState(() {
-                  value = newValue!;
-                });
-              },
-              items: <String>['عربي', 'إنجليزي'].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(value: value, child: Text(value));
-              }).toList()),
-        ));
-  }
-}
-
-class SaveCancelButtons extends StatelessWidget {
-  const SaveCancelButtons({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      // mainAxisAlignment: saveTime != 0 ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // if (saveTime != 0)
-        // Container(clipBehavior: Clip.antiAlias, decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0)), child: const SaveButton()),
-        Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0), color: Colors.black),
-            child: const CancelButton()),
-      ],
-    );
+            child: DropdownButton<String>(
+                value: activityName,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    activityName = newValue!;
+                  });
+                },
+                items: dataProvider.activity
+                    .map<DropdownMenuItem<String>>((Activity value) {
+                  return DropdownMenuItem<String>(
+                    value: value.name!,
+                    child: Text(value.name!,
+                        style: Theme.of(context).textTheme.bodySmall),
+                  );
+                }).toList())));
   }
 }
 
 class CancelButton extends StatelessWidget {
-  const CancelButton({
-    super.key,
-  });
+  const CancelButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -133,71 +125,94 @@ class CancelButton extends StatelessWidget {
           showDialog(
               context: context,
               builder: (context1) {
-                return AlertDialog(actionsAlignment: MainAxisAlignment.spaceAround, content: const Text('هل أنت متأكد من إلغاء الجلسة؟'), actions: [
-                  InkWell(
-                      onTap: () {
-                        Navigator.pop(context1);
-                      },
-                      child: Container(
-                          clipBehavior: Clip.antiAlias,
-                          padding: const EdgeInsets.all(4.0),
-                          width: MediaQuery.of(context1).size.width * 0.15,
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(4.0), color: kContainerColor),
-                          child: Center(child: Text("لا", style: Theme.of(context).textTheme.bodySmall!)))),
-                  InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                          clipBehavior: Clip.antiAlias,
-                          padding: const EdgeInsets.all(4.0),
-                          width: MediaQuery.of(context1).size.width * 0.15,
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(4.0), color: Colors.red),
-                          child: Center(child: Text("نعم", style: Theme.of(context).textTheme.bodySmall!)))),
-                ]);
+                return AlertDialog(
+                    actionsAlignment: MainAxisAlignment.spaceAround,
+                    content: const Text('هل أنت متأكد من إلغاء الجلسة؟'),
+                    actions: [
+                      InkWell(
+                          onTap: () {
+                            Navigator.pop(context1);
+                          },
+                          child: Container(
+                              clipBehavior: Clip.antiAlias,
+                              padding: const EdgeInsets.all(4.0),
+                              width: MediaQuery.of(context1).size.width * 0.15,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                  color: kContainerColor),
+                              child: Center(
+                                  child: Text("لا",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall!)))),
+                      InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                              clipBehavior: Clip.antiAlias,
+                              padding: const EdgeInsets.all(4.0),
+                              width: MediaQuery.of(context1).size.width * 0.15,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                  color: Colors.red),
+                              child: Center(
+                                  child: Text("نعم",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall!)))),
+                    ]);
               });
         },
         child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center, children: [
-              GestureDetector(child: const CircleAvatar(radius: 15, backgroundColor: Colors.black, child: Icon(Icons.cancel, color: Colors.red))),
-              Text('إلغاء الجلسة ', style: Theme.of(context).textTheme.bodySmall!)
-            ])));
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                      child: const CircleAvatar(
+                          radius: 15,
+                          backgroundColor: Colors.black,
+                          child: Icon(Icons.cancel, color: Colors.red))),
+                  Text('إلغاء الجلسة ',
+                      style: Theme.of(context).textTheme.bodySmall!)
+                ])));
   }
 }
 
-class SaveButton extends StatelessWidget {
-  const SaveButton({
-    super.key,
-  });
+// class SaveButton extends StatelessWidget {
+//   const SaveButton({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {},
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('حفظ الجلسة ', style: Theme.of(context).textTheme.bodySmall!),
-            CircleAvatar(radius: 15, backgroundColor: Colors.black.withOpacity(0.5), child: Text(saveTime.toString())),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return ElevatedButton(
+//       onPressed: () {},
+//       child: Padding(
+//         padding: const EdgeInsets.symmetric(vertical: 4),
+//         child: Row(
+//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//           children: [
+//             Text('حفظ الجلسة ', style: Theme.of(context).textTheme.bodySmall!),
+//             CircleAvatar(radius: 15, backgroundColor: Colors.black.withOpacity(0.5), child: Text(saveTime.toString())),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class CountDownTimer extends StatelessWidget {
   const CountDownTimer({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final doneMinutesProvider = Provider.of<DoneMinutesProvider>(context, listen: false); // Access the provider
+    DataProvider dataProvider =
+        Provider.of<DataProvider>(context, listen: false);
 
-    double size = min(MediaQuery.of(context).size.width * 0.8, MediaQuery.of(context).size.height * 0.8);
+    double size = min(MediaQuery.of(context).size.width * 0.8,
+        MediaQuery.of(context).size.height * 0.8);
     return MyCircularCountDownTimer(
       // duration: theTime * 60,
       duration: theTime,
@@ -210,8 +225,7 @@ class CountDownTimer extends StatelessWidget {
       autoStart: true,
       controller: controller,
       onComplete: () {
-        doneMinutesProvider.updateDoneMinutes(doneMinutesProvider.doneMinutes + theTime); // Update doneMinutes using the provider
-
+        dataProvider.setDoneMinutes(theTime, activityName);
         Navigator.pop(context);
       },
       onChange: (string) {

@@ -8,7 +8,7 @@
 .buildlog/
 .history
 .svn/
-migrate_working_dir/
+migrate_Activitying_dir/
 
 # IntelliJ related
 *.iml
@@ -33,9 +33,6 @@ migrate_working_dir/
 
 # Symbolication related
 app.*.symbols
-
-# Obfuscation related
-app.*.map.json
 
 # Android Studio will place build artifacts here
 /android/app/debug

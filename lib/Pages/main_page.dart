@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:salad_of_achievement/main.dart';
+import 'package:salad_of_achievement/logical/models/data_model.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
 
-import '../logic/simple_data.dart';
+import '../logical/provider/provider.dart';
 
 class MainPage extends StatelessWidget {
   const MainPage({super.key});
@@ -14,7 +14,7 @@ class MainPage extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
             centerTitle: true,
-            title: const Text('الأحد، ١٢ رجب ١٤٤٥'),
+            title: Text(History.todayFormate()),
             actions: [
               Padding(
                   padding: const EdgeInsets.only(left: 16.0),
@@ -38,16 +38,17 @@ class MainPage extends StatelessWidget {
 }
 
 class MyDrawer extends StatelessWidget {
-  const MyDrawer({
-    super.key,
-  });
+  const MyDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
         backgroundColor: kBackGroundColor,
         child: ListView(padding: EdgeInsets.zero, children: <Widget>[
-          DrawerHeader(decoration: const BoxDecoration(color: kContainerColor), child: appIcon),
+          DrawerHeader(
+              decoration: const BoxDecoration(color: kContainerColor),
+              child: appIcon),
+          // const DrawerHeader(decoration: BoxDecoration(color: kContainerColor), child: SizedBox()),
           ListTile(
               title: const Text('سجل الجلسات'),
               leading: const MyIcon(Icons.assignment),
@@ -60,7 +61,10 @@ class MyDrawer extends StatelessWidget {
               onTap: () {
                 Navigator.pushNamed(context, '/activity');
               }),
-          ListTile(title: const Text('إحصائيات'), leading: const MyIcon(Icons.insert_chart), onTap: () {}),
+          ListTile(
+              title: const Text('إحصائيات'),
+              leading: const MyIcon(Icons.insert_chart),
+              onTap: () {}),
           ListTile(
               title: const Text('إعدادات'),
               leading: const MyIcon(Icons.settings),
@@ -78,21 +82,22 @@ class VisitableButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: GridView.count(
-        crossAxisCount: 3,
-        shrinkWrap: true,
-        children: fruits.entries.map((entry) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(context, '/activeSection', arguments: entry.key);
-            },
-            child: Column(
-              children: [Expanded(child: entry.value.first), Expanded(child: Text(entry.key, style: TextStyle(color: entry.value.last)))],
-            ),
-          );
-        }).toList(),
-      ),
-    );
+        child: GridView.count(
+            crossAxisCount: 3,
+            shrinkWrap: true,
+            children: fruits.entries.map((entry) {
+              return GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/activeSection',
+                        arguments: entry.key);
+                  },
+                  child: Column(children: [
+                    Expanded(child: entry.value.first),
+                    Expanded(
+                        child: Text(entry.key,
+                            style: TextStyle(color: entry.value.last)))
+                  ]));
+            }).toList()));
   }
 }
 
@@ -104,34 +109,61 @@ class BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final doneMinutesProvider = Provider.of<DoneMinutesProvider>(context); // Access the provider
+    final DataProvider dataProvider =
+        Provider.of<DataProvider>(context); // Access the provider
 
     return BottomAppBar(
         height: MediaQuery.of(context).size.height * 0.25,
         padding: const EdgeInsets.fromLTRB(8, 35, 8, 8),
         child: Column(children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            FittedBox(fit: BoxFit.fill, child: Text('إنجاز اليوم : ${doneMinutesProvider.doneMinutes} دقيقة')),
+            FittedBox(
+                fit: BoxFit.fill,
+                child: Text(
+                    'إنجاز اليوم : ${dataProvider.doneMinutes.toInt()} دقيقة')),
             Stars(
-                isStar1: doneMinutesProvider.doneMinutes >= SimpleData.star1,
-                isStar2: doneMinutesProvider.doneMinutes >= SimpleData.star2,
-                isStar3: doneMinutesProvider.doneMinutes >= SimpleData.tootleMinutes),
+                isStar1: dataProvider.doneMinutes >= dataProvider.star1,
+                isStar2: dataProvider.doneMinutes >= dataProvider.star2,
+                isStar3: dataProvider.doneMinutes >= dataProvider.star3)
           ]),
           ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(10)),
-              child: Stack(children: [
-                LinearProgressIndicator(
-                  value: doneMinutesProvider.doneMinutes / SimpleData.tootleMinutes,
-                  minHeight: progressHight,
-                  valueColor: const AlwaysStoppedAnimation<Color>(kActionColor),
-                ),
-                Row(children: <Widget>[
-                  Spacer(progressHight, SimpleData.star1 / SimpleData.tootleMinutes * MediaQuery.of(context).size.width),
-                  Spacer(progressHight, SimpleData.star2 / SimpleData.tootleMinutes * MediaQuery.of(context).size.width),
-                ])
-              ])),
-          const FittedBox(fit: BoxFit.fill, child: Text('سألته ما الغاية الكبرى قال رضون من الله أكبر')),
+              child: ProgressBar(
+                  dataProvider: dataProvider, progressHight: progressHight)),
+          const FittedBox(
+              fit: BoxFit.fill,
+              child: Text('سألته ما الغاية الكبرى قال رضون من الله أكبر'))
         ]));
+  }
+}
+
+class ProgressBar extends StatelessWidget {
+  const ProgressBar(
+      {super.key, required this.dataProvider, required this.progressHight});
+
+  final DataProvider dataProvider;
+  final double progressHight;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(children: [
+      LinearProgressIndicator(
+        value: dataProvider.doneMinutes / dataProvider.star3,
+        minHeight: progressHight,
+        valueColor: const AlwaysStoppedAnimation<Color>(kActionColor),
+      ),
+      Row(children: <Widget>[
+        //في مشكلة في التحويل
+        Spacer(
+            progressHight,
+            (dataProvider.star1 / dataProvider.star3) *
+                MediaQuery.of(context).size.width),
+        Spacer(
+            progressHight,
+            (dataProvider.star2 / dataProvider.star3) *
+                MediaQuery.of(context).size.width)
+      ])
+    ]);
   }
 }
 
@@ -143,6 +175,11 @@ class Spacer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(height: height, child: VerticalDivider(thickness: 2, width: progress, color: Colors.white.withOpacity(0.5)));
+    return SizedBox(
+        height: height,
+        child: VerticalDivider(
+            thickness: 2,
+            width: progress,
+            color: Colors.white.withOpacity(0.5)));
   }
 }

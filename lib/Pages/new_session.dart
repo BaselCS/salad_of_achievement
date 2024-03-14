@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:salad_of_achievement/logical/models/data_model.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
+
+import '../logical/provider/provider.dart';
+
+int min = 0;
+String activity = '';
 
 class AddNewSession extends StatelessWidget {
   const AddNewSession({super.key});
@@ -9,7 +16,8 @@ class AddNewSession extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
             centerTitle: true,
-            title: const FittedBox(fit: BoxFit.fill, child: Text('إضافة جلسة جديدة')),
+            title: const FittedBox(
+                fit: BoxFit.fill, child: Text('إضافة جلسة جديدة')),
             leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
@@ -26,18 +34,18 @@ class Body extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
         child: Padding(
-      padding: EdgeInsets.all(32.0),
-      child: Column(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Column(
-          children: [
-            DropActivity(),
-            SizedBox(height: 20),
-            DropOfTime(),
-          ],
-        ),
-        OkButton()
-      ]),
-    ));
+            padding: EdgeInsets.all(32.0),
+            child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(children: [
+                    DropActivity(),
+                    SizedBox(height: 20),
+                    DropOfTime()
+                  ]),
+                  OkButton()
+                ])));
   }
 }
 
@@ -46,17 +54,26 @@ class DropActivity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    DataProvider dataProvider = Provider.of<DataProvider>(context);
+
     return Container(
         color: kContainerColor,
         width: MediaQuery.of(context).size.width * 0.8,
         child: DropdownButtonFormField<String>(
-          hint: const FittedBox(fit: BoxFit.fill, child: Text('اختر نشاط / مشروع')),
+          hint: const FittedBox(
+              fit: BoxFit.fill, child: Text('اختر نشاط / مشروع')),
           decoration: const InputDecoration(
-              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
-              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1))),
-          onChanged: (String? newValue) {},
-          items: listActivity.map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(value: value, child: Text(value));
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black, width: 1)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black, width: 1))),
+          onChanged: (String? newValue) {
+            activity = newValue!;
+          },
+          items: dataProvider.activity
+              .map<DropdownMenuItem<String>>((Activity value) {
+            return DropdownMenuItem<String>(
+                value: value.totalTime!.toString(), child: Text(value.name!));
           }).toList(),
         ));
   }
@@ -71,15 +88,25 @@ class DropOfTime extends StatelessWidget {
         color: kContainerColor,
         width: MediaQuery.of(context).size.width * 0.8,
         child: DropdownButtonFormField(
-            hint: const FittedBox(fit: BoxFit.fill, child: Text('اختر طول الجلسة')),
+            hint: const FittedBox(
+                fit: BoxFit.fill, child: Text('اختر طول الجلسة')),
             decoration: const InputDecoration(
-                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
-                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1))),
-            onChanged: (value) {},
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black, width: 1)),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black, width: 1))),
+            onChanged: (value) {
+              min = int.parse(value!);
+            },
             items: fruits.keys.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                   value: value,
-                  child: Row(children: <Widget>[SizedBox(height: 60, width: 60, child: fruits[value]!.first), const SizedBox(width: 10), Text(value)]));
+                  child: Row(children: <Widget>[
+                    SizedBox(
+                        height: 40, width: 40, child: fruits[value]!.first),
+                    const SizedBox(width: 10),
+                    Text(value)
+                  ]));
             }).toList()));
   }
 }
@@ -91,10 +118,19 @@ class OkButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pop(context);
+        if (activity.isNotEmpty && min != 0) {
+          DataProvider dataProvider =
+              Provider.of<DataProvider>(context, listen: false);
+          dataProvider.addActivity(activity, min);
+          Navigator.pop(context);
+        }
+        // DataProvider dataProvider = Provider.of<DataProvider>(context, listen: false);
+        // dataProvider.addActivity(value, min);
+        // Navigator.pop(context);
       },
       child: Container(
-          color: kContainerColor,
+          color:
+              activity.isNotEmpty && min != 0 ? kContainerColor : kActionColor,
           child: Center(
               child: Padding(
             padding: const EdgeInsets.all(4.0),

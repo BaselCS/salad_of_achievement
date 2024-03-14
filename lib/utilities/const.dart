@@ -9,7 +9,7 @@ const Color kBorderColor = Color(0xFF383B42);
 const Color kStartsColor = Color(0xFFF6C950);
 
 const String iconPath = 'assets/icons';
-Image appIcon = Image.asset('$iconPath/icon.png');
+Image appIcon = Image.asset('$iconPath/Icon.png');
 
 Image orange = Image.asset('$iconPath/برتقال.png');
 Image dragon = Image.asset('$iconPath/تنين.png');
@@ -20,8 +20,6 @@ Image strawberry = Image.asset('$iconPath/فرولة.png');
 Image cherry = Image.asset('$iconPath/كرز.png');
 Image pumpkin = Image.asset('$iconPath/يقطين.png');
 Image banana = Image.asset("$iconPath/موز.png");
-
-List<String> listActivity = ["المشروع الأول", "المشروع الثاني", "المشروع الثالث", "المشروع الرابع", "المشروع الخامس"];
 
 //fruits color
 const Color kCherryColor = Color(0xFFF96464);
@@ -61,9 +59,12 @@ class Stars extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Icon(Icons.star, color: isStar1 ? kStartsColor : kBackGroundColor, size: 25),
-      Icon(Icons.star, color: isStar2 ? kStartsColor : kBackGroundColor, size: 25),
-      Icon(Icons.star, color: isStar3 ? kStartsColor : kBackGroundColor, size: 25)
+      Icon(Icons.star,
+          color: isStar1 ? kStartsColor : kBackGroundColor, size: 25),
+      Icon(Icons.star,
+          color: isStar2 ? kStartsColor : kBackGroundColor, size: 25),
+      Icon(Icons.star,
+          color: isStar3 ? kStartsColor : kBackGroundColor, size: 25)
     ]);
   }
 }

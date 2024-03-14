@@ -1,0 +1,106 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:1058496472453603985",
+      "lastPropertyId": "4:7262872699300495940",
+      "name": "SettingData",
+      "properties": [
+        {
+          "id": "1:4117093946599552680",
+          "name": "id",
+          "type": 6,
+          "flags": 129
+        },
+        {
+          "id": "2:9003708541513460382",
+          "name": "star1",
+          "type": 6
+        },
+        {
+          "id": "3:7235049586782103387",
+          "name": "star2",
+          "type": 6
+        },
+        {
+          "id": "4:7262872699300495940",
+          "name": "star3",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:8722639228522268265",
+      "lastPropertyId": "3:309017516457092489",
+      "name": "Activity",
+      "properties": [
+        {
+          "id": "1:7989334751580241133",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4373255947179452804",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:309017516457092489",
+          "name": "totalTime",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:4553696370115336667",
+      "lastPropertyId": "3:5791785284009579610",
+      "name": "History",
+      "properties": [
+        {
+          "id": "1:4441731996585464932",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8329120420446825167",
+          "name": "date",
+          "type": 9,
+          "flags": 2080,
+          "indexId": "1:3314748906986269620"
+        },
+        {
+          "id": "3:5791785284009579610",
+          "name": "todayTime",
+          "type": 6
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "4:1477508274139197736",
+  "lastIndexId": "1:3314748906986269620",
+  "lastRelationId": "1:4845263384195646647",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [
+    1477508274139197736
+  ],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [
+    7913260309329376409,
+    3441951625287374042,
+    5171683998001060752,
+    8084420137536421322
+  ],
+  "retiredRelationUids": [
+    4845263384195646647
+  ],
+  "version": 1
+}
