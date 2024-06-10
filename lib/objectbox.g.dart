@@ -10,93 +10,98 @@
 import 'dart:typed_data';
 
 import 'package:flat_buffers/flat_buffers.dart' as fb;
-import 'package:objectbox/internal.dart'; // generated code can access "internal" functionality
-import 'package:objectbox/objectbox.dart';
+import 'package:objectbox/internal.dart'
+    as obx_int; // generated code can access "internal" functionality
+import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
-import 'logical/models/data_model.dart';
+import 'DB/models/data_model.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
-final _entities = <ModelEntity>[
-  ModelEntity(
-      id: const IdUid(1, 1058496472453603985),
-      name: 'SettingData',
-      lastPropertyId: const IdUid(4, 7262872699300495940),
-      flags: 0,
-      properties: <ModelProperty>[
-        ModelProperty(
-            id: const IdUid(1, 4117093946599552680),
-            name: 'id',
-            type: 6,
-            flags: 129),
-        ModelProperty(
-            id: const IdUid(2, 9003708541513460382),
-            name: 'star1',
-            type: 6,
-            flags: 0),
-        ModelProperty(
-            id: const IdUid(3, 7235049586782103387),
-            name: 'star2',
-            type: 6,
-            flags: 0),
-        ModelProperty(
-            id: const IdUid(4, 7262872699300495940),
-            name: 'star3',
-            type: 6,
-            flags: 0)
-      ],
-      relations: <ModelRelation>[],
-      backlinks: <ModelBacklink>[]),
-  ModelEntity(
-      id: const IdUid(2, 8722639228522268265),
+final _entities = <obx_int.ModelEntity>[
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(1, 7308131095044400048),
       name: 'Activity',
-      lastPropertyId: const IdUid(3, 309017516457092489),
+      lastPropertyId: const obx_int.IdUid(3, 7604896248958337440),
       flags: 0,
-      properties: <ModelProperty>[
-        ModelProperty(
-            id: const IdUid(1, 7989334751580241133),
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 4806168251486484939),
             name: 'id',
             type: 6,
             flags: 1),
-        ModelProperty(
-            id: const IdUid(2, 4373255947179452804),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 7609100641152165524),
             name: 'name',
             type: 9,
             flags: 0),
-        ModelProperty(
-            id: const IdUid(3, 309017516457092489),
-            name: 'totalTime',
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 7604896248958337440),
+            name: 'timeSpent',
             type: 6,
             flags: 0)
       ],
-      relations: <ModelRelation>[],
-      backlinks: <ModelBacklink>[]),
-  ModelEntity(
-      id: const IdUid(3, 4553696370115336667),
-      name: 'History',
-      lastPropertyId: const IdUid(3, 5791785284009579610),
+      relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[]),
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(2, 7786140021838116532),
+      name: 'FruitUsage',
+      lastPropertyId: const obx_int.IdUid(4, 6507040598707643366),
       flags: 0,
-      properties: <ModelProperty>[
-        ModelProperty(
-            id: const IdUid(1, 4441731996585464932),
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 4297232142086647933),
             name: 'id',
             type: 6,
             flags: 1),
-        ModelProperty(
-            id: const IdUid(2, 8329120420446825167),
-            name: 'date',
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 588490658857297284),
+            name: 'fruitName',
             type: 9,
-            flags: 2080,
-            indexId: const IdUid(1, 3314748906986269620)),
-        ModelProperty(
-            id: const IdUid(3, 5791785284009579610),
-            name: 'todayTime',
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 4440568647595294747),
+            name: 'timeSpent',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(4, 6507040598707643366),
+            name: 'usageCount',
             type: 6,
             flags: 0)
       ],
-      relations: <ModelRelation>[],
-      backlinks: <ModelBacklink>[])
+      relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[]),
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(3, 4144517228415667832),
+      name: 'Session',
+      lastPropertyId: const obx_int.IdUid(5, 1944272196284508478),
+      flags: 0,
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 605701392023475632),
+            name: 'id',
+            type: 6,
+            flags: 1),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 6338889813110666157),
+            name: 'date',
+            type: 10,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 8205611003461661331),
+            name: 'timeSpent',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(5, 1944272196284508478),
+            name: 'topic',
+            type: 9,
+            flags: 0)
+      ],
+      relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[])
 ];
 
 /// Shortcut for [Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -106,82 +111,55 @@ final _entities = <ModelEntity>[
 /// Note: for desktop apps it is recommended to specify a unique [directory].
 ///
 /// See [Store.new] for an explanation of all parameters.
-Future<Store> openStore(
-        {String? directory,
-        int? maxDBSizeInKB,
-        int? fileMode,
-        int? maxReaders,
-        bool queriesCaseSensitiveDefault = true,
-        String? macosApplicationGroup}) async =>
-    Store(getObjectBoxModel(),
-        directory: directory ?? (await defaultStoreDirectory()).path,
-        maxDBSizeInKB: maxDBSizeInKB,
-        fileMode: fileMode,
-        maxReaders: maxReaders,
-        queriesCaseSensitiveDefault: queriesCaseSensitiveDefault,
-        macosApplicationGroup: macosApplicationGroup);
+///
+/// For Flutter apps, also calls `loadObjectBoxLibraryAndroidCompat()` from
+/// the ObjectBox Flutter library to fix loading the native ObjectBox library
+/// on Android 6 and older.
+Future<obx.Store> openStore(
+    {String? directory,
+    int? maxDBSizeInKB,
+    int? maxDataSizeInKB,
+    int? fileMode,
+    int? maxReaders,
+    bool queriesCaseSensitiveDefault = true,
+    String? macosApplicationGroup}) async {
+  await loadObjectBoxLibraryAndroidCompat();
+  return obx.Store(getObjectBoxModel(),
+      directory: directory ?? (await defaultStoreDirectory()).path,
+      maxDBSizeInKB: maxDBSizeInKB,
+      maxDataSizeInKB: maxDataSizeInKB,
+      fileMode: fileMode,
+      maxReaders: maxReaders,
+      queriesCaseSensitiveDefault: queriesCaseSensitiveDefault,
+      macosApplicationGroup: macosApplicationGroup);
+}
 
 /// Returns the ObjectBox model definition for this project for use with
 /// [Store.new].
-ModelDefinition getObjectBoxModel() {
-  final model = ModelInfo(
+obx_int.ModelDefinition getObjectBoxModel() {
+  final model = obx_int.ModelInfo(
       entities: _entities,
-      lastEntityId: const IdUid(4, 1477508274139197736),
-      lastIndexId: const IdUid(1, 3314748906986269620),
-      lastRelationId: const IdUid(1, 4845263384195646647),
-      lastSequenceId: const IdUid(0, 0),
-      retiredEntityUids: const [1477508274139197736],
+      lastEntityId: const obx_int.IdUid(4, 7609313741310014007),
+      lastIndexId: const obx_int.IdUid(0, 0),
+      lastRelationId: const obx_int.IdUid(0, 0),
+      lastSequenceId: const obx_int.IdUid(0, 0),
+      retiredEntityUids: const [7609313741310014007],
       retiredIndexUids: const [],
       retiredPropertyUids: const [
-        7913260309329376409,
-        3441951625287374042,
-        5171683998001060752,
-        8084420137536421322
+        4247840349701161003,
+        4278223133284466980,
+        8161804479967321504,
+        265637773826788162,
+        5228637705360280213
       ],
-      retiredRelationUids: const [4845263384195646647],
+      retiredRelationUids: const [],
       modelVersion: 5,
       modelVersionParserMinimum: 5,
       version: 1);
 
-  final bindings = <Type, EntityDefinition>{
-    SettingData: EntityDefinition<SettingData>(
+  final bindings = <Type, obx_int.EntityDefinition>{
+    Activity: obx_int.EntityDefinition<Activity>(
         model: _entities[0],
-        toOneRelations: (SettingData object) => [],
-        toManyRelations: (SettingData object) => {},
-        getId: (SettingData object) => object.id,
-        setId: (SettingData object, int id) {
-          object.id = id;
-        },
-        objectToFB: (SettingData object, fb.Builder fbb) {
-          fbb.startTable(5);
-          fbb.addInt64(0, object.id);
-          fbb.addInt64(1, object.star1);
-          fbb.addInt64(2, object.star2);
-          fbb.addInt64(3, object.star3);
-          fbb.finish(fbb.endTable());
-          return object.id;
-        },
-        objectFromFB: (Store store, ByteData fbData) {
-          final buffer = fb.BufferContext(fbData);
-          final rootOffset = buffer.derefObject(0);
-          final star1Param =
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0);
-          final star2Param =
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
-          final star3Param =
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0);
-          final idParam =
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
-          final object = SettingData(
-              star1: star1Param,
-              star2: star2Param,
-              star3: star3Param,
-              id: idParam);
-
-          return object;
-        }),
-    Activity: EntityDefinition<Activity>(
-        model: _entities[1],
         toOneRelations: (Activity object) => [],
         toManyRelations: (Activity object) => {},
         getId: (Activity object) => object.id,
@@ -189,105 +167,156 @@ ModelDefinition getObjectBoxModel() {
           object.id = id;
         },
         objectToFB: (Activity object, fb.Builder fbb) {
-          final nameOffset =
-              object.name == null ? null : fbb.writeString(object.name!);
+          final nameOffset = fbb.writeString(object.name);
           fbb.startTable(4);
           fbb.addInt64(0, object.id);
           fbb.addOffset(1, nameOffset);
-          fbb.addInt64(2, object.totalTime);
+          fbb.addInt64(2, object.timeSpent);
           fbb.finish(fbb.endTable());
           return object.id;
         },
-        objectFromFB: (Store store, ByteData fbData) {
+        objectFromFB: (obx.Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-          final nameParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGetNullable(buffer, rootOffset, 6);
-          final totalTimeParam =
-              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 8);
           final idParam =
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
-          final object = Activity(nameParam, totalTimeParam, id: idParam);
+          final nameParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '');
+          final timeSpentParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
+          final object =
+              Activity(id: idParam, name: nameParam, timeSpent: timeSpentParam);
 
           return object;
         }),
-    History: EntityDefinition<History>(
-        model: _entities[2],
-        toOneRelations: (History object) => [],
-        toManyRelations: (History object) => {},
-        getId: (History object) => object.id,
-        setId: (History object, int id) {
+    FruitUsage: obx_int.EntityDefinition<FruitUsage>(
+        model: _entities[1],
+        toOneRelations: (FruitUsage object) => [],
+        toManyRelations: (FruitUsage object) => {},
+        getId: (FruitUsage object) => object.id,
+        setId: (FruitUsage object, int id) {
           object.id = id;
         },
-        objectToFB: (History object, fb.Builder fbb) {
-          final dateOffset =
-              object.date == null ? null : fbb.writeString(object.date!);
-          fbb.startTable(4);
+        objectToFB: (FruitUsage object, fb.Builder fbb) {
+          final fruitNameOffset = fbb.writeString(object.fruitName);
+          fbb.startTable(5);
           fbb.addInt64(0, object.id);
-          fbb.addOffset(1, dateOffset);
-          fbb.addInt64(2, object.todayTime);
+          fbb.addOffset(1, fruitNameOffset);
+          fbb.addInt64(2, object.timeSpent);
+          fbb.addInt64(3, object.usageCount);
           fbb.finish(fbb.endTable());
           return object.id;
         },
-        objectFromFB: (Store store, ByteData fbData) {
+        objectFromFB: (obx.Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-          final dateParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGetNullable(buffer, rootOffset, 6);
-          final todayTimeParam =
-              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 8);
           final idParam =
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
-          final object = History(dateParam, todayTimeParam, id: idParam);
+          final fruitNameParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '');
+          final timeSpentParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
+          final usageCountParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0);
+          final object = FruitUsage(
+              id: idParam,
+              fruitName: fruitNameParam,
+              timeSpent: timeSpentParam,
+              usageCount: usageCountParam);
+
+          return object;
+        }),
+    Session: obx_int.EntityDefinition<Session>(
+        model: _entities[2],
+        toOneRelations: (Session object) => [],
+        toManyRelations: (Session object) => {},
+        getId: (Session object) => object.id,
+        setId: (Session object, int id) {
+          object.id = id;
+        },
+        objectToFB: (Session object, fb.Builder fbb) {
+          final topicOffset = fbb.writeString(object.topic);
+          fbb.startTable(6);
+          fbb.addInt64(0, object.id);
+          fbb.addInt64(1, object.date.millisecondsSinceEpoch);
+          fbb.addInt64(2, object.timeSpent);
+          fbb.addOffset(4, topicOffset);
+          fbb.finish(fbb.endTable());
+          return object.id;
+        },
+        objectFromFB: (obx.Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final idParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+          final dateParam = DateTime.fromMillisecondsSinceEpoch(
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0));
+          final timeSpentParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
+          final topicParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 12, '');
+          final object = Session(
+              id: idParam,
+              date: dateParam,
+              timeSpent: timeSpentParam,
+              topic: topicParam);
 
           return object;
         })
   };
 
-  return ModelDefinition(model, bindings);
-}
-
-/// [SettingData] entity fields to define ObjectBox queries.
-class SettingData_ {
-  /// see [SettingData.id]
-  static final id =
-      QueryIntegerProperty<SettingData>(_entities[0].properties[0]);
-
-  /// see [SettingData.star1]
-  static final star1 =
-      QueryIntegerProperty<SettingData>(_entities[0].properties[1]);
-
-  /// see [SettingData.star2]
-  static final star2 =
-      QueryIntegerProperty<SettingData>(_entities[0].properties[2]);
-
-  /// see [SettingData.star3]
-  static final star3 =
-      QueryIntegerProperty<SettingData>(_entities[0].properties[3]);
+  return obx_int.ModelDefinition(model, bindings);
 }
 
 /// [Activity] entity fields to define ObjectBox queries.
 class Activity_ {
   /// see [Activity.id]
-  static final id = QueryIntegerProperty<Activity>(_entities[1].properties[0]);
+  static final id =
+      obx.QueryIntegerProperty<Activity>(_entities[0].properties[0]);
 
   /// see [Activity.name]
-  static final name = QueryStringProperty<Activity>(_entities[1].properties[1]);
+  static final name =
+      obx.QueryStringProperty<Activity>(_entities[0].properties[1]);
 
-  /// see [Activity.totalTime]
-  static final totalTime =
-      QueryIntegerProperty<Activity>(_entities[1].properties[2]);
+  /// see [Activity.timeSpent]
+  static final timeSpent =
+      obx.QueryIntegerProperty<Activity>(_entities[0].properties[2]);
 }
 
-/// [History] entity fields to define ObjectBox queries.
-class History_ {
-  /// see [History.id]
-  static final id = QueryIntegerProperty<History>(_entities[2].properties[0]);
+/// [FruitUsage] entity fields to define ObjectBox queries.
+class FruitUsage_ {
+  /// see [FruitUsage.id]
+  static final id =
+      obx.QueryIntegerProperty<FruitUsage>(_entities[1].properties[0]);
 
-  /// see [History.date]
-  static final date = QueryStringProperty<History>(_entities[2].properties[1]);
+  /// see [FruitUsage.fruitName]
+  static final fruitName =
+      obx.QueryStringProperty<FruitUsage>(_entities[1].properties[1]);
 
-  /// see [History.todayTime]
-  static final todayTime =
-      QueryIntegerProperty<History>(_entities[2].properties[2]);
+  /// see [FruitUsage.timeSpent]
+  static final timeSpent =
+      obx.QueryIntegerProperty<FruitUsage>(_entities[1].properties[2]);
+
+  /// see [FruitUsage.usageCount]
+  static final usageCount =
+      obx.QueryIntegerProperty<FruitUsage>(_entities[1].properties[3]);
+}
+
+/// [Session] entity fields to define ObjectBox queries.
+class Session_ {
+  /// see [Session.id]
+  static final id =
+      obx.QueryIntegerProperty<Session>(_entities[2].properties[0]);
+
+  /// see [Session.date]
+  static final date =
+      obx.QueryDateProperty<Session>(_entities[2].properties[1]);
+
+  /// see [Session.timeSpent]
+  static final timeSpent =
+      obx.QueryIntegerProperty<Session>(_entities[2].properties[2]);
+
+  /// see [Session.topic]
+  static final topic =
+      obx.QueryStringProperty<Session>(_entities[2].properties[3]);
 }

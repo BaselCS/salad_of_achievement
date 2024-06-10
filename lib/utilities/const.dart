@@ -59,12 +59,9 @@ class Stars extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Icon(Icons.star,
-          color: isStar1 ? kStartsColor : kBackGroundColor, size: 25),
-      Icon(Icons.star,
-          color: isStar2 ? kStartsColor : kBackGroundColor, size: 25),
-      Icon(Icons.star,
-          color: isStar3 ? kStartsColor : kBackGroundColor, size: 25)
+      Icon(Icons.star, color: isStar1 ? kStartsColor : kBackGroundColor, size: 35),
+      Icon(Icons.star, color: isStar2 ? kStartsColor : kBackGroundColor, size: 35),
+      Icon(Icons.star, color: isStar3 ? kStartsColor : kBackGroundColor, size: 35)
     ]);
   }
 }

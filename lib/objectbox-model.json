@@ -4,103 +4,105 @@
   "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
   "entities": [
     {
-      "id": "1:1058496472453603985",
-      "lastPropertyId": "4:7262872699300495940",
-      "name": "SettingData",
-      "properties": [
-        {
-          "id": "1:4117093946599552680",
-          "name": "id",
-          "type": 6,
-          "flags": 129
-        },
-        {
-          "id": "2:9003708541513460382",
-          "name": "star1",
-          "type": 6
-        },
-        {
-          "id": "3:7235049586782103387",
-          "name": "star2",
-          "type": 6
-        },
-        {
-          "id": "4:7262872699300495940",
-          "name": "star3",
-          "type": 6
-        }
-      ],
-      "relations": []
-    },
-    {
-      "id": "2:8722639228522268265",
-      "lastPropertyId": "3:309017516457092489",
+      "id": "1:7308131095044400048",
+      "lastPropertyId": "3:7604896248958337440",
       "name": "Activity",
       "properties": [
         {
-          "id": "1:7989334751580241133",
+          "id": "1:4806168251486484939",
           "name": "id",
           "type": 6,
           "flags": 1
         },
         {
-          "id": "2:4373255947179452804",
+          "id": "2:7609100641152165524",
           "name": "name",
           "type": 9
         },
         {
-          "id": "3:309017516457092489",
-          "name": "totalTime",
+          "id": "3:7604896248958337440",
+          "name": "timeSpent",
           "type": 6
         }
       ],
       "relations": []
     },
     {
-      "id": "3:4553696370115336667",
-      "lastPropertyId": "3:5791785284009579610",
-      "name": "History",
+      "id": "2:7786140021838116532",
+      "lastPropertyId": "4:6507040598707643366",
+      "name": "FruitUsage",
       "properties": [
         {
-          "id": "1:4441731996585464932",
+          "id": "1:4297232142086647933",
           "name": "id",
           "type": 6,
           "flags": 1
         },
         {
-          "id": "2:8329120420446825167",
-          "name": "date",
-          "type": 9,
-          "flags": 2080,
-          "indexId": "1:3314748906986269620"
+          "id": "2:588490658857297284",
+          "name": "fruitName",
+          "type": 9
         },
         {
-          "id": "3:5791785284009579610",
-          "name": "todayTime",
+          "id": "3:4440568647595294747",
+          "name": "timeSpent",
           "type": 6
+        },
+        {
+          "id": "4:6507040598707643366",
+          "name": "usageCount",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:4144517228415667832",
+      "lastPropertyId": "5:1944272196284508478",
+      "name": "Session",
+      "properties": [
+        {
+          "id": "1:605701392023475632",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:6338889813110666157",
+          "name": "date",
+          "type": 10
+        },
+        {
+          "id": "3:8205611003461661331",
+          "name": "timeSpent",
+          "type": 6
+        },
+        {
+          "id": "5:1944272196284508478",
+          "name": "topic",
+          "type": 9
         }
       ],
       "relations": []
     }
   ],
-  "lastEntityId": "4:1477508274139197736",
-  "lastIndexId": "1:3314748906986269620",
-  "lastRelationId": "1:4845263384195646647",
+  "lastEntityId": "4:7609313741310014007",
+  "lastIndexId": "0:0",
+  "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [
-    1477508274139197736
+    7609313741310014007
   ],
   "retiredIndexUids": [],
   "retiredPropertyUids": [
-    7913260309329376409,
-    3441951625287374042,
-    5171683998001060752,
-    8084420137536421322
+    4247840349701161003,
+    4278223133284466980,
+    8161804479967321504,
+    265637773826788162,
+    5228637705360280213
   ],
-  "retiredRelationUids": [
-    4845263384195646647
-  ],
+  "retiredRelationUids": [],
   "version": 1
 }

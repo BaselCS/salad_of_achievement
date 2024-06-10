@@ -1,185 +1,153 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:salad_of_achievement/logical/models/data_model.dart';
-import 'package:salad_of_achievement/utilities/const.dart';
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+// import 'package:salad_of_achievement/logical/models/data_model.dart';
+// import 'package:salad_of_achievement/utilities/const.dart';
 
-import '../logical/provider/provider.dart';
+// import '../logical/provider/provider.dart';
 
-class MainPage extends StatelessWidget {
-  const MainPage({super.key});
+// class MainPage extends StatelessWidget {
+//   const MainPage({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    double progressHight = MediaQuery.of(context).size.height * 0.062;
-    return Scaffold(
-        appBar: AppBar(
-            centerTitle: true,
-            title: Text(History.todayFormate()),
-            actions: [
-              Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: IconButton(
-                      icon: const Icon(Icons.add_circle_rounded),
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/newSession');
-                      }))
-            ],
-            leading: Builder(builder: (BuildContext context) {
-              return IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  });
-            })),
-        drawer: const MyDrawer(),
-        body: const VisitableButtons(),
-        bottomNavigationBar: BottomBar(progressHight: progressHight));
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     double progressHight = MediaQuery.of(context).size.height * 0.062;
+//     return Scaffold(
+//         appBar: AppBar(
+//             centerTitle: true,
+//             title: FittedBox(child: Text(History.todayFormate())),
+//             actions: [
+//               Padding(
+//                   padding: const EdgeInsets.only(left: 16.0),
+//                   child: IconButton(
+//                       icon: const Icon(Icons.add_circle_rounded),
+//                       onPressed: () {
+//                         Navigator.pushNamed(context, '/newSession');
+//                       }))
+//             ],
+//             leading: Builder(builder: (BuildContext context) {
+//               return IconButton(
+//                   icon: const Icon(Icons.menu),
+//                   onPressed: () {
+//                     Scaffold.of(context).openDrawer();
+//                   });
+//             })),
+//         drawer: const MyDrawer(),
+//         body: const VisitableButtons(),
+//         bottomNavigationBar: BottomBar(progressHight: progressHight));
+//   }
+// }
 
-class MyDrawer extends StatelessWidget {
-  const MyDrawer({super.key});
+// class MyDrawer extends StatelessWidget {
+//   const MyDrawer({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-        backgroundColor: kBackGroundColor,
-        child: ListView(padding: EdgeInsets.zero, children: <Widget>[
-          DrawerHeader(
-              decoration: const BoxDecoration(color: kContainerColor),
-              child: appIcon),
-          // const DrawerHeader(decoration: BoxDecoration(color: kContainerColor), child: SizedBox()),
-          ListTile(
-              title: const Text('سجل الجلسات'),
-              leading: const MyIcon(Icons.assignment),
-              onTap: () {
-                Navigator.pushNamed(context, '/history');
-              }),
-          ListTile(
-              title: const Text('أنشطة و مشروعات'),
-              leading: const MyIcon(Icons.interests),
-              onTap: () {
-                Navigator.pushNamed(context, '/activity');
-              }),
-          ListTile(
-              title: const Text('إحصائيات'),
-              leading: const MyIcon(Icons.insert_chart),
-              onTap: () {}),
-          ListTile(
-              title: const Text('إعدادات'),
-              leading: const MyIcon(Icons.settings),
-              onTap: () {
-                Navigator.pushNamed(context, '/settings');
-              })
-        ]));
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Drawer(
+//         backgroundColor: kBackGroundColor,
+//         child: ListView(padding: EdgeInsets.zero, children: <Widget>[
+//           DrawerHeader(decoration: const BoxDecoration(color: kContainerColor), child: appIcon),
+//           // const DrawerHeader(decoration: BoxDecoration(color: kContainerColor), child: SizedBox()),
+//           ListTile(
+//               title: const Text('سجل الجلسات'),
+//               leading: const MyIcon(Icons.assignment),
+//               onTap: () {
+//                 Navigator.pushNamed(context, '/history');
+//               }),
+//           ListTile(
+//               title: const Text('أنشطة و مشروعات'),
+//               leading: const MyIcon(Icons.interests),
+//               onTap: () {
+//                 Navigator.pushNamed(context, '/activity');
+//               }),
+//           ListTile(title: const Text('إحصائيات'), leading: const MyIcon(Icons.insert_chart), onTap: () {}),
+//           ListTile(
+//               title: const Text('إعدادات'),
+//               leading: const MyIcon(Icons.settings),
+//               onTap: () {
+//                 Navigator.pushNamed(context, '/settings');
+//               })
+//         ]));
+//   }
+// }
 
-// الخضروات
-class VisitableButtons extends StatelessWidget {
-  const VisitableButtons({super.key});
+// // الخضروات
+// class VisitableButtons extends StatelessWidget {
+//   const VisitableButtons({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-        child: GridView.count(
-            crossAxisCount: 3,
-            shrinkWrap: true,
-            children: fruits.entries.map((entry) {
-              return GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/activeSection',
-                        arguments: entry.key);
-                  },
-                  child: Column(children: [
-                    Expanded(child: entry.value.first),
-                    Expanded(
-                        child: Text(entry.key,
-                            style: TextStyle(color: entry.value.last)))
-                  ]));
-            }).toList()));
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Center(
+//         child: GridView.count(
+//             crossAxisCount: 3,
+//             shrinkWrap: true,
+//             children: fruits.entries.map((entry) {
+//               return GestureDetector(
+//                   onTap: () {
+//                     Navigator.pushNamed(context, '/activeSection', arguments: entry.key);
+//                   },
+//                   child: Column(children: [Expanded(child: entry.value.first), Expanded(child: Text(entry.key, style: TextStyle(color: entry.value.last)))]));
+//             }).toList()));
+//   }
+// }
 
-// الشريط السفلي
-class BottomBar extends StatelessWidget {
-  const BottomBar({super.key, required this.progressHight});
+// // الشريط السفلي
+// class BottomBar extends StatelessWidget {
+//   const BottomBar({super.key, required this.progressHight});
 
-  final double progressHight;
+//   final double progressHight;
 
-  @override
-  Widget build(BuildContext context) {
-    final DataProvider dataProvider =
-        Provider.of<DataProvider>(context); // Access the provider
+//   @override
+//   Widget build(BuildContext context) {
+//     final DataProvider dataProvider = Provider.of<DataProvider>(context); // Access the provider
 
-    return BottomAppBar(
-        height: MediaQuery.of(context).size.height * 0.25,
-        padding: const EdgeInsets.fromLTRB(8, 35, 8, 8),
-        child: Column(children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            FittedBox(
-                fit: BoxFit.fill,
-                child: Text(
-                    'إنجاز اليوم : ${dataProvider.doneMinutes.toInt()} دقيقة')),
-            Stars(
-                isStar1: dataProvider.doneMinutes >= dataProvider.star1,
-                isStar2: dataProvider.doneMinutes >= dataProvider.star2,
-                isStar3: dataProvider.doneMinutes >= dataProvider.star3)
-          ]),
-          ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
-              child: ProgressBar(
-                  dataProvider: dataProvider, progressHight: progressHight)),
-          const FittedBox(
-              fit: BoxFit.fill,
-              child: Text('سألته ما الغاية الكبرى قال رضون من الله أكبر'))
-        ]));
-  }
-}
+//     return BottomAppBar(
+//         height: MediaQuery.of(context).size.height * 0.2,
+//         padding: const EdgeInsets.fromLTRB(4, 15, 8, 4),
+//         child: Column(children: [
+//           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+//             Text('إنجاز اليوم: ${dataProvider.doneMinutes.toInt()} دقيقة'),
+//             Stars(
+//                 isStar1: dataProvider.doneMinutes >= dataProvider.star1,
+//                 isStar2: dataProvider.doneMinutes >= dataProvider.star2,
+//                 isStar3: dataProvider.doneMinutes >= dataProvider.star3)
+//           ]),
+//           ClipRRect(borderRadius: const BorderRadius.all(Radius.circular(10)), child: ProgressBar(dataProvider: dataProvider, progressHight: progressHight)),
+//           const FittedBox(fit: BoxFit.contain, child: Text('سألته ما الغاية الكبرى قال رضون من الله أكبر'))
+//         ]));
+//   }
+// }
 
-class ProgressBar extends StatelessWidget {
-  const ProgressBar(
-      {super.key, required this.dataProvider, required this.progressHight});
+// class ProgressBar extends StatelessWidget {
+//   const ProgressBar({super.key, required this.dataProvider, required this.progressHight});
 
-  final DataProvider dataProvider;
-  final double progressHight;
+//   final DataProvider dataProvider;
+//   final double progressHight;
 
-  @override
-  Widget build(BuildContext context) {
-    return Stack(children: [
-      LinearProgressIndicator(
-        value: dataProvider.doneMinutes / dataProvider.star3,
-        minHeight: progressHight,
-        valueColor: const AlwaysStoppedAnimation<Color>(kActionColor),
-      ),
-      Row(children: <Widget>[
-        //في مشكلة في التحويل
-        Spacer(
-            progressHight,
-            (dataProvider.star1 / dataProvider.star3) *
-                MediaQuery.of(context).size.width),
-        Spacer(
-            progressHight,
-            (dataProvider.star2 / dataProvider.star3) *
-                MediaQuery.of(context).size.width)
-      ])
-    ]);
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Stack(children: [
+//       LinearProgressIndicator(
+//         value: dataProvider.doneMinutes / dataProvider.star3,
+//         minHeight: progressHight,
+//         valueColor: const AlwaysStoppedAnimation<Color>(kActionColor),
+//       ),
+//       Row(children: <Widget>[
+//         //في مشكلة في التحويل
+//         Spacer(progressHight, (dataProvider.star1 / dataProvider.star3) * MediaQuery.of(context).size.width),
+//         Spacer(progressHight, (dataProvider.star2 / dataProvider.star3) * MediaQuery.of(context).size.width)
+//       ])
+//     ]);
+//   }
+// }
 
-/// مقدار الفراغ بين النجوم
-class Spacer extends StatelessWidget {
-  final double height;
-  final double progress;
-  const Spacer(this.height, this.progress, {super.key});
+// /// مقدار الفراغ بين النجوم
+// class Spacer extends StatelessWidget {
+//   final double height;
+//   final double progress;
+//   const Spacer(this.height, this.progress, {super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-        height: height,
-        child: VerticalDivider(
-            thickness: 2,
-            width: progress,
-            color: Colors.white.withOpacity(0.5)));
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return SizedBox(height: height, child: VerticalDivider(thickness: 2, width: progress, color: Colors.white.withOpacity(0.5)));
+//   }
+// }
