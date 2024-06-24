@@ -54,6 +54,7 @@ class Stars extends StatelessWidget {
     this.isStar1 = false,
     this.isStar2 = false,
     this.isStar3 = false,
+    
   });
 
   @override

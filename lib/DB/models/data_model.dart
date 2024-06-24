@@ -1,11 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:objectbox/objectbox.dart';
 
 @Entity()
 class Session {
   @Id()
   int id;
-  DateTime date;
+  String date;
   int timeSpent;
   String topic;
 
@@ -20,22 +19,15 @@ class Session {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'date': '${DateUtils.dateOnly(date)}', // Format: YYYY-MM-DD
+      'date': date, // Format: YYYY-MM-DD
       'time_spent': timeSpent,
       'topic': topic,
     };
   }
 
-  String _twoDigits(int n) {
-    if (n >= 10) return "$n";
-    return "0$n";
-  }
-
-// Implement toString to make it easier to see information about each session when using the print statement.
   @override
   String toString() {
-    String formattedDate = '${date.year}-${_twoDigits(date.month)}-${_twoDigits(date.day)}';
-    return 'Session{id: $id, date: $formattedDate, timeSpent: $timeSpent, topic: $topic}\n';
+    return 'Session{id: $id, date: $date, timeSpent: $timeSpent, topic: $topic}\n';
   }
 }
 
@@ -68,43 +60,74 @@ class Activity {
 
 @Entity()
 class FruitUsage {
-  @Id()
+  @Id(assignable: true)
   int id;
-  String fruitName;
-  int timeSpent;
   int usageCount;
 
   FruitUsage({
     this.id = 0, // ObjectBox IDs start at 0
-    required this.fruitName,
-    required this.timeSpent,
     required this.usageCount,
   });
 
-  Map<String, dynamic> toMap() {
+  Map<int, int> toMap() {
     return {
-      'id': id,
-      'fruit_name': fruitName,
-      'time_spent': timeSpent,
-      'usage_count': usageCount,
+      id: usageCount,
     };
   }
 
   @override
   String toString() {
-    return 'FruitUsage{id: $id, fruitName: $fruitName, timeSpent: $timeSpent, usageCount: $usageCount}';
+    return 'FruitUsage{id: $id, usageCount: $usageCount}';
+  }
+}
+
+@Entity()
+class Setting {
+  @Id()
+  int id;
+  int star1;
+  int star2;
+  int star3;
+  int hourOfRest; //الساعة الي يصفر بعدها بنظام 24 ساعة
+  String timeOfRest = '';
+  int doneMinutes;
+  Setting({
+    this.id = 0,
+    this.star1 = 120,
+    this.star2 = 240,
+    this.star3 = 480,
+    this.hourOfRest = 4,
+    this.timeOfRest = '',
+    this.doneMinutes = 0,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'star1': star1,
+      'star2': star2,
+      'star3': star3,
+      'done_minutes': doneMinutes,
+      'hour_of_rest': hourOfRest,
+      'time_of_rest': timeOfRest,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'Setting{id: $id, star1: $star1, star2: $star2, star3: $star3, doneMinutes: $doneMinutes ,hourOfRest: $hourOfRest, timeOfRest: $timeOfRest}';
   }
 }
 
 class UserStatistics {
-  static DateTime? mostProductiveDate;
+  static String mostProductiveDate = '';
   static int mostProductiveDay = 0;
   static double averageDailyProductivity = 0;
 
   // Convert a UserStatistics instance into a Map for ObjectBox.
   Map<String, dynamic> toMap() {
     return {
-      'mostProductiveDate': DateUtils.dateOnly(mostProductiveDate ?? DateTime.now()),
+      'mostProductiveDate': mostProductiveDate,
       'mostProductiveDay': mostProductiveDay,
       'averageDailyProductivity': averageDailyProductivity,
     };
@@ -113,5 +136,31 @@ class UserStatistics {
   @override
   String toString() {
     return 'UserStatistics{mostProductiveDate:$mostProductiveDate ,mostProductiveDay: $mostProductiveDay, averageDailyProductivity: $averageDailyProductivity}';
+  }
+}
+
+class GroupedSessions {
+  String date;
+  String dayName;
+  int totalMinutes = 0;
+  List<Session> sessions;
+  GroupedSessions({
+    required this.date,
+    required this.dayName,
+    required this.sessions,
+    required this.totalMinutes,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'date': date,
+      'day_name': dayName,
+      'sessions': sessions,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'GroupedSessions{date: $date, dayName: $dayName, sessions: \n[$sessions]\n}';
   }
 }

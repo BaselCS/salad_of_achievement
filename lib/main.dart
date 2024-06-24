@@ -1,27 +1,41 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/DB/models/object_box.dart';
+import 'package:salad_of_achievement/logical/notification.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
-import 'Pages/test.dart';
+import 'Pages/active_session.dart';
+import 'Pages/activity.dart';
 
-/*
-ضف خاصة تحويل تحويل الوقت لطريقة الي أبيها مع قابلية للنسخ
-تعديل طريقة عرض النجوم
-*/
+import 'Pages/history.dart';
+import 'Pages/main_page.dart';
+import 'Pages/new_session.dart';
+import 'Pages/settings.dart';
+import 'Pages/statistics.dart';
 
 late ObjectBoxState objectBox;
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+   NotificationHelper().initializeNotifications();
+
   objectBox = await ObjectBoxState.create();
+  HijriCalendar.setLocal('ar');
 
   runApp(ChangeNotifierProvider(create: (_) => objectBox, child: const MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -35,15 +49,14 @@ class MyApp extends StatelessWidget {
       locale: const Locale("ar", "SA"),
       theme: myTheme(),
       initialRoute: '/',
-      // initialRoute: '/history',
       routes: {
-        '/': (context) => const TestPage(),
-        // '/': (context) => const MainPage(),
-        // '/newSession': (context) => const AddNewSession(),
-        // '/history': (context) => const AppHistoryPAge(),
-        // '/activity': (context) => const AppActivityPage(),
-        // '/settings': (context) => const AppSettingsPage(),
-        // '/activeSection': (context) => const ActiveSectionPage(),
+        '/': (_) => const MainPage(),
+        '/statistics': (_) => const Statistics(),
+        '/history': (_) => const AppHistoryPage(),
+        '/activity': (_) => const AppActivityPage(),
+        '/newSession': (_) => const AddNewSession(),
+        '/settings': (_) => const AppSettingsPage(),
+        '/activeSection': (_) => const ActiveSectionPage()
       },
     );
   }
