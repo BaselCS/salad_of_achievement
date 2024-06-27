@@ -12,6 +12,7 @@ List<GroupedSessions> lastWeek = [];
 bool isSwitched = true;
 int maxValue = 1;
 
+/// صفحة الإحصائيات
 class Statistics extends StatelessWidget {
   const Statistics({super.key});
 
@@ -21,7 +22,7 @@ class Statistics extends StatelessWidget {
         maxValue = lastWeek[i].totalMinutes;
       }
     }
-
+    // بحيث ما تعدي القيمة القصوى للنجوم
     if (maxStar > maxValue) {
       maxValue = maxStar;
     }
@@ -29,12 +30,13 @@ class Statistics extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // يحصل على البيانات
     final ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context);
 
     lastWeek = dataProvider.getLastWeek();
     dataProvider.getUserStatistics();
-
     getMax(lastWeek, dataProvider.star3);
+
     int averageWeek = dataProvider.averageForWeek(lastWeek);
     double height = MediaQuery.of(context).size.height;
 
@@ -174,7 +176,8 @@ class AverageGraph extends StatelessWidget {
                               child: Column(
                                 children: [
                                   FittedBox(child: Text(lastWeek[index].totalMinutes.toString(), style: Theme.of(context).textTheme.bodySmall!)),
-                                  SizedBox(width: min(width / (lastWeek.length + 1), 60), height: height * 0.5, child: NewWidget(lastWeek[index].totalMinutes)),
+                                  SizedBox(
+                                      width: min(width / (lastWeek.length + 1), 60), height: height * 0.5, child: VerticalBar(lastWeek[index].totalMinutes)),
                                   FittedBox(
                                       child: FittedBox(
                                     child: Text(" ${lastWeek[index].date.split("/")[2]}/${lastWeek[index].date.split("/")[1]} ",
@@ -194,8 +197,8 @@ class AverageGraph extends StatelessWidget {
   }
 }
 
-class NewWidget extends StatelessWidget {
-  const NewWidget(this.value, {super.key});
+class VerticalBar extends StatelessWidget {
+  const VerticalBar(this.value, {super.key});
   final int value;
 
   @override
@@ -212,8 +215,6 @@ class NewWidget extends StatelessWidget {
     );
   }
 }
-
-bool condtion = true;
 
 double count = 1;
 
@@ -247,7 +248,7 @@ class FavoriteFruit extends StatelessWidget {
             ),
             height: height,
             width: double.infinity,
-            child: condtion
+            child: count > 0
                 ? Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center, children: [
                     //النصوص
                     FittedBox(child: Text('خضرواتك المفضلة', style: Theme.of(context).textTheme.bodyMedium!)),

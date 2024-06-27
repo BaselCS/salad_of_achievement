@@ -1,43 +1,17 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
-import 'package:salad_of_achievement/DB/models/data_model.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
 
 import '../DB/models/object_box.dart';
-import '../logical/notification.dart';
 
-class MainPage extends StatefulWidget {
+class MainPage extends StatelessWidget {
   const MainPage({super.key});
-
-  @override
-  State<MainPage> createState() => _MainPageState();
-}
-
-class _MainPageState extends State<MainPage> {
-  @override
-  void initState() {
-    NotificationHelper.onClickNotification.stream.listen((String event) {
-      if (event.contains("save_action") || event.contains("cancel_action")) {
-        ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
-        List<String> data = event.split("#");
-        if (data[0] == "save_action") {
-          data = data[1].split(" ");
-          print("data: $data");
-          dataProvider.addSession(Session(date: HijriCalendar.now().toString(), topic: data[0], timeSpent: int.tryParse(data[1]) ?? 0));
-        }
-        Navigator.of(context).pushNamed('/');
-        NotificationHelper.onClickNotification.add("");
-      }
-    });
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     double progressHight = MediaQuery.of(context).size.height * 0.062;
+
     return Scaffold(
         appBar: AppBar(
             centerTitle: true,
@@ -131,7 +105,7 @@ class BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context);
-
+    
     return BottomAppBar(
         height: MediaQuery.of(context).size.height * 0.2,
         padding: const EdgeInsets.fromLTRB(4, 15, 8, 4),

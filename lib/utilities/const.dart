@@ -9,7 +9,7 @@ const Color kBorderColor = Color(0xFF383B42);
 const Color kStartsColor = Color(0xFFF6C950);
 
 const String iconPath = 'assets/icons';
-Image appIcon = Image.asset('$iconPath/Icon.png');
+Image appIcon = Image.asset('$iconPath/appIcon.png');
 
 Image orange = Image.asset('$iconPath/برتقال.png');
 Image dragon = Image.asset('$iconPath/تنين.png');

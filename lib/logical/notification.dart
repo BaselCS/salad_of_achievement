@@ -41,74 +41,49 @@ NotificationHelper.textNotification("title", "body", {timeInSecond: 5});
 */
 
 import 'dart:developer' show log;
-import 'dart:math' show max;
 
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:salad_of_achievement/utilities/const.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:timezone/timezone.dart' as tz; // مكتبات التوقيت
 import 'package:timezone/data/latest.dart' as tz; // مكتبات التوقيت
 
 class NotificationHelper {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
-  static final onClickNotification = BehaviorSubject<String>();
 
   Future<void> initializeNotifications() async {
-    _notificationsPlugin.initialize(
-      const InitializationSettings(
-        // android\app\src\main\res\mipmap-mdpi\app_icon.png
-        android: AndroidInitializationSettings('@mipmap/launcher_icon'),
-        iOS: DarwinInitializationSettings(),
-      ),
-      onDidReceiveNotificationResponse: onNotificationTap,
-      onDidReceiveBackgroundNotificationResponse: onNotificationTap,
-    );
+    _notificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+
+    _notificationsPlugin.initialize(const InitializationSettings(
+      // android\app\src\main\res\mipmap-mdpi\app_icon.png
+      android: AndroidInitializationSettings('@mipmap/launcher_icon'),
+      iOS: DarwinInitializationSettings(),
+    ));
     // نجهز التوقيت
     tz.initializeTimeZones();
     final String timeZoneName = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZoneName));
   }
 
-  static void onNotificationTap(NotificationResponse notificationResponse) {
-    onClickNotification.add("${notificationResponse.actionId}#${notificationResponse.payload}");
-  }
-
-  static void textNotification(String title, String body, {int timeInSecond = 10, String payload = ''}) async {
-    timeInSecond = max(1, timeInSecond);
+  static void textNotification(String title, String body, {int timeInSecond = 1}) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
       'BaselChannelName',
       'channel_name',
       ticker: 'ticker',
       playSound: true,
-
       // android\app\src\main\res\raw\notification.mp3  بدون الامتداد و لازم raw
       sound: RawResourceAndroidNotificationSound('notification'),
       importance: Importance.max,
       priority: Priority.high,
-      actions: <AndroidNotificationAction>[
-        AndroidNotificationAction(
-          'save_action', // معرف الفعل
-          'حفظ', // اسم الفعل
-          titleColor: kActionColor,
-          showsUserInterface: true,
-        ),
-        AndroidNotificationAction(
-          'cancel_action',
-          'إلغاء',
-          titleColor: Colors.red,
-          showsUserInterface: true,
-        ),
-      ],
     );
+
     const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics, iOS: DarwinNotificationDetails());
+    log("الأشعار سوف يظهر بعد ${(timeInSecond ~/ 60) % 60} دقيقة و ${timeInSecond % 60} ثانية");
+    print(body);
     await _notificationsPlugin.zonedSchedule(
       0,
       title,
       body,
-      payload: payload,
-      tz.TZDateTime.now(tz.local).add(Duration(seconds: timeInSecond)),
+      tz.TZDateTime.now(tz.local).add(Duration(minutes: (timeInSecond ~/ 60) % 60, seconds: timeInSecond % 60)),
       platformChannelSpecifics,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, // لو حطيتها بتظهر الاشعار بعد الوقت اللي حطيته بالثانية
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime, // لو حطيتها بتظهر الاشعار بعد الوقت اللي حطيته بالثانية

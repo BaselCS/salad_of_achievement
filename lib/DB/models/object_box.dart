@@ -62,7 +62,7 @@ class ObjectBoxState with ChangeNotifier {
   void setDefaultSettings() {
     star1 = 120;
     star2 = 240;
-    star3 = 280;
+    star3 = 480;
     autoStart = true;
     timeToRest = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 4);
     doneMinutes = 0;

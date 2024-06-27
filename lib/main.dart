@@ -15,16 +15,19 @@ import 'Pages/new_session.dart';
 import 'Pages/settings.dart';
 import 'Pages/statistics.dart';
 
+// طريقة حفظ البيانات
 late ObjectBoxState objectBox;
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-   NotificationHelper().initializeNotifications();
+  NotificationHelper().initializeNotifications();
 
   objectBox = await ObjectBoxState.create();
+  //عشان أخلي التقويم الهجري و بأرقام عربية
   HijriCalendar.setLocal('ar');
 
+  //دمجة مع الجالب
+  //provider
   runApp(ChangeNotifierProvider(create: (_) => objectBox, child: const MyApp()));
 }
 
@@ -40,6 +43,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+
+      ///[قسم اللغة]
       localizationsDelegates: const [
         GlobalCupertinoLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -47,7 +52,11 @@ class _MyAppState extends State<MyApp> {
       ],
       supportedLocales: const [Locale("ar", "SA")],
       locale: const Locale("ar", "SA"),
+
+      ///[قسم الألوان]
       theme: myTheme(),
+
+      ///[قسم الصفحات]
       initialRoute: '/',
       routes: {
         '/': (_) => const MainPage(),
@@ -61,6 +70,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
+  //للأمانة عفسه ما أنصح تسويها مره ثانية إلا لو تعلمت لها زين
   ThemeData myTheme() {
     return ThemeData(
       brightness: Brightness.dark,

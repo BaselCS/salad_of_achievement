@@ -120,7 +120,7 @@ class _SessionDetailsState extends State<SessionDetails> {
                 leading: Container(
                     //الفاكهة
                     decoration: const BoxDecoration(color: Colors.black, borderRadius: BorderRadius.all(Radius.circular(10))),
-                    width: 90,
+                    width: 75,
                     height: 60,
                     padding: const EdgeInsets.all(5),
                     child: fruits[widget.sessions[index].timeSpent.toString()]![0]), //الفاكهة ثم اللون
