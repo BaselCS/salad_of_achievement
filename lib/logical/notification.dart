@@ -45,7 +45,9 @@ import 'dart:developer' show log;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/timezone.dart' as tz; // مكتبات التوقيت
-import 'package:timezone/data/latest.dart' as tz; // مكتبات التوقيت
+import 'package:timezone/data/latest.dart' as tz;
+
+import '../Pages/active_session.dart'; // مكتبات التوقيت
 
 class NotificationHelper {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -77,13 +79,13 @@ class NotificationHelper {
     );
 
     const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics, iOS: DarwinNotificationDetails());
-    log("الأشعار سوف يظهر بعد ${(timeInSecond ~/ 60) % 60} دقيقة و ${timeInSecond % 60} ثانية");
-    print(body);
+    log("الأشعار سوف يظهر بعد ${(timeInSecond ~/ 60)} دقيقة و ${timeInSecond % 60} ثانية");
+    inform += "${DateTime.now()} - الأشعار سوف يظهر بعد ${(timeInSecond ~/ 60)} دقيقة و ${timeInSecond % 60} ثانية\n";
     await _notificationsPlugin.zonedSchedule(
       0,
       title,
       body,
-      tz.TZDateTime.now(tz.local).add(Duration(minutes: (timeInSecond ~/ 60) % 60, seconds: timeInSecond % 60)),
+      tz.TZDateTime.now(tz.local).add(Duration(minutes: (timeInSecond ~/ 60), seconds: timeInSecond % 60)),
       platformChannelSpecifics,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, // لو حطيتها بتظهر الاشعار بعد الوقت اللي حطيته بالثانية
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime, // لو حطيتها بتظهر الاشعار بعد الوقت اللي حطيته بالثانية
@@ -92,6 +94,7 @@ class NotificationHelper {
 
   static void cancelNotification() async {
     log("تم الغاء الاشعارات");
+    inform += "${DateTime.now()} - تم الغاء الاشعارات\n";
     await _notificationsPlugin.cancelAll();
   }
 }

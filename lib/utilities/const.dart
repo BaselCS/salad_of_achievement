@@ -44,6 +44,7 @@ Map<String, List> fruits = {
   "60": [dragon, kDragonColor],
 };
 
+const List<int> fruitsId = [5, 10, 15, 20, 25, 30, 40, 50, 60];
 // النجوم
 class Stars extends StatelessWidget {
   final bool isStar1;

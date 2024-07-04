@@ -105,7 +105,7 @@ class BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context);
-    
+
     return BottomAppBar(
         height: MediaQuery.of(context).size.height * 0.2,
         padding: const EdgeInsets.fromLTRB(4, 15, 8, 4),
@@ -147,7 +147,15 @@ class ProgressBar extends StatelessWidget {
         //في مشكلة في التحويل
         Spacer(progressHight, (dataProvider.star1 / dataProvider.star3) * MediaQuery.of(context).size.width),
         Spacer(progressHight, (dataProvider.star2 / dataProvider.star3) * MediaQuery.of(context).size.width)
-      ])
+      ]),
+      if (dataProvider.doneMinutes > dataProvider.star3)
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          child: Center(
+            child: Text("${dataProvider.doneMinutes - dataProvider.star3}+",
+                style: const TextStyle(color: kWhiteColor, fontSize: 30, fontWeight: FontWeight.bold, shadows: [Shadow(color: Colors.black, blurRadius: 10)])),
+          ),
+        ),
     ]);
   }
 }

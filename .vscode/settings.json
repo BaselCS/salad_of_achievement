@@ -2,5 +2,7 @@
     "cSpell.words": [
         "Actictictes",
         "autofocus"
-    ]
+    ],
+    "java.compile.nullAnalysis.mode": "automatic",
+    "cmake.ignoreCMakeListsMissing": true
 }
