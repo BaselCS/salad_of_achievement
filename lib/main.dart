@@ -104,9 +104,9 @@ class _MyAppState extends State<MyApp> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))))),
         switchTheme: SwitchThemeData(
-            thumbColor: MaterialStateProperty.all<Color>(kActionColor),
-            trackColor: MaterialStateProperty.all<Color>(kContainerColor),
-            overlayColor: MaterialStateProperty.all<Color>(Colors.transparent)),
+            thumbColor: WidgetStateProperty.all<Color>(kActionColor),
+            trackColor: WidgetStateProperty.all<Color>(kContainerColor),
+            overlayColor: WidgetStateProperty.all<Color>(Colors.transparent)),
         dialogTheme: DialogTheme(
             backgroundColor: kBackGroundColor,
             titleTextStyle: const TextStyle(color: kActionColor, fontSize: 32),

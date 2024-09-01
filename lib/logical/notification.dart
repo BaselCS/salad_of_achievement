@@ -47,7 +47,6 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/timezone.dart' as tz; // مكتبات التوقيت
 import 'package:timezone/data/latest.dart' as tz;
 
-import '../Pages/active_session.dart'; // مكتبات التوقيت
 
 class NotificationHelper {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -80,7 +79,6 @@ class NotificationHelper {
 
     const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics, iOS: DarwinNotificationDetails());
     log("الأشعار سوف يظهر بعد ${(timeInSecond ~/ 60)} دقيقة و ${timeInSecond % 60} ثانية");
-    inform += "${DateTime.now()} - الأشعار سوف يظهر بعد ${(timeInSecond ~/ 60)} دقيقة و ${timeInSecond % 60} ثانية\n";
     await _notificationsPlugin.zonedSchedule(
       0,
       title,
@@ -94,7 +92,6 @@ class NotificationHelper {
 
   static void cancelNotification() async {
     log("تم الغاء الاشعارات");
-    inform += "${DateTime.now()} - تم الغاء الاشعارات\n";
     await _notificationsPlugin.cancelAll();
   }
 }

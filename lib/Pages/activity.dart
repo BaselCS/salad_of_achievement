@@ -164,7 +164,7 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
 
                     Navigator.pop(context);
                   },
-                  style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(kTomatoColor)),
+                  style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(kTomatoColor)),
                   child: const SizedBox(
                     width: 80,
                     child: Center(

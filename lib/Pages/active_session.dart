@@ -11,13 +11,12 @@ import '../DB/models/object_box.dart';
 import '../utilities/const.dart';
 import '../utilities/my_circular_count_down_timer.dart';
 
-CountDownCcontrollers controller = CountDownCcontrollers();
+CountDownControllers controller = CountDownControllers();
 Image theImage = tomato;
 Color theColor = kTomatoColor;
 int sessionTime = 0;
 List<Activity> activities = [];
 int doneMinutes = 0;
-String inform = '';
 
 class ActiveSectionPage extends StatelessWidget {
   const ActiveSectionPage({super.key});
@@ -61,15 +60,12 @@ class _BodyState extends State<Body> {
                     onPressed: () {
                       if (controller.isPaused.value) {
                         log("تم الاستئناف");
-                        inform += "${DateTime.now()}تم الاستئناف";
                         theIcon = Icons.pause;
                         controller.resume();
                         NotificationHelper.textNotification("تم إنهاء الجلسة", "جلست $activityName استمرت $sessionTime",
-                            timeInSecond: TimerLogic.instance.remainingSeconds);
+                            timeInSecond: controller.remainingSeconds);
                       } else {
                         log("تم الإيقاف");
-                        inform += "${DateTime.now()}تم الإيقاف";
-                        TimerLogic.instance.setEndingTime(TimerLogic.instance.remainingSeconds);
                         theIcon = Icons.play_arrow;
                         controller.pause();
 
@@ -115,8 +111,7 @@ class _ActivityNameMenuState extends State<ActivityNameMenu> {
                     activityName = newValue!;
 
                     NotificationHelper.cancelNotification();
-                    NotificationHelper.textNotification("تم إنهاء الجلسة", "جلست $activityName استمرت $sessionTime",
-                        timeInSecond: TimerLogic.instance.remainingSeconds);
+                    NotificationHelper.textNotification("تم إنهاء الجلسة", "جلست $activityName استمرت $sessionTime", timeInSecond: controller.remainingSeconds);
                   });
                 },
                 items: activities.map<DropdownMenuItem<String>>((Activity value) {
@@ -136,16 +131,14 @@ class CancelButton extends StatelessWidget {
     return ElevatedButton(
         style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
         onPressed: () {
-          inform = inform.substring(0, min(1000, inform.length));
           showDialog(
               context: context,
               builder: (context1) {
                 return AlertDialog(
                     actionsAlignment: MainAxisAlignment.spaceAround,
-                    content: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      // child: FittedBox(child: Text('هل أنت متأكد من إلغاء الجلسة؟')),
-                      child: SingleChildScrollView(child: Text(inform)),
+                    content: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: FittedBox(child: Text('هل أنت متأكد من إلغاء الجلسة؟')),
                     ),
                     actions: [
                       InkWell(
@@ -185,13 +178,27 @@ class CancelButton extends StatelessWidget {
 class SaveButton extends StatelessWidget {
   const SaveButton({super.key});
 
+  void showMsg(BuildContext context) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: kContainerColor,
+        duration: const Duration(milliseconds: 250),
+        content: Text(
+          "لم تبلغ أقل حد للجلسة",
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: theColor),
+          textAlign: TextAlign.center,
+        )));
+  }
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
         style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
         onPressed: () {
-          if (doneMinutes != 0 && fruitsId.contains(doneMinutes)) {
+          if (doneMinutes != 0) {
             addSession(context, doneMinutes, activityName);
+          } else {
+            showMsg(context);
           }
         },
         child: Padding(
@@ -204,56 +211,29 @@ class SaveButton extends StatelessWidget {
 }
 
 class CountDownTimer extends StatelessWidget {
-  void start() {
-    TimerLogic.instance.setEndingTime(sessionTime * 60);
-    NotificationHelper.textNotification("تم إنهاء الجلسة", "جلست $activityName استمرت $sessionTime", timeInSecond: sessionTime * 60);
-  }
-
-  void onChange(String string) {
-    int minutes = int.parse(string.split(":")[0]);
-    int seconds = int.parse(string.split(":")[1]);
-    int remain = TimerLogic.instance.remainingSeconds;
-    if (minutes == 0 && seconds == 0) {
-      return;
-    }
-    if ((minutes + seconds) - remain > 10) {
-      controller.correctTime(remain);
-    }
-
-    if (fruitsId.contains(remain)) {
-      doneMinutes = remain;
-    }
-
-    inform += '''
-    الوقت المتبقي: $minutes:$seconds
-    الوقت المنقضي: ${sessionTime - minutes}:${60 - seconds}
-    موعد الإنتهاء: ${TimerLogic.endingTime.toString()}
-''';
-  }
-
   const CountDownTimer({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     doneMinutes = 0;
     double size = min(MediaQuery.of(context).size.width * 0.8, MediaQuery.of(context).size.height * 0.8);
     return MyCircularCountDownTimer(
-      duration: sessionTime * 60,
-      initialDuration: 0,
+      totalDuration: sessionTime * 60,
       fillColor: theColor,
       height: size,
       width: size,
       ringColor: Colors.black.withOpacity(0.5),
       controller: controller,
       onStart: () {
-        start();
+        NotificationHelper.textNotification("تم إنهاء الجلسة", "جلست $activityName استمرت $sessionTime", timeInSecond: sessionTime * 60);
       },
-      onChange: (string) {
-        onChange(string);
+      onChange: (String doneTime) {
+        if (fruitsId.contains(doneTime)) {
+          doneMinutes = int.parse(doneTime.split(":")[0]);
+        }
       },
       onComplete: () {
-        controller.correctTime(0);
         doneMinutes = sessionTime;
-        controller.pause();
+        controller.stopTime();
       },
       child: theImage,
     );
@@ -278,29 +258,4 @@ void addSession(BuildContext context, int sessionTime, String? activityName) {
       )));
 
   Navigator.pop(context);
-}
-
-class TimerLogic {
-  static late DateTime endingTime;
-
-  static final TimerLogic _instance = TimerLogic();
-
-  static TimerLogic get instance => _instance;
-
-  int get remainingSeconds {
-    final DateTime dateTimeNow = DateTime.now();
-    Duration remainingTime = endingTime.difference(dateTimeNow);
-    return remainingTime.inSeconds;
-  }
-
-  void setEndingTime(int durationToEnd) {
-    final DateTime dateTimeNow = DateTime.now();
-    endingTime = dateTimeNow.add(
-      Duration(
-        seconds: durationToEnd,
-      ),
-    );
-    log("TimerLogic  -setEndingTime = ${endingTime.toLocal().toString()}");
-    inform += "${DateTime.now()} TimerLogic  -setEndingTime = ${endingTime.toLocal().toString()}";
-  }
 }
