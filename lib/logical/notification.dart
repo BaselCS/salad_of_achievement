@@ -40,13 +40,12 @@ NotificationHelper.textNotification("title", "body", {timeInSecond: 5});
 
 */
 
-import 'dart:developer' show log;
-
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/timezone.dart' as tz; // مكتبات التوقيت
 import 'package:timezone/data/latest.dart' as tz;
 
+import '../utilities/log.dart';
 
 class NotificationHelper {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -78,7 +77,10 @@ class NotificationHelper {
     );
 
     const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics, iOS: DarwinNotificationDetails());
-    log("الأشعار سوف يظهر بعد ${(timeInSecond ~/ 60)} دقيقة و ${timeInSecond % 60} ثانية");
+    // MyLogger.log("من الإشعارات الوقت الذي سيظهر فيه الإشعار: $timeInSecond ثانية و العنوان $title و النص $body");
+    MyLogger.log("the nonfiction will be papered after $timeInSecond sec with title $title and body $body");
+    // MyLogger.log(": $timeInSecond ثانية و العنوان $title و النص $body");
+    MyLogger.log("The nonfiction will be showed after ${(timeInSecond ~/ 60)} m : ${timeInSecond % 60} sec");
     await _notificationsPlugin.zonedSchedule(
       0,
       title,
@@ -91,7 +93,7 @@ class NotificationHelper {
   }
 
   static void cancelNotification() async {
-    log("تم الغاء الاشعارات");
+    MyLogger.log("cancel Notification 🦣");
     await _notificationsPlugin.cancelAll();
   }
 }

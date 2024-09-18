@@ -263,7 +263,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
         },
         objectToFB: (Session object, fb.Builder fbb) {
           final dateOffset = fbb.writeString(object.date);
-          final topicOffset = fbb.writeString(object.topic);
+          final topicOffset =
+              object.topic == null ? null : fbb.writeString(object.topic!);
           fbb.startTable(6);
           fbb.addInt64(0, object.id);
           fbb.addOffset(1, dateOffset);
@@ -282,7 +283,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           final timeSpentParam =
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
           final topicParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGet(buffer, rootOffset, 12, '');
+              .vTableGetNullable(buffer, rootOffset, 12);
           final object = Session(
               id: idParam,
               date: dateParam,

@@ -217,4 +217,3 @@ class _CustomCounterState extends State<CustomCounter> {
     );
   }
 }
-

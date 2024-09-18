@@ -6,7 +6,7 @@ class Session {
   int id;
   String date;
   int timeSpent;
-  String topic;
+  String? topic;
 
   Session({
     this.id = 0, // ObjectBox IDs start at 0

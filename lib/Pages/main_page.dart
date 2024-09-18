@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
 
@@ -11,12 +10,13 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double progressHight = MediaQuery.of(context).size.height * 0.062;
-
+    final ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context);
     return Scaffold(
         appBar: AppBar(
             centerTitle: true,
             title: FittedBox(
-                child: Text('${HijriCalendar.now().dayWeName} ${HijriCalendar.now().hDay}/${HijriCalendar.now().longMonthName}/${HijriCalendar.now().hYear}')),
+                child: Text(
+                    '${dataProvider.getDateName().dayWeName} ${dataProvider.getDateName().hDay}/${dataProvider.getDateName().longMonthName}/${dataProvider.getDateName().hYear}')),
             actions: [
               Padding(
                   padding: const EdgeInsets.only(left: 16.0),
@@ -71,7 +71,17 @@ class MyDrawer extends StatelessWidget {
               leading: const MyIcon(Icons.settings),
               onTap: () {
                 Navigator.pushNamed(context, '/settings');
-              })
+              }),
+//           ListTile(
+//               title: const Text('الإبلاغ عن مشكلة '),
+//               leading: const MyIcon(Icons.warning),
+//               onTap: () {
+// //                 MyLogger.log('''
+// // ========================================================================================================================================================================
+// // مشكلة ⚠️
+// // ========================================================================================================================================================================
+// //                   ''');
+//               }),
         ]));
   }
 }
@@ -112,12 +122,12 @@ class BottomBar extends StatelessWidget {
         child: Column(children: [
           Expanded(
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Expanded(flex: 2, child: FittedBox(child: Text('إنجاز اليوم: ${dataProvider.doneMinutes.toInt()} دقيقة'))),
+              Expanded(flex: 2, child: FittedBox(child: Text('إنجاز اليوم: ${dataProvider.totalDoneMinutes.toInt()} دقيقة'))),
               Expanded(
                 child: Stars(
-                    isStar1: dataProvider.doneMinutes >= dataProvider.star1,
-                    isStar2: dataProvider.doneMinutes >= dataProvider.star2,
-                    isStar3: dataProvider.doneMinutes >= dataProvider.star3),
+                    isStar1: dataProvider.totalDoneMinutes >= dataProvider.star1,
+                    isStar2: dataProvider.totalDoneMinutes >= dataProvider.star2,
+                    isStar3: dataProvider.totalDoneMinutes >= dataProvider.star3),
               )
             ]),
           ),
@@ -139,7 +149,7 @@ class ProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(children: [
       LinearProgressIndicator(
-        value: dataProvider.doneMinutes / dataProvider.star3,
+        value: dataProvider.totalDoneMinutes / dataProvider.star3,
         minHeight: progressHight,
         valueColor: const AlwaysStoppedAnimation<Color>(kActionColor),
       ),
@@ -148,11 +158,11 @@ class ProgressBar extends StatelessWidget {
         Spacer(progressHight, (dataProvider.star1 / dataProvider.star3) * MediaQuery.of(context).size.width),
         Spacer(progressHight, (dataProvider.star2 / dataProvider.star3) * MediaQuery.of(context).size.width)
       ]),
-      if (dataProvider.doneMinutes > dataProvider.star3)
+      if (dataProvider.totalDoneMinutes > dataProvider.star3)
         SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Center(
-            child: Text("${dataProvider.doneMinutes - dataProvider.star3}+",
+            child: Text("${dataProvider.totalDoneMinutes - dataProvider.star3}+",
                 style: const TextStyle(color: kWhiteColor, fontSize: 30, fontWeight: FontWeight.bold, shadows: [Shadow(color: Colors.black, blurRadius: 10)])),
           ),
         ),

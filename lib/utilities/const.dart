@@ -44,7 +44,7 @@ Map<String, List> fruits = {
   "60": [dragon, kDragonColor],
 };
 
-const Set<String> fruitsId = {"05:00", "10:00", "15:00", "20:00", "25:00", "30:00", "40:00", "50:00", "60:00"};
+const Set<int> fruitsId = {0, 5, 10, 15, 20, 25, 30, 40, 50, 60};
 
 // النجوم
 class Stars extends StatelessWidget {

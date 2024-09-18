@@ -50,14 +50,16 @@ class Statistics extends StatelessWidget {
                   Navigator.pop(context);
                 })),
         body: SingleChildScrollView(
-          child: Column(
-            children: [
-              MostActiveDay(height * 0.1359375, UserStatistics.mostProductiveDate, UserStatistics.mostProductiveDay),
-              AverageProductivity(height * 0.26328125, UserStatistics.averageDailyProductivity.toInt(), averageWeek),
-              AverageGraph(height * 0.4203125, lastWeek),
-              FavoriteFruit(height * 0.7171875, dataProvider.getAllFruitUsage()),
-            ],
-          ),
+          child: dataProvider.getAllActivities().isNotEmpty
+              ? Column(
+                  children: [
+                    MostActiveDay(height * 0.1359375, UserStatistics.mostProductiveDate, UserStatistics.mostProductiveDay),
+                    AverageProductivity(height * 0.26328125, UserStatistics.averageDailyProductivity.toInt(), averageWeek),
+                    AverageGraph(height * 0.4203125, lastWeek),
+                    FavoriteFruit(height * 0.7171875, dataProvider.getAllFruitUsage()),
+                  ],
+                )
+              : MostActiveDay(height, UserStatistics.mostProductiveDate, UserStatistics.mostProductiveDay),
         ));
   }
 }

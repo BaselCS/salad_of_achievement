@@ -14,7 +14,7 @@ dependencies:
   circular_countdown_timer: ^0.2.3
   flutter_launcher_icons: ^0.13.1 #أيقونة البرنامج
   provider: ^6.1.1
-  path_provider: ^2.1.2
+  path_provider: ^2.1.4
   objectbox: ^2.4.0 #مكتبة قاعدة البيانات
   objectbox_flutter_libs: ^2.4.0 #مكتبة قاعدة البيانات
   hijri: ^3.0.0
@@ -23,6 +23,7 @@ dependencies:
   flutter_timezone: ^1.0.8
   flutter_local_notifications: ^17.1.2
   timezone: ^0.9.3
+  logger: ^2.4.0
 
 dev_dependencies:
   flutter_test:

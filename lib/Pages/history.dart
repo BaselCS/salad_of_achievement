@@ -136,7 +136,7 @@ class _SessionDetailsState extends State<SessionDetails> {
                 //النص كقائمة
                 title: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
-                        value: widget.sessions[index].topic,
+                        value: widget.sessions[index].topic ?? "فارغ",
                         onChanged: (String? newValue) {
                           setState(() {
                             if (newValue != null) {

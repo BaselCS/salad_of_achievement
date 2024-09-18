@@ -1,6 +1,8 @@
 library circular_countdown_timer;
 
 import 'dart:async';
+import 'dart:math' show min;
+import '../../utilities/log.dart';
 
 import 'package:circular_countdown_timer/custom_timer_painter.dart';
 import 'package:flutter/material.dart';
@@ -36,10 +38,12 @@ class MyCircularCountDownTimer extends StatefulWidget {
   final VoidCallback? onStart;
 
   /// This Callback will execute when the Countdown Changes.
-  final ValueChanged<String>? onChange;
+  final ValueChanged<int>? onChange;
 
   /// Countdown duration in Seconds.
   final int totalDuration;
+
+  final int initDuration;
 
   /// Controls (i.e Start, Pause, Resume, Restart) the Countdown Timer.
   final CountDownControllers? controller;
@@ -48,6 +52,7 @@ class MyCircularCountDownTimer extends StatefulWidget {
     required this.width,
     required this.height,
     required this.totalDuration,
+    required this.initDuration,
     required this.fillColor,
     required this.ringColor,
     required this.child,
@@ -73,21 +78,19 @@ class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer> with
   String get time {
     String timeStamp = "";
     //القيمة الكلية * نسبة المنتهي
-    int value = countDownController?.remainingSeconds ?? widget.totalDuration;
-    if (countDownController?.remainingSeconds == 999) value = widget.totalDuration;
-    if (value < 0) value = 0;
-    timeStamp = _getTimeFormatted(value);
-    String doneTime = _getTimeFormatted(countDownController?._doneTime ?? 0);
 
-    // Show the current time in on change callback
+    if (countDownController?.isCompleted.value == true) {
+      timeStamp = _getTimeFormatted(0);
+    } else {
+      int value = min(countDownController?.remainingSeconds ?? 9999, widget.initDuration - 1);
+      timeStamp = _getTimeFormatted(value);
+    }
+
+    int doneTime = (countDownController?._doneTime ?? 0);
+
+    // Show the orent time in on change callback
     if (widget.onChange != null) widget.onChange!(doneTime);
-
     return timeStamp;
-  }
-
-  set time(String value) {
-    time = value;
-    setState(() {});
   }
 
   void _setController() {
@@ -99,6 +102,7 @@ class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer> with
 
   @override
   void initState() {
+    countDownController?.remainingSeconds = 9999;
     countDownController = widget.controller ?? CountDownControllers();
     super.initState();
     _controller = AnimationController(
@@ -208,10 +212,10 @@ class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer> with
 class CountDownControllers {
   MyCircularCountDownTimerState? _timerState;
 
-  ValueNotifier<bool> isStarted = ValueNotifier<bool>(false), isPaused = ValueNotifier<bool>(false);
+  ValueNotifier<bool> isStarted = ValueNotifier<bool>(false), isPaused = ValueNotifier<bool>(false), isCompleted = ValueNotifier<bool>(false);
 
   int? _totalDuration;
-  int _doneTime = 0, remainingSeconds = 999;
+  int _doneTime = 0, remainingSeconds = 9999;
 
   late DateTime _startTime, _endTime;
   Timer? _timer;
@@ -223,6 +227,7 @@ class CountDownControllers {
       _startTime = DateTime.now();
       _endTime = _startTime.add(Duration(seconds: _totalDuration!));
       isStarted.value = true;
+      isCompleted.value = false;
       calcTime();
     }
   }
@@ -236,8 +241,19 @@ class CountDownControllers {
     }
     _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       remainingSeconds = _endTime.difference(DateTime.now()).inSeconds;
-      _doneTime = DateTime.now().difference(_startTime).inSeconds;
+      _doneTime = _totalDuration! - remainingSeconds;
+      _timerState?._controller?.reverse(from: remainingSeconds / _totalDuration!);
+      if (_doneTime < 0) {
+        MyLogger.log("From calcTime _doneTime < 0 $_doneTime");
+        MyLogger.log("_endTime: $_endTime");
+        MyLogger.log("DateTime.now(): ${DateTime.now()}");
+        MyLogger.log("_startTime: $_startTime");
+        MyLogger.log("From calcTime remainingSeconds: $remainingSeconds");
+        MyLogger.log("From calcTime _timerState: ${_timerState?._controller?.value}");
+        MyLogger.log("From calcTime _totalDuration: $_totalDuration");
+      }
       if (remainingSeconds <= 0) {
+        MyLogger.log("From calcTime remainingSeconds <= 0 $remainingSeconds");
         stopTime();
       }
     });
@@ -260,7 +276,11 @@ class CountDownControllers {
     if (_timerState != null && _timerState?._controller != null) {
       _timerState?._controller?.reverse(from: _timerState!._controller!.value);
       if (isPaused.value) {
-        calcTime(startValue: DateTime.now().add(Duration(seconds: _doneTime)), endValue: DateTime.now().add(Duration(seconds: remainingSeconds + 1)));
+        calcTime(startValue: DateTime.now(), endValue: DateTime.now().add(Duration(seconds: remainingSeconds + 1)));
+        MyLogger.log("From Resume Time time is ${_timerState?.time}");
+        MyLogger.log("From Resume Time remainingSeconds is $remainingSeconds");
+        MyLogger.log("From Resume Time _doneTime is $_doneTime");
+        MyLogger.log("endValue is ${DateTime.now().add(Duration(seconds: remainingSeconds + 1))}");
       }
     }
 
@@ -269,12 +289,12 @@ class CountDownControllers {
 
   void stopTime() {
     if (_timerState != null && _timerState?._controller != null && _timer != null) {
-      _timerState?._controller?.value = 0;
-      _timerState?._controller?.duration = const Duration(seconds: 0);
-      _timerState?.time = "0:00";
-      _timerState?._controller?.stop(canceled: false);
       _timer?.cancel();
       isStarted.value = false;
+      remainingSeconds = 9999;
+      isCompleted.value = true;
+      MyLogger.log("From Stop Time time is ${_timerState?.time}");
+      MyLogger.log("From Stop Time StopedTime");
     }
   }
 }
