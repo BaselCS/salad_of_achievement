@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/DB/models/object_box.dart';
 import 'package:salad_of_achievement/logical/notification.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Pages/active_session.dart';
 import 'Pages/activity.dart';
 
@@ -25,7 +26,7 @@ void main() async {
   objectBox = await ObjectBoxState.create();
   //عشان أخلي التقويم الهجري و بأرقام عربية
   HijriCalendar.setLocal('ar');
-
+  checkFirstRun();
   //دمجة مع الجالب
   //provider
   runApp(ChangeNotifierProvider(create: (_) => objectBox, child: const MyApp()));
@@ -113,5 +114,20 @@ class _MyAppState extends State<MyApp> {
             contentTextStyle: const TextStyle(color: kWhiteColor, fontSize: 24),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
             elevation: 0));
+  }
+}
+
+Future<void> checkFirstRun() async {
+  SharedPreferences pref = await SharedPreferences.getInstance();
+  bool? isFirstRun = pref.getBool('first_time');
+
+  if (isFirstRun != null && !isFirstRun) {
+    //not the first time
+    print('Not the first time running the app.');
+  } else {
+    //first time
+    pref.setBool('first_time', false);
+    objectBox.deleteAll();
+    print('First time running the app.');
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:math' show min;
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
@@ -26,6 +27,7 @@ class ObjectBoxState with ChangeNotifier {
   ObjectBoxState._create(this._store) {
     _initializeBoxes(); //تهيئة البيانات
     _initializeSettings(); // تهيئة الإعدادات
+    log("timeToRest: $timeToRest");
     _initializeResetTimer(); // تهيئة مؤقت إعادة التعيين
   }
 
@@ -41,6 +43,9 @@ class ObjectBoxState with ChangeNotifier {
     _activityBox = Box<Activity>(_store);
     _fruitUsageBox = Box<FruitUsage>(_store);
     _settingBox = Box<Setting>(_store);
+    // // Log the number of settings in the box
+    // final settingsCount = _settingBox.count();
+    // log("Settings count: $settingsCount");
   }
 
   /// تهيئة الإعدادات
@@ -49,11 +54,13 @@ class ObjectBoxState with ChangeNotifier {
     if (setting == null) {
       setDefaultSettings();
     } else {
+      log("Found existing settings: $setting");
       star1 = setting.star1;
       star2 = setting.star2;
       star3 = setting.star3;
-      setting.hourOfRest = setting.hourOfRest == 0 ? 4 : setting.hourOfRest;
-      timeToRest = DateTime.tryParse(setting.timeOfRest) ?? DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, setting.hourOfRest);
+
+      // Set timeToRest and totalDoneMinutes from the existing settings
+      timeToRest = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, setting.hourOfRest);
       totalDoneMinutes = setting.doneMinutes;
     }
   }
@@ -62,7 +69,7 @@ class ObjectBoxState with ChangeNotifier {
   void setDefaultSettings() {
     star1 = 120;
     star2 = 240;
-    star3 = 480; 
+    star3 = 480;
     autoStart = true;
     timeToRest = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 4);
     totalDoneMinutes = 0;
@@ -77,12 +84,12 @@ class ObjectBoxState with ChangeNotifier {
 
     if (now.isAfter(nextReset)) {
       nextReset = nextReset.add(const Duration(days: 1));
-      tresetTotalDoneMinutes(nextReset);
+      resetTotalDoneMinutes(nextReset);
     }
   }
 
   /// إعادة تعيين الدقائق المكتملة
-  void tresetTotalDoneMinutes(var nextReset) {
+  void resetTotalDoneMinutes(var nextReset) {
     totalDoneMinutes = 0;
     final currentSetting = _settingBox.get(1) ?? Setting();
     currentSetting.doneMinutes = totalDoneMinutes;
@@ -104,7 +111,7 @@ class ObjectBoxState with ChangeNotifier {
     _sessionBox.put(session);
     totalDoneMinutes += session.timeSpent;
     addFruitUsage(time: session.timeSpent);
-    tupdateSettingTotalDoneMinutes();
+    updateSettingTotalDoneMinutes();
     // MyLogger.log("إضيفت جلسة جديدة : ${session.id}");
     notifyListeners();
   }
@@ -127,7 +134,7 @@ class ObjectBoxState with ChangeNotifier {
       totalDoneMinutes = totalDoneMinutes < 0 ? 0 : totalDoneMinutes;
     }
     deleteFruitUsage(session.timeSpent);
-    tupdateSettingTotalDoneMinutes();
+    updateSettingTotalDoneMinutes();
     // MyLogger.log("حذفت الجلسة: ${session.id}");
     notifyListeners();
   }
@@ -135,7 +142,7 @@ class ObjectBoxState with ChangeNotifier {
   void deleteAllSessions() {
     _sessionBox.removeAll();
     totalDoneMinutes = 0;
-    tupdateSettingTotalDoneMinutes();
+    updateSettingTotalDoneMinutes();
     // MyLogger.log("حذفت جميع الجلسات");
     notifyListeners();
   }
@@ -202,7 +209,7 @@ class ObjectBoxState with ChangeNotifier {
     // MyLogger.log("إحصائات المستخدم قارغة");
   }
 
-  void tupdateSettingTotalDoneMinutes() {
+  void updateSettingTotalDoneMinutes() {
     final currentSetting = _settingBox.get(1) ?? Setting();
     currentSetting.doneMinutes = totalDoneMinutes;
     _settingBox.put(currentSetting);
@@ -218,7 +225,7 @@ class ObjectBoxState with ChangeNotifier {
     if (newStar3 != 0) {
       star3 = newStar3;
     }
-    final currentSetting = _settingBox.get(1) ?? Setting();
+    final Setting currentSetting = _settingBox.get(1) ?? Setting();
     currentSetting.star1 = star1;
     currentSetting.star2 = star2;
     currentSetting.star3 = star3;
@@ -232,6 +239,7 @@ class ObjectBoxState with ChangeNotifier {
     final currentSetting = _settingBox.get(1) ?? Setting();
     currentSetting.hourOfRest = value;
     _settingBox.put(currentSetting);
+    print(_settingBox.getAll());
     // MyLogger.log("Start of day set to: $value");
     notifyListeners();
   }
@@ -314,6 +322,7 @@ class ObjectBoxState with ChangeNotifier {
     _sessionBox.removeAll();
     _activityBox.removeAll();
     _fruitUsageBox.removeAll();
+    _settingBox.removeAll();
     UserStatistics.averageDailyProductivity = 0;
     UserStatistics.mostProductiveDate = HijriCalendar.now().toString();
     UserStatistics.mostProductiveDay = 0;

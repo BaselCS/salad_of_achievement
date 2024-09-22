@@ -45,7 +45,10 @@ class Body extends StatelessWidget {
       const Spacer(),
       const Padding(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("بداية اليوم"), CustomCounter(btnRadius: 10)]),
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [Text("بداية اليوم", textAlign: TextAlign.center), CustomCounter(btnRadius: 10)]),
       ),
       Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height * 0.001, color: Colors.black.withOpacity(0.5)),
       const Spacer(),
@@ -182,14 +185,17 @@ class _CustomCounterState extends State<CustomCounter> {
             children: [
               GestureDetector(
                 onTap: _decrementCounter,
-                child: Container(
-                  height: 20,
-                  width: 20,
-                  decoration: BoxDecoration(
-                    color: kActionColor,
-                    borderRadius: BorderRadius.circular(widget.btnRadius ?? 2),
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Container(
+                    height: 20,
+                    width: 20,
+                    decoration: BoxDecoration(
+                      color: kActionColor,
+                      borderRadius: BorderRadius.circular(widget.btnRadius ?? 2),
+                    ),
+                    child: const Icon(Icons.remove, color: kWhiteColor, size: 10),
                   ),
-                  child: const Icon(Icons.remove, color: kWhiteColor, size: 10),
                 ),
               ),
               const SizedBox(width: 15),
@@ -200,14 +206,17 @@ class _CustomCounterState extends State<CustomCounter> {
               const SizedBox(width: 15),
               GestureDetector(
                 onTap: _incrementCounter,
-                child: Container(
-                  height: 20,
-                  width: 20,
-                  decoration: BoxDecoration(
-                    color: kActionColor,
-                    borderRadius: BorderRadius.circular(widget.btnRadius ?? 2),
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Container(
+                    height: 20,
+                    width: 20,
+                    decoration: BoxDecoration(
+                      color: kActionColor,
+                      borderRadius: BorderRadius.circular(widget.btnRadius ?? 2),
+                    ),
+                    child: const Icon(Icons.add, color: kWhiteColor, size: 10),
                   ),
-                  child: const Icon(Icons.add, color: kWhiteColor, size: 10),
                 ),
               ),
             ],
