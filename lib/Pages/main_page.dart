@@ -139,7 +139,7 @@ class BottomBar extends StatelessWidget {
     final ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context);
 
     return BottomAppBar(
-      height: MediaQuery.of(context).size.height * 0.2,
+      height: MediaQuery.of(context).size.height * 0.15,
       padding: const EdgeInsets.fromLTRB(4, 15, 8, 4),
       child: Column(
         children: [
@@ -152,9 +152,15 @@ class BottomBar extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('إنجاز اليوم: '),
-                      FittedBox(child: Text(HijriLogic.englishToArabicNumber(dataProvider.doneMinutes.toString()))),
-                      const Text(' دقيقة'),
+                      Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 3.0), child: Image.asset('$iconPath/appIcon.png', width: 32, height: 32)),
+                      const Text('إنجاز اليوم: ', style: TextStyle(color: kActionColor, fontSize: 24)),
+                      FittedBox(
+                        child: Text(
+                          HijriLogic.englishToArabicNumber(dataProvider.doneMinutes.toString()),
+                          style: const TextStyle(color: kActionColor, fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const Text(' دقيقة', style: TextStyle(color: kActionColor, fontSize: 24)),
                     ],
                   ),
                 ),
@@ -169,13 +175,13 @@ class BottomBar extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
-              child: ProgressBar(dataProvider: dataProvider, progressHight: progressHight),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                child: ProgressBar(dataProvider: dataProvider, progressHight: progressHight),
+              ),
             ),
-          ),
-          const Expanded(
-            child: FittedBox(fit: BoxFit.contain, child: Text('سألته ما الغاية الكبرى قال رضون من الله أكبر')),
           ),
         ],
       ),
