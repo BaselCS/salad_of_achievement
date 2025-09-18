@@ -1,0 +1,146 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:7308131095044400048",
+      "lastPropertyId": "3:7604896248958337440",
+      "name": "Activity",
+      "properties": [
+        {
+          "id": "1:4806168251486484939",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7609100641152165524",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:7604896248958337440",
+          "name": "timeSpent",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:7786140021838116532",
+      "lastPropertyId": "4:6507040598707643366",
+      "name": "FruitUsage",
+      "properties": [
+        {
+          "id": "1:4297232142086647933",
+          "name": "id",
+          "type": 6,
+          "flags": 129
+        },
+        {
+          "id": "4:6507040598707643366",
+          "name": "usageCount",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:4144517228415667832",
+      "lastPropertyId": "5:1944272196284508478",
+      "name": "Session",
+      "properties": [
+        {
+          "id": "1:605701392023475632",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:6338889813110666157",
+          "name": "date",
+          "type": 9
+        },
+        {
+          "id": "3:8205611003461661331",
+          "name": "timeSpent",
+          "type": 6
+        },
+        {
+          "id": "5:1944272196284508478",
+          "name": "topic",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "5:1891301343357838477",
+      "lastPropertyId": "9:1730988259763430046",
+      "name": "Setting",
+      "properties": [
+        {
+          "id": "1:8399678696690245671",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2751110199435000839",
+          "name": "star1",
+          "type": 6
+        },
+        {
+          "id": "3:3517786977246739871",
+          "name": "star2",
+          "type": 6
+        },
+        {
+          "id": "4:6972530011564583542",
+          "name": "star3",
+          "type": 6
+        },
+        {
+          "id": "5:1043303583286677354",
+          "name": "doneMinutes",
+          "type": 6
+        },
+        {
+          "id": "7:2821781989486638400",
+          "name": "hourOfRest",
+          "type": 6
+        },
+        {
+          "id": "8:2175272365520808783",
+          "name": "timeOfRest",
+          "type": 9
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "5:1891301343357838477",
+  "lastIndexId": "0:0",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [
+    7609313741310014007
+  ],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [
+    4247840349701161003,
+    4278223133284466980,
+    8161804479967321504,
+    265637773826788162,
+    5228637705360280213,
+    8377744117736287978,
+    1730988259763430046,
+    588490658857297284,
+    4440568647595294747
+  ],
+  "retiredRelationUids": [],
+  "version": 1
+}

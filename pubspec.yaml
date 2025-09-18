@@ -1,0 +1,70 @@
+name: salad_of_achievement
+description: "A new Flutter project."
+
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  
+  cupertino_icons: ^1.0.8
+    
+  objectbox: ^4.0.1
+  objectbox_flutter_libs: ^4.0.1
+  
+  provider: ^6.1.2
+  
+  hijri: ^3.0.0
+    
+  circular_countdown_timer: ^0.2.4
+  
+  collection: ^1.18.0
+  flutter_animation_progress_bar: ^2.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0  
+  
+  build_runner: ^2.4.13
+  objectbox_generator: ^4.0.1
+  
+  flutter_launcher_icons: ^0.14.1
+
+
+flutter:
+  
+  uses-material-design: true  
+  assets:
+    - assets/icons/
+
+  fonts:
+    - family: alfont
+      fonts:
+        - asset: assets/fonts/alfont_com_29LTAzer.ttf
+
+
+flutter_launcher_icons:
+  android: "launcher_icon"  
+  image_path: "assets/icons/appIcon.png"
+  min_sdk_android: 21 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
