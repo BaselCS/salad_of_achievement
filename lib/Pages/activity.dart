@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:salad_of_achievement/logical/hijri_logic.dart';
 
 import '../DB/models/data_model.dart';
 import '../DB/models/object_box.dart';
@@ -15,18 +16,21 @@ class AppActivityPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: kInnerBackGroundColor,
-        appBar: AppBar(
-            centerTitle: true,
-            title: const FittedBox(fit: BoxFit.fill, child: Text('أنشطة و مشروعات')),
-            leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
-                })),
-        body: const Body(),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: const AddActivity());
+      backgroundColor: kInnerBackGroundColor,
+      appBar: AppBar(
+        centerTitle: true,
+        title: const FittedBox(fit: BoxFit.fill, child: Text('أنشطة و مشروعات')),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: const Body(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: const AddActivity(),
+    );
   }
 }
 
@@ -38,12 +42,13 @@ class AddActivity extends StatelessWidget {
     TextEditingController controllerMin = TextEditingController();
 
     return FloatingActionButton(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(360)),
-        onPressed: () {
-          addActivityMassage(context, controller, controllerMin);
-        },
-        backgroundColor: kActionColor,
-        child: const Icon(Icons.add));
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(360)),
+      onPressed: () {
+        addActivityMassage(context, controller, controllerMin);
+      },
+      backgroundColor: kActionColor,
+      child: const Icon(Icons.add),
+    );
   }
 }
 
@@ -58,35 +63,37 @@ class Body extends StatelessWidget {
     activities = dataProvider.getAllActivities();
 
     return ListView.separated(
-        itemCount: activities.length,
-        itemBuilder: (BuildContext context, int index) {
-          return InkWell(
-              onTap: () {
-                showEditMassage(context, controllerName, index, controllerMin);
-              },
-              child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  height: 60,
-                  color: kBorderColor, // Set tile color here
-                  child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    Expanded(
-                      child: Text(
-                        activities[index].name,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ),
-                    Expanded(
-                        flex: 2,
-                        child: Text(
-                          textAlign: TextAlign.right,
-                          formatDuration(activities[index].timeSpent),
-                          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: kActionColor),
-                        )),
-                  ])));
-        },
-        separatorBuilder: (BuildContext context, int index) {
-          return Divider(color: kWhiteColor..withAlpha(127), height: 1);
-        });
+      itemCount: activities.length,
+      itemBuilder: (BuildContext context, int index) {
+        return InkWell(
+          onTap: () {
+            showEditMassage(context, controllerName, index, controllerMin);
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: 60,
+            color: kBorderColor, // Set tile color here
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(child: Text(activities[index].name, style: Theme.of(context).textTheme.bodySmall)),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    textAlign: TextAlign.center,
+                    formatDuration(activities[index].timeSpent),
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: kActionColor),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      separatorBuilder: (BuildContext context, int index) {
+        return Divider(color: kWhiteColor..withAlpha(127), height: 1);
+      },
+    );
   }
 }
 
@@ -98,7 +105,10 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
       newTime = 0;
       return AlertDialog(
         actionsAlignment: MainAxisAlignment.spaceAround,
-        title: const FittedBox(fit: BoxFit.scaleDown, child: Text('تعديل مشروع /  نشاط', style: TextStyle(color: kActionColor))),
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text('تعديل مشروع /  نشاط', style: TextStyle(color: kActionColor)),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -108,8 +118,8 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
               decoration: InputDecoration(
                 fillColor: kContainerColor,
                 filled: true,
-                hintText: 'تعديل اسم المشروع : ${activities[index].name}',
-                hintStyle: TextStyle(color: Colors.white..withAlpha(64)),
+                hintText: ' ${activities[index].name}',
+                hintStyle: TextStyle(color: Colors.white.withAlpha(64)),
               ),
             ),
             const SizedBox(height: 16),
@@ -134,9 +144,10 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
                     newTime = 0;
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text('تم تعديل المشروع ', style: TextStyle(color: kActionColor, fontSize: 16)),
-                          backgroundColor: kContainerColor,
-                          duration: Duration(milliseconds: 500)),
+                        content: Text('تم تعديل المشروع ', style: TextStyle(color: kActionColor, fontSize: 16)),
+                        backgroundColor: kContainerColor,
+                        duration: Duration(milliseconds: 500),
+                      ),
                     );
                     Navigator.pop(context);
                   },
@@ -157,9 +168,10 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
                     dataProvider.deleteActivity(activities[index]);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text('تم حذف المشروع ', style: TextStyle(color: kTomatoColor, fontSize: 16)),
-                          backgroundColor: kContainerColor,
-                          duration: Duration(milliseconds: 500)),
+                        content: Text('تم حذف المشروع ', style: TextStyle(color: kTomatoColor, fontSize: 16)),
+                        backgroundColor: kContainerColor,
+                        duration: Duration(milliseconds: 500),
+                      ),
                     );
 
                     Navigator.pop(context);
@@ -186,10 +198,7 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
 
 class EditTimeFilled extends StatefulWidget {
   final int index;
-  const EditTimeFilled(
-    this.index, {
-    super.key,
-  });
+  const EditTimeFilled(this.index, {super.key});
 
   @override
   State<EditTimeFilled> createState() => _EditTimeFilledState();
@@ -205,9 +214,12 @@ class _EditTimeFilledState extends State<EditTimeFilled> {
     return Column(
       children: [
         FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(activities[widget.index].timeSpent != 0 ? formatDuration(activities[widget.index].timeSpent) : "لم تبدأ بعد",
-                style: const TextStyle(color: kActionColor))),
+          fit: BoxFit.scaleDown,
+          child: Text(
+            activities[widget.index].timeSpent != 0 ? formatDuration(activities[widget.index].timeSpent) : "لم تبدأ بعد",
+            style: const TextStyle(color: kActionColor),
+          ),
+        ),
         Row(
           children: [
             Expanded(
@@ -276,63 +288,81 @@ class _EditTimeFilledState extends State<EditTimeFilled> {
 Future<dynamic> addActivityMassage(BuildContext context, TextEditingController controller, TextEditingController controllerMin) {
   ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
   return showDialog(
-      context: context,
-      builder: (context1) {
-        return AlertDialog(
-          actionsAlignment: MainAxisAlignment.spaceAround,
-          title: const FittedBox(fit: BoxFit.scaleDown, child: Text('إضافة مشروع /  نشاط', style: TextStyle(color: kActionColor))),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // إدخال
-              TextField(
-                  controller: controller,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                      fillColor: kContainerColor, filled: true, hintText: 'اسم المشروع', hintStyle: TextStyle(color: Colors.white.withAlpha(64)))),
-              const SizedBox(height: 16),
-              TextField(
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  controller: controllerMin,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                      fillColor: kContainerColor, filled: true, hintText: 'الدقائق', hintStyle: TextStyle(color: Colors.white.withAlpha(64)))),
-              const SizedBox(height: 16),
-              // زر الإضافة
-              ElevatedButton(
-                  onPressed: () {
-                    if (controller.text.isNotEmpty && controller.text != 'الاسم موجود بالفعل' && controller.text != 'أدخل اسم المشروع') {
-                      if (activities.indexWhere((element) => element.name == controller.text) == -1) {
-                        int duration = int.tryParse(controllerMin.text) ?? 0;
-                        dataProvider.addActivity(Activity(name: controller.text, timeSpent: duration));
-                        controller.clear();
-                        controllerMin.clear();
-                        Navigator.pop(context1);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('تمت إضافة المشروع بنجاح', style: TextStyle(color: kActionColor, fontSize: 16)),
-                              backgroundColor: kContainerColor,
-                              duration: Duration(milliseconds: 500)),
-                        );
-                      } else {
-                        controller.text = 'الاسم موجود بالفعل';
-                      }
-                    } else {
-                      controller.text = 'أدخل اسم المشروع';
-                    }
-                  },
-                  child: const SizedBox(
-                      width: 80,
-                      child: Center(
-                          child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        child: Text("إضافة", style: TextStyle(fontSize: 16)),
-                      ))))
-            ],
-          ),
-        );
-      });
+    context: context,
+    builder: (context1) {
+      return AlertDialog(
+        actionsAlignment: MainAxisAlignment.spaceAround,
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text('إضافة مشروع /  نشاط', style: TextStyle(color: kActionColor)),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // إدخال
+            TextField(
+              controller: controller,
+              autofocus: true,
+              decoration: InputDecoration(
+                fillColor: kContainerColor,
+                filled: true,
+                hintText: 'اسم المشروع',
+                hintStyle: TextStyle(color: Colors.white.withAlpha(64)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              controller: controllerMin,
+              autofocus: true,
+              decoration: InputDecoration(
+                fillColor: kContainerColor,
+                filled: true,
+                hintText: 'الدقائق',
+                hintStyle: TextStyle(color: Colors.white.withAlpha(64)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // زر الإضافة
+            ElevatedButton(
+              onPressed: () {
+                if (controller.text.isNotEmpty && controller.text != 'الاسم موجود بالفعل' && controller.text != 'أدخل اسم المشروع') {
+                  if (activities.indexWhere((element) => element.name == controller.text) == -1) {
+                    int duration = int.tryParse(controllerMin.text) ?? 0;
+                    dataProvider.addActivity(Activity(name: controller.text, timeSpent: duration));
+                    controller.clear();
+                    controllerMin.clear();
+                    Navigator.pop(context1);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('تمت إضافة المشروع بنجاح', style: TextStyle(color: kActionColor, fontSize: 16)),
+                        backgroundColor: kContainerColor,
+                        duration: Duration(milliseconds: 500),
+                      ),
+                    );
+                  } else {
+                    controller.text = 'الاسم موجود بالفعل';
+                  }
+                } else {
+                  controller.text = 'أدخل اسم المشروع';
+                }
+              },
+              child: const SizedBox(
+                width: 80,
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Text("إضافة", style: TextStyle(fontSize: 16)),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }
 
 String formatDuration(int durationInMinutes) {
@@ -346,14 +376,32 @@ String formatDuration(int durationInMinutes) {
   }
 
   if (days > 0) {
-    formattedDuration += '$days يوم ';
+    if (days == 1) {
+      return 'يوم';
+    }
+    if (days == 2) {
+      return 'يومين';
+    }
+    return '$days أيام';
   }
   if (hours > 0) {
+    if (hours == 1) {
+      return 'ساعة';
+    }
+    if (hours == 2) {
+      return 'ساعتين';
+    }
     formattedDuration += '$hours ساعات ';
   }
   if (minutes > 0) {
+    if (minutes == 1) {
+      return 'دقيقة';
+    }
+    if (minutes == 2) {
+      return 'دقيقتين';
+    }
     formattedDuration += '$minutes دقائق ';
   }
 
-  return formattedDuration.trim();
+  return HijriLogic.englishToArabicNumber(formattedDuration.trim());
 }

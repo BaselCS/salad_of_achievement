@@ -305,6 +305,8 @@ class ObjectBoxState with ChangeNotifier {
 
   /// [حذف البيانات]
   void deleteAll() {
+    doneMinutes = 0;
+
     _sessionBox.removeAll();
     _activityBox.removeAll();
     _fruitUsageBox.removeAll();
