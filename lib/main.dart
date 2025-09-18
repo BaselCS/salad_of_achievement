@@ -11,6 +11,7 @@ import 'Pages/activity.dart';
 import 'Pages/history.dart';
 import 'Pages/main_page.dart';
 import 'Pages/new_session.dart';
+import 'Pages/notification_test.dart';
 import 'Pages/settings.dart';
 import 'Pages/statistics.dart';
 
@@ -58,6 +59,7 @@ class _MyAppState extends State<MyApp> {
         '/history': (_) => const AppHistoryPage(),
         '/activity': (_) => const AppActivityPage(),
         '/newSession': (_) => const AddNewSession(),
+        '/notificationTest': (_) => const NotificationTestPage(),
         '/settings': (_) => const AppSettingsPage(),
         '/activeSection': (_) => const ActiveSectionPage(),
       },

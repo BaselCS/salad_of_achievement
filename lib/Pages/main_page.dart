@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
@@ -141,6 +143,13 @@ class MyDrawer extends StatelessWidget {
             leading: const MyIcon(Icons.insert_chart),
             onTap: () {
               Navigator.pushNamed(context, '/statistics');
+            },
+          ),
+          ListTile(
+            title: const Text('اختبار الإشعارات'),
+            leading: const MyIcon(Icons.notifications_active),
+            onTap: () {
+              Navigator.pushNamed(context, '/notificationTest');
             },
           ),
           ListTile(

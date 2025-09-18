@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:math';
 import 'package:hijri/hijri_calendar.dart';
 import '../DB/models/data_model.dart';

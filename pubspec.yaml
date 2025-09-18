@@ -22,6 +22,11 @@ dependencies:
   provider: ^6.1.2
   
   hijri: ^3.0.0
+  
+  # Notifications
+  flutter_local_notifications: ^17.2.3
+  flutter_timezone: ^3.0.1
+  timezone: ^0.9.4
     
   circular_countdown_timer: ^0.2.4
   
@@ -45,6 +50,7 @@ flutter:
   uses-material-design: true  
   assets:
     - assets/icons/
+    - assets/sound/
 
   fonts:
     - family: alfont
