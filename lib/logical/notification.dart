@@ -1,21 +1,9 @@
 import 'dart:developer' show log;
-import 'dart:io';
-import 'dart:typed_data';
 
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:flutter/material.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
-/// Simple notification helper class for Salad of Achievement app
-///
-/// Features:
-/// - Send immediate notifications (فوري)
-/// - Send scheduled notifications after 5 seconds (بعد خمس ثواني)
-/// - Cancel all notifications
-/// - Custom sound support
 class NotificationHelper {
-  static final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
   static bool _isInitialized = false;
 
   /// Initialize the notification system
@@ -23,34 +11,50 @@ class NotificationHelper {
     if (_isInitialized) return;
 
     try {
-      if (Platform.isAndroid) {
-        final AndroidFlutterLocalNotificationsPlugin? androidImplementation = _notificationsPlugin
-            .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-
-        await androidImplementation?.requestNotificationsPermission();
-        await androidImplementation?.requestExactAlarmsPermission();
-      }
-
-      // Initialize notifications
-      const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/launcher_icon');
-
-      const DarwinInitializationSettings initializationSettingsIOS = DarwinInitializationSettings(
-        requestAlertPermission: true,
-        requestBadgePermission: true,
-        requestSoundPermission: true,
+      // Initialize Awesome Notifications
+      await AwesomeNotifications().initialize(
+        'resource://drawable/ic_notification', // Custom notification icon
+        [
+          NotificationChannel(
+            channelKey: 'salad_achievement_immediate',
+            channelName: 'Immediate Notifications',
+            channelDescription: 'Immediate notifications for salad achievement',
+            defaultColor: const Color(0xFF9D50DD),
+            ledColor: const Color(0xFF9D50DD),
+            importance: NotificationImportance.High,
+            channelShowBadge: true,
+            playSound: true,
+            soundSource: 'resource://raw/done_sound',
+            enableVibration: true,
+          ),
+          NotificationChannel(
+            channelKey: 'salad_achievement_scheduled',
+            channelName: 'Scheduled Notifications',
+            channelDescription: 'Scheduled notifications after specified time',
+            defaultColor: const Color(0xFF9D50DD),
+            ledColor: const Color(0xFF9D50DD),
+            importance: NotificationImportance.High,
+            channelShowBadge: true,
+            playSound: true,
+            soundSource: 'resource://raw/done_sound',
+            enableVibration: true,
+          ),
+        ],
       );
 
-      const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+      // Request notification permissions
+      await AwesomeNotifications().requestPermissionToSendNotifications();
 
-      await _notificationsPlugin.initialize(initializationSettings, onDidReceiveNotificationResponse: _onNotificationTapped);
-
-      // Initialize timezone data
-      tz.initializeTimeZones();
-      final String timeZoneName = await FlutterTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(timeZoneName));
+      // Set up notification listeners
+      AwesomeNotifications().setListeners(
+        onActionReceivedMethod: _onNotificationTapped,
+        onNotificationCreatedMethod: _onNotificationCreated,
+        onNotificationDisplayedMethod: _onNotificationDisplayed,
+        onDismissActionReceivedMethod: _onDismissActionReceived,
+      );
 
       _isInitialized = true;
-      log('✅ Notification system initialized successfully');
+      log('✅ Awesome Notification system initialized successfully');
     } catch (e) {
       log('❌ Failed to initialize notifications: $e');
       rethrow;
@@ -58,9 +62,24 @@ class NotificationHelper {
   }
 
   /// Handle notification tap
-  static void _onNotificationTapped(NotificationResponse notificationResponse) {
-    final String? payload = notificationResponse.payload;
+  static Future<void> _onNotificationTapped(ReceivedAction receivedAction) async {
+    final String? payload = receivedAction.payload?['payload'];
     log('🔔 Notification tapped with payload: $payload');
+  }
+
+  /// Handle notification created
+  static Future<void> _onNotificationCreated(ReceivedNotification receivedNotification) async {
+    log('🔔 Notification created: ${receivedNotification.title}');
+  }
+
+  /// Handle notification displayed
+  static Future<void> _onNotificationDisplayed(ReceivedNotification receivedNotification) async {
+    log('🔔 Notification displayed: ${receivedNotification.title}');
+  }
+
+  /// Handle notification dismissed
+  static Future<void> _onDismissActionReceived(ReceivedAction receivedAction) async {
+    log('🔔 Notification dismissed: ${receivedAction.title}');
   }
 
   /// Send an immediate notification (إشعار فوري)
@@ -70,28 +89,20 @@ class NotificationHelper {
     }
 
     try {
-      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-        'salad_achievement_immediate',
-        'Immediate Notifications',
-        channelDescription: 'Immediate notifications',
-        importance: Importance.high,
-        priority: Priority.high,
-        playSound: true,
-        sound: RawResourceAndroidNotificationSound('done_sound'),
-        enableVibration: true,
-        ticker: 'تنبيه فوري',
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: id,
+          channelKey: 'salad_achievement_immediate',
+          title: title,
+          body: message,
+          payload: payload != null ? {'payload': payload} : null,
+          notificationLayout: NotificationLayout.Default,
+          wakeUpScreen: true,
+          category: NotificationCategory.Reminder,
+          displayOnForeground: true,
+          displayOnBackground: true,
+        ),
       );
-
-      const DarwinNotificationDetails iOSDetails = DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-        sound: 'done_sound.mp3',
-      );
-
-      final NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidDetails, iOS: iOSDetails);
-
-      await _notificationsPlugin.show(id, title, message, platformChannelSpecifics, payload: payload);
 
       log('🔔 Immediate notification sent: $title');
     } catch (e) {
@@ -100,54 +111,49 @@ class NotificationHelper {
     }
   }
 
-  /// Send a scheduled notification after 5 seconds (إشعار بعد خمس ثواني)
-  static Future<void> sendScheduledNotification({required int id, required String title, required String message, String? imagePath, String? payload}) async {
+  /// Send a scheduled notification after specified seconds (إشعار بعد خمس ثواني)
+  static Future<void> sendScheduledNotification({
+    required int id,
+    required String title,
+    required String message,
+    required int seconds,
+    String? imagePath,
+    String? payload,
+  }) async {
     if (!_isInitialized) {
       await initializeNotifications();
     }
 
     try {
-      final scheduledTime = DateTime.now().add(const Duration(seconds: 5 * 60));
+      final DateTime scheduledTime = DateTime.now().add(Duration(seconds: seconds));
 
-      // Create notification details
-      final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-        'salad_achievement_scheduled',
-        'Scheduled Notifications',
-        channelDescription: 'Scheduled notifications after 5 seconds',
-        importance: Importance.high,
-        priority: Priority.high,
-        playSound: true,
-        sound: const RawResourceAndroidNotificationSound('done_sound'),
-        enableVibration: true,
-        vibrationPattern: Int64List.fromList([0, 500, 200, 500]),
-        ticker: 'تنبيه مؤجل',
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: id,
+          channelKey: 'salad_achievement_scheduled',
+          title: title,
+          body: message,
+          payload: payload != null ? {'payload': payload} : null,
+          notificationLayout: NotificationLayout.Default,
+          wakeUpScreen: true,
+          category: NotificationCategory.Reminder,
+          displayOnForeground: true,
+          displayOnBackground: true,
+        ),
+        schedule: NotificationCalendar(
+          year: scheduledTime.year,
+          month: scheduledTime.month,
+          day: scheduledTime.day,
+          hour: scheduledTime.hour,
+          minute: scheduledTime.minute,
+          second: scheduledTime.second,
+          allowWhileIdle: true,
+          preciseAlarm: true,
+        ),
       );
 
-      const DarwinNotificationDetails iOSDetails = DarwinNotificationDetails(
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-        sound: 'done_sound.mp3',
-      );
-
-      final NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidDetails, iOS: iOSDetails);
-
-      // Convert DateTime to TZDateTime
-      final tz.TZDateTime scheduledTZTime = tz.TZDateTime.from(scheduledTime, tz.local);
-
-      // Schedule the notification
-      await _notificationsPlugin.zonedSchedule(
-        id,
-        title,
-        message,
-        scheduledTZTime,
-        platformChannelSpecifics,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-        payload: payload,
-      );
-
-      log('🔔 Notification scheduled for 5 seconds: $title');
+      log("📅 Scheduled for $scheduledTime");
+      log('🔔 Notification scheduled for $seconds seconds: $title');
     } catch (e) {
       log('❌ Failed to schedule notification: $e');
       rethrow;
@@ -157,7 +163,7 @@ class NotificationHelper {
   /// Cancel all notifications (إلغاء جميع الإشعارات)
   static Future<void> cancelAllNotifications() async {
     try {
-      await _notificationsPlugin.cancelAll();
+      await AwesomeNotifications().cancelAll();
       log('🚫 All notifications cancelled');
     } catch (e) {
       log('❌ Failed to cancel notifications: $e');

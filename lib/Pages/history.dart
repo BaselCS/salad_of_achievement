@@ -17,7 +17,7 @@ class AppHistoryPage extends StatelessWidget {
       backgroundColor: kInnerBackGroundColor,
       appBar: AppBar(
         centerTitle: true,
-        title: const FittedBox(fit: BoxFit.fill, child: Text('سجل الجلسات')),
+        title: const FittedBox(fit: BoxFit.cover, child: Text('سجل الجلسات')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -55,12 +55,13 @@ class Body extends StatelessWidget {
           },
           leading: Container(
             decoration: const BoxDecoration(color: Colors.black, borderRadius: BorderRadius.all(Radius.circular(10))),
-            width: 120,
+            width: 80,
             height: 40,
             padding: const EdgeInsets.all(5),
             child: StarsShower(groupedSessions[index].totalMinutes, dataProvider.star1, dataProvider.star2, dataProvider.star3),
           ),
           title: FittedBox(
+            fit: BoxFit.scaleDown,
             child: Text(
               "${groupedSessions[index].dayName} ${HijriLogic.englishToArabicNumber(groupedSessions[index].date)}هـ",
               style: Theme.of(context).textTheme.bodySmall!.copyWith(color: kActionColor),
@@ -91,13 +92,13 @@ class StarsShower extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (totalTime >= star3) {
-      return const Stars(isStar1: true, isStar2: true, isStar3: true);
+      return const Stars(isStar1: true, isStar2: true, isStar3: true, size: 20);
     } else if (totalTime >= star2) {
-      return const Stars(isStar1: true, isStar2: true);
+      return const Stars(isStar1: true, isStar2: true, size: 20);
     } else if (totalTime >= star1) {
-      return const Stars(isStar1: true);
+      return const Stars(isStar1: true, size: 20);
     }
-    return const Stars();
+    return const Stars(size: 20);
   }
 }
 
@@ -151,25 +152,34 @@ class _SessionDetailsState extends State<SessionDetails> {
             ),
 
             //النص كقائمة
-            title: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: widget.sessions[index].topic,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    if (newValue != null) {
-                      widget.sessions[index].topic = newValue;
-                      dataProvider.updateSession(widget.sessions[index]);
-                    }
-                  });
-                },
-                items: activities.map<DropdownMenuItem<String>>((Activity value) {
-                  return DropdownMenuItem<String>(
-                    value: value.name,
-                    child: Text(value.name, style: Theme.of(context).textTheme.bodySmall),
-                  );
-                }).toList(),
-              ),
-            ),
+            title: activities.isNotEmpty
+                ? DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: () {
+                        String currentTopic = widget.sessions[index].topic;
+                        bool topicExists = activities.any((activity) => activity.name == currentTopic);
+                        if (!topicExists && activities.isNotEmpty) {
+                          return activities.first.name;
+                        }
+                        return currentTopic;
+                      }(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          if (newValue != null) {
+                            widget.sessions[index].topic = newValue;
+                            dataProvider.updateSession(widget.sessions[index]);
+                          }
+                        });
+                      },
+                      items: activities.map<DropdownMenuItem<String>>((Activity value) {
+                        return DropdownMenuItem<String>(
+                          value: value.name,
+                          child: Text(value.name, style: Theme.of(context).textTheme.bodySmall),
+                        );
+                      }).toList(),
+                    ),
+                  )
+                : Text(widget.sessions[index].topic, style: Theme.of(context).textTheme.bodySmall),
           );
         },
         separatorBuilder: (BuildContext context, int index) {

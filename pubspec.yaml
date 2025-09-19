@@ -1,5 +1,5 @@
 name: salad_of_achievement
-description: "A new Flutter project."
+description: "نسخة محسنة من تطبيق سلطة الإنجاز الخاص بعلي محمد علي يسمح لك بتعديل المهام و الجلسات"
 
 publish_to: 'none' 
 
@@ -24,9 +24,7 @@ dependencies:
   hijri: ^3.0.0
   
   # Notifications
-  flutter_local_notifications: ^17.2.3
-  flutter_timezone: ^3.0.1
-  timezone: ^0.9.4
+  awesome_notifications: ^0.10.1
     
   circular_countdown_timer: ^0.2.4
   

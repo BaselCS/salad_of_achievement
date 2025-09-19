@@ -1,7 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 // ignore_for_file: avoid_print
 
 import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:provider/provider.dart';
 import '../DB/models/data_model.dart';
 import '../DB/models/object_box.dart';
 
@@ -282,4 +286,55 @@ class FakeDataGenerator {
     objectBox.doneMinutes = 520; // Very high daily progress
     print('✅ Expert user data generated');
   }
+}
+
+/// Show dialog to generate fake data for testing
+void showFakeDataDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('🎭 Generate Test Data'),
+        content: const Text('Choose what type of test data to generate:'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Clear All'),
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
+              await FakeDataGenerator.clearAllData(objectBox);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('🧹 All data cleared!')));
+            },
+          ),
+          TextButton(
+            child: const Text('Beginner'),
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
+              await FakeDataGenerator.generateScenarioData(objectBox, 'beginner');
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('🌱 Beginner data generated!')));
+            },
+          ),
+          TextButton(
+            child: const Text('Active User'),
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
+              await FakeDataGenerator.generateScenarioData(objectBox, 'active');
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('🔥 Active user data generated!')));
+            },
+          ),
+          TextButton(
+            child: const Text('Expert'),
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
+              await FakeDataGenerator.generateScenarioData(objectBox, 'expert');
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('🏆 Expert data generated!')));
+            },
+          ),
+        ],
+      );
+    },
+  );
 }

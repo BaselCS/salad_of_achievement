@@ -5,6 +5,7 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/DB/models/object_box.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
+import 'package:salad_of_achievement/logical/notification.dart';
 import 'Pages/active_session.dart';
 import 'Pages/activity.dart';
 
@@ -20,6 +21,9 @@ late ObjectBoxState objectBox;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize notifications
+  await NotificationHelper.initializeNotifications();
 
   objectBox = await ObjectBoxState.create();
   //عشان أخلي التقويم الهجري و بأرقام عربية

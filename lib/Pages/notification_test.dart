@@ -112,7 +112,13 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
   }
 
   Future<void> _send5SecondNotification() async {
-    await NotificationHelper.sendScheduledNotification(id: 2, title: 'إشعار مؤجل', message: 'هذا إشعار مؤجل لمدة 5 ثواني!', imagePath: 'assets/icons/موز.png');
+    await NotificationHelper.sendScheduledNotification(
+      id: 2,
+      title: 'إشعار مؤجل',
+      message: 'هذا إشعار مؤجل لمدة 5 ثواني!',
+      seconds: 5, 
+      imagePath: 'assets/icons/موز.png',
+    );
   }
 
   Future<void> _cancelAllNotifications() async {

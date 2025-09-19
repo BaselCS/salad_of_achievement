@@ -44,27 +44,38 @@ Map<String, List> fruits = {
   "60": [dragon, kDragonColor],
 };
 
+Map<String, String> fruitsPath = {
+  "5": '$iconPath/برتقال.png',
+  "10": '$iconPath/ليمون.png',
+  "15": '$iconPath/فرولة.png',
+  "20": '$iconPath/برتقال.png',
+  "25": '$iconPath/طماطم.png',
+  "30": '$iconPath/موز.png',
+  "40": '$iconPath/كمثرى.png',
+  "50": '$iconPath/يقطين.png',
+  "60": '$iconPath/تنين.png',
+};
+
 const List<int> fruitsId = [5, 10, 15, 20, 25, 30, 40, 50, 60];
+
 // النجوم
 class Stars extends StatelessWidget {
   final bool isStar1;
   final bool isStar2;
   final bool isStar3;
-  const Stars({
-    super.key,
-    this.isStar1 = false,
-    this.isStar2 = false,
-    this.isStar3 = false,
-    
-  });
+  final double size;
+  const Stars({super.key, this.isStar1 = false, this.isStar2 = false, this.isStar3 = false, this.size = 35});
 
   @override
   Widget build(BuildContext context) {
-    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Icon(Icons.star, color: isStar1 ? kStartsColor : kBackGroundColor, size: 35),
-      Icon(Icons.star, color: isStar2 ? kStartsColor : kBackGroundColor, size: 35),
-      Icon(Icons.star, color: isStar3 ? kStartsColor : kBackGroundColor, size: 35)
-    ]);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.star, color: isStar1 ? kStartsColor : kBackGroundColor, size: size),
+        Icon(Icons.star, color: isStar2 ? kStartsColor : kBackGroundColor, size: size),
+        Icon(Icons.star, color: isStar3 ? kStartsColor : kBackGroundColor, size: size),
+      ],
+    );
   }
 }
 

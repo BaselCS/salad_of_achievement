@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:circular_countdown_timer/custom_timer_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:salad_of_achievement/Pages/active_session.dart';
+import 'package:salad_of_achievement/logical/notification.dart';
+import 'package:salad_of_achievement/utilities/const.dart';
 
 /// Create a Circular Countdown Timer.
 class MyCircularCountDownTimer extends StatefulWidget {
@@ -40,7 +42,7 @@ class MyCircularCountDownTimer extends StatefulWidget {
   final StrokeCap strokeCap;
 
   /// Controls (i.e Start, Pause, Resume, Restart) the Countdown Timer.
-  final CountDownCcontrollers? controller;
+  final CountDownControllers? controller;
 
   final Widget child;
 
@@ -68,7 +70,7 @@ class MyCircularCountDownTimer extends StatefulWidget {
 class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer> with TickerProviderStateMixin {
   AnimationController? _controller;
   Animation<double>? _countDownAnimation;
-  CountDownCcontrollers? countDownController;
+  CountDownControllers? countDownController;
 
   String get time {
     String timeStamp = "";
@@ -123,7 +125,7 @@ class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer> with
 
   @override
   void initState() {
-    countDownController = widget.controller ?? CountDownCcontrollers();
+    countDownController = widget.controller ?? CountDownControllers();
     super.initState();
     _controller = AnimationController(
       vsync: this,
@@ -155,44 +157,49 @@ class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer> with
       width: widget.width,
       height: widget.height,
       child: AnimatedBuilder(
-          animation: _controller!,
-          builder: (context, child) {
-            return Align(
-              child: AspectRatio(
-                aspectRatio: 1.0,
-                child: Stack(
-                  children: <Widget>[
-                    Positioned.fill(
-                      child: CustomPaint(
-                        painter: CustomTimerPainter(
-                          animation: _countDownAnimation ?? _controller,
-                          fillColor: widget.fillColor,
-                          ringColor: widget.ringColor,
-                          strokeWidth: widget.strokeWidth,
-                          strokeCap: widget.strokeCap,
-                        ),
+        animation: _controller!,
+        builder: (context, child) {
+          return Align(
+            child: AspectRatio(
+              aspectRatio: 1.0,
+              child: Stack(
+                children: <Widget>[
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: CustomTimerPainter(
+                        animation: _countDownAnimation ?? _controller,
+                        fillColor: widget.fillColor,
+                        ringColor: widget.ringColor,
+                        strokeWidth: widget.strokeWidth,
+                        strokeCap: widget.strokeCap,
                       ),
                     ),
-                    Align(
-                        alignment: FractionalOffset.center,
-                        child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                          SizedBox(width: widget.width / 2, child: widget.child),
-                          Container(
-                              decoration: BoxDecoration(
-                                color: Colors.black..withAlpha(127),
-                                borderRadius: BorderRadius.circular(36),
-                              ),
-                              width: widget.width / 2,
-                              child: Center(
-                                  child: FittedBox(
-                                      fit: BoxFit.contain,
-                                      child: Text(time, style: Theme.of(context).textTheme.displayMedium!.copyWith(color: widget.fillColor)))))
-                        ]))
-                  ],
-                ),
+                  ),
+                  Align(
+                    alignment: FractionalOffset.center,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        SizedBox(width: widget.width / 2, child: widget.child),
+                        Container(
+                          decoration: BoxDecoration(color: Colors.black..withAlpha(127), borderRadius: BorderRadius.circular(36)),
+                          width: widget.width / 2,
+                          child: Center(
+                            child: FittedBox(
+                              fit: BoxFit.contain,
+                              child: Text(time, style: Theme.of(context).textTheme.displayMedium!.copyWith(color: widget.fillColor)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            );
-          }),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -205,7 +212,7 @@ class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer> with
 }
 
 /// Controls (i.e Start, Pause, Resume, Restart) the Countdown Timer.
-class CountDownCcontrollers {
+class CountDownControllers {
   MyCircularCountDownTimerState? _timerState;
 
   ValueNotifier<bool> isStarted = ValueNotifier<bool>(false),
@@ -223,7 +230,6 @@ class CountDownCcontrollers {
       isPaused.value = false;
       isResumed.value = false;
       isRestarted.value = false;
-      inform += "${DateTime.now()}  - تم بدء الوقت\n";
     }
   }
 
@@ -234,7 +240,7 @@ class CountDownCcontrollers {
       isPaused.value = true;
       isRestarted.value = false;
       isResumed.value = false;
-      inform += "${DateTime.now()}  - تم إيقاف الوقت\n";
+  
     }
   }
 
@@ -246,7 +252,7 @@ class CountDownCcontrollers {
       isResumed.value = true;
       isRestarted.value = false;
       isPaused.value = false;
-      inform += "${DateTime.now()}  - تم استئناف الوقت\n";
+  
     }
   }
 
@@ -261,7 +267,6 @@ class CountDownCcontrollers {
       isRestarted.value = true;
       isPaused.value = false;
       isResumed.value = false;
-      inform += "${DateTime.now()} - تم إعادة الوقت\n";
     }
   }
 
@@ -271,7 +276,6 @@ class CountDownCcontrollers {
       _timerState?._controller!.duration = Duration(seconds: remainingTime);
 
       log("تم تصحيح الوقت ليصبح $remainingTime أي ${remainingTime % 60} دقيقة و ${remainingTime ~/ 60} ثانية");
-      inform += "${DateTime.now()} - تم تصحيح الوقت ليصبح $remainingTime أي ${remainingTime % 60} دقيقة و ${remainingTime ~/ 60} ثانية\n";
     }
   }
 
@@ -283,8 +287,30 @@ class CountDownCcontrollers {
       isRestarted.value = false;
       isPaused.value = false;
       isResumed.value = false;
-      inform += "${DateTime.now()} - تم إعادة الوقت\n";
     }
+  }
+
+  Future<void> cancelAllNotifications() async {
+    await NotificationHelper.cancelAllNotifications();
+  }
+
+  void setNonfiction({String activityName = "غير محدد", int sessionTime = 5, int seconds = 5}) async {
+    await NotificationHelper.sendScheduledNotification(
+      id: 2,
+      title: 'تمت جلسة',
+      message: 'عملت على $activityName لمدة $sessionTime دقيقة',
+      imagePath: fruitsPath[sessionTime.toString()]![0],
+      seconds: seconds,
+    );
+  }
+
+  Future<void> sendImmediateNotification({String activityName = "غير محدد", int sessionTime = 5}) async {
+    await NotificationHelper.sendImmediateNotification(
+      id: 1,
+      title: 'تمت جلسة',
+      message: 'عملت على $activityName لمدة $sessionTime دقيقة',
+      imagePath: fruitsPath[sessionTime.toString()]![0],
+    );
   }
 
   /// This Method returns the **Current Time** of Countdown Timer i.e

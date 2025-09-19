@@ -103,6 +103,9 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
     context: context,
     builder: (BuildContext context) {
       newTime = 0;
+      // Set the current activity name as initial value
+      controllerName.text = activities[index].name;
+
       return AlertDialog(
         actionsAlignment: MainAxisAlignment.spaceAround,
         title: const FittedBox(
@@ -118,7 +121,7 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
               decoration: InputDecoration(
                 fillColor: kContainerColor,
                 filled: true,
-                hintText: ' ${activities[index].name}',
+                hintText: activities[index].name,
                 hintStyle: TextStyle(color: Colors.white.withAlpha(64)),
               ),
             ),
@@ -131,20 +134,36 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    if (controllerName.text.isEmpty) {
-                      controllerName.text = activities[index].name;
+                    String newName = controllerName.text.trim();
+                    if (newName.isEmpty) {
+                      newName = activities[index].name;
                     }
                     if (newTime == 0) {
                       newTime = activities[index].timeSpent;
                     }
 
-                    dataProvider.updateActivity(activities[index], controllerName.text, newTime);
+                    // Check if the new name already exists (but not for the current activity)
+                    bool nameExists = activities.any((activity) => activity.name.toLowerCase() == newName.toLowerCase() && activity.id != activities[index].id);
+
+                    if (nameExists) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('اسم المشروع موجود بالفعل', style: TextStyle(color: kTomatoColor, fontSize: 16)),
+                          backgroundColor: kContainerColor,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      return;
+                    }
+
+                    // Update the activity name and time in the database
+                    dataProvider.updateActivity(activities[index], newName, newTime);
                     controllerName.clear();
                     controllerMin.clear();
                     newTime = 0;
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('تم تعديل المشروع ', style: TextStyle(color: kActionColor, fontSize: 16)),
+                        content: Text('تم تعديل المشروع بنجاح', style: TextStyle(color: kActionColor, fontSize: 16)),
                         backgroundColor: kContainerColor,
                         duration: Duration(milliseconds: 500),
                       ),
@@ -161,7 +180,6 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
                 ElevatedButton(
                   onPressed: () {
                     newTime = 0;
@@ -236,7 +254,7 @@ class _EditTimeFilledState extends State<EditTimeFilled> {
                   int days = int.tryParse(value) ?? 0;
                   int hours = int.tryParse(controllerHour.text) ?? 0;
                   int minutes = int.tryParse(controllerMin.text) ?? 0;
-                  newTime = days * 24 * 60 + hours * 60 + minutes;
+                  newTime = (days * 24 * 60) + (hours * 60) + minutes;
                 },
               ),
             ),
@@ -255,7 +273,7 @@ class _EditTimeFilledState extends State<EditTimeFilled> {
                   int days = int.tryParse(controllerDay.text) ?? 0;
                   int hours = int.tryParse(value) ?? 0;
                   int minutes = int.tryParse(controllerMin.text) ?? 0;
-                  newTime = days * 24 * 60 + hours * 60 + minutes;
+                  newTime = (days * 24 * 60) + (hours * 60) + minutes;
                 },
               ),
             ),
@@ -274,7 +292,7 @@ class _EditTimeFilledState extends State<EditTimeFilled> {
                   int days = int.tryParse(controllerDay.text) ?? 0;
                   int hours = int.tryParse(controllerHour.text) ?? 0;
                   int minutes = int.tryParse(value) ?? 0;
-                  newTime = days * 24 * 60 + hours * 60 + minutes;
+                  newTime = (days * 24 * 60) + (hours * 60) + minutes;
                 },
               ),
             ),
@@ -366,41 +384,50 @@ Future<dynamic> addActivityMassage(BuildContext context, TextEditingController c
 }
 
 String formatDuration(int durationInMinutes) {
+  if (durationInMinutes == 0) {
+    return 'اعقِلْها وتوكَّلْ';
+  }
+
   final int days = durationInMinutes ~/ (24 * 60);
   final int hours = (durationInMinutes % (24 * 60)) ~/ 60;
   final int minutes = durationInMinutes % 60;
-  String formattedDuration = '';
 
-  if (durationInMinutes == 0) {
-    formattedDuration = 'اعقِلْها وتوكَّلْ';
-  }
+  String formattedDuration = '';
 
   if (days > 0) {
     if (days == 1) {
-      return 'يوم';
+      formattedDuration += 'يوم ';
+    } else if (days == 2) {
+      formattedDuration += 'يومان ';
+    } else if (days >= 3 && days <= 10) {
+      formattedDuration += '$days أيام ';
+    } else {
+      formattedDuration += '$days يوما ';
     }
-    if (days == 2) {
-      return 'يومين';
-    }
-    return '$days أيام';
   }
+
   if (hours > 0) {
     if (hours == 1) {
-      return 'ساعة';
+      formattedDuration += 'ساعة ';
+    } else if (hours == 2) {
+      formattedDuration += 'ساعتان ';
+    } else if (hours >= 3 && hours <= 10) {
+      formattedDuration += '$hours ساعات ';
+    } else {
+      formattedDuration += '$hours ساعة ';
     }
-    if (hours == 2) {
-      return 'ساعتين';
-    }
-    formattedDuration += '$hours ساعات ';
   }
+
   if (minutes > 0) {
     if (minutes == 1) {
-      return 'دقيقة';
+      formattedDuration += 'دقيقة ';
+    } else if (minutes == 2) {
+      formattedDuration += 'دقيقتان ';
+    } else if (minutes >= 3 && minutes <= 10) {
+      formattedDuration += '$minutes دقائق ';
+    } else {
+      formattedDuration += '$minutes دقيقة ';
     }
-    if (minutes == 2) {
-      return 'دقيقتين';
-    }
-    formattedDuration += '$minutes دقائق ';
   }
 
   return HijriLogic.englishToArabicNumber(formattedDuration.trim());
