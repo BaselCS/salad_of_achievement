@@ -107,7 +107,7 @@ class _ActivityNameMenuState extends State<ActivityNameMenu> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(4.0),
-      width: MediaQuery.of(context).size.width * 0.4,
+      width: MediaQuery.of(context).size.width * 0.5,
       height: MediaQuery.of(context).size.height * 0.05,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0), color: kContainerColor),
@@ -115,14 +115,16 @@ class _ActivityNameMenuState extends State<ActivityNameMenu> {
         child: DropdownButton<String>(
           value: activityName,
           onChanged: (String? newValue) {
+            controller.cancelAllNotifications();
             setState(() {
               activityName = newValue!;
             });
+            controller.setNonfiction(activityName: newValue ?? "غير محدد", sessionTime: sessionTime, seconds: TimerLogic.instance.remainingSeconds);
           },
           items: activities.map<DropdownMenuItem<String>>((Activity value) {
             return DropdownMenuItem<String>(
               value: value.name,
-              child: Text(value.name, style: Theme.of(context).textTheme.bodySmall),
+              child: FittedBox(child: Text(value.name)),
             );
           }).toList(),
         ),
@@ -209,9 +211,11 @@ class SaveButton extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
       onPressed: () {
-        if (doneMinutes != 0 && fruitsId.contains(doneMinutes)) {
+        if (fruitsId.contains(doneMinutes)) {
           addSession(context, doneMinutes, activityName);
           controller.cancelAllNotifications();
+          Navigator.pop(context);
+          Navigator.pushNamed(context, '/');
         }
       },
       child: Padding(
@@ -237,8 +241,8 @@ class SaveButton extends StatelessWidget {
 
 class CountDownTimer extends StatelessWidget {
   void start() {
-    TimerLogic.instance.setEndingTime(sessionTime * 60);
-    controller.setNonfiction(activityName: activityName ?? "غير محدد", sessionTime: sessionTime, seconds: sessionTime * 60);
+    TimerLogic.instance.setEndingTime(sessionTime * 1);
+    controller.setNonfiction(activityName: activityName ?? "غير محدد", sessionTime: sessionTime, seconds: sessionTime * 1);
   }
 
   void onChange(String string) {
@@ -252,8 +256,8 @@ class CountDownTimer extends StatelessWidget {
       controller.correctTime(remain);
     }
 
-    if (fruitsId.contains(remain)) {
-      doneMinutes = remain;
+    if (fruitsId.contains(sessionTime - remain)) {
+      doneMinutes = sessionTime - remain;
     }
   }
 
@@ -263,7 +267,7 @@ class CountDownTimer extends StatelessWidget {
     doneMinutes = 0;
     double size = min(MediaQuery.of(context).size.width * 0.8, MediaQuery.of(context).size.height * 0.8);
     return MyCircularCountDownTimer(
-      duration: sessionTime * 60,
+      duration: sessionTime * 1,
       initialDuration: 0,
       fillColor: theColor,
       height: size,
@@ -287,7 +291,7 @@ class CountDownTimer extends StatelessWidget {
 void addSession(BuildContext context, int sessionTime, String? activityName) {
   ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
 
-  dataProvider.addSession(Session(date: HijriCalendar.now().toString(), timeSpent: sessionTime, topic: activityName ?? 'غير محدد'));
+  dataProvider.addSession(Session(date: HijriCalendar.now().toString(), timeSpent: sessionTime, activityName: activityName ?? 'غير محدد'));
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       backgroundColor: kContainerColor,

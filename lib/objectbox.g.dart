@@ -95,7 +95,7 @@ final _entities = <obx_int.ModelEntity>[
       ),
       obx_int.ModelProperty(
         id: const obx_int.IdUid(5, 1944272196284508478),
-        name: 'topic',
+        name: 'activityName',
         type: 9,
         flags: 0,
       ),
@@ -308,12 +308,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
       objectToFB: (Session object, fb.Builder fbb) {
         final dateOffset = fbb.writeString(object.date);
-        final topicOffset = fbb.writeString(object.topic);
+        final activityNameOffset = fbb.writeString(object.activityName);
         fbb.startTable(6);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, dateOffset);
         fbb.addInt64(2, object.timeSpent);
-        fbb.addOffset(4, topicOffset);
+        fbb.addOffset(4, activityNameOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -335,14 +335,14 @@ obx_int.ModelDefinition getObjectBoxModel() {
           8,
           0,
         );
-        final topicParam = const fb.StringReader(
+        final activityNameParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 12, '');
         final object = Session(
           id: idParam,
           date: dateParam,
           timeSpent: timeSpentParam,
-          topic: topicParam,
+          activityName: activityNameParam,
         );
 
         return object;
@@ -477,8 +477,8 @@ class Session_ {
     _entities[2].properties[2],
   );
 
-  /// See [Session.topic].
-  static final topic = obx.QueryStringProperty<Session>(
+  /// See [Session.activityName].
+  static final activityName = obx.QueryStringProperty<Session>(
     _entities[2].properties[3],
   );
 }

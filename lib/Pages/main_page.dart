@@ -30,6 +30,14 @@ class MainPage extends StatelessWidget {
             tooltip: 'Generate Test Data',
             onPressed: () => showFakeDataDialog(context),
           ),
+          // Database viewer button (for debugging)
+          IconButton(
+            icon: const Icon(Icons.storage, color: Colors.blue),
+            tooltip: 'View Database',
+            onPressed: () {
+              Navigator.pushNamed(context, '/databaseViewer');
+            },
+          ),
           Padding(
             padding: const EdgeInsets.only(left: 16.0),
             child: IconButton(

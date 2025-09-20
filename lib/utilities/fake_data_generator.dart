@@ -97,7 +97,7 @@ class FakeDataGenerator {
         List<int> possibleDurations = [5, 10, 15, 20, 25, 30, 40, 50, 60];
         int duration = possibleDurations[_random.nextInt(possibleDurations.length)];
 
-        Session session = Session(date: hijriDateString, timeSpent: duration, topic: randomActivity.name);
+        Session session = Session(date: hijriDateString, timeSpent: duration, activityName: randomActivity.name);
 
         objectBox.addSession(session);
         totalSessions++;
@@ -230,7 +230,7 @@ class FakeDataGenerator {
         Session session = Session(
           date: hijriDateString,
           timeSpent: [5, 10, 15][_random.nextInt(3)], // Short sessions
-          topic: beginnerActivities[_random.nextInt(beginnerActivities.length)],
+          activityName: beginnerActivities[_random.nextInt(beginnerActivities.length)],
         );
         objectBox.addSession(session);
       }
@@ -277,7 +277,7 @@ class FakeDataGenerator {
         List<int> expertDurations = [25, 30, 40, 50, 60]; // Longer sessions
         int duration = expertDurations[_random.nextInt(expertDurations.length)];
 
-        Session session = Session(date: hijriDateString, timeSpent: duration, topic: randomActivity.name);
+        Session session = Session(date: hijriDateString, timeSpent: duration, activityName: randomActivity.name);
         objectBox.addSession(session);
       }
     }

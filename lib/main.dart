@@ -8,6 +8,7 @@ import 'package:salad_of_achievement/utilities/const.dart';
 import 'package:salad_of_achievement/logical/notification.dart';
 import 'Pages/active_session.dart';
 import 'Pages/activity.dart';
+import 'Pages/database_viewer.dart';
 
 import 'Pages/history.dart';
 import 'Pages/main_page.dart';
@@ -66,6 +67,7 @@ class _MyAppState extends State<MyApp> {
         '/notificationTest': (_) => const NotificationTestPage(),
         '/settings': (_) => const AppSettingsPage(),
         '/activeSection': (_) => const ActiveSectionPage(),
+        '/databaseViewer': (_) => const DatabaseViewerPage(),
       },
     );
   }

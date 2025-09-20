@@ -164,7 +164,7 @@ class _CustomCounterState extends State<CustomCounter> {
     setState(() {
       if (_counter < 23) {
         _counter++;
-        dataProvider.setStartOfDay(_counter);
+        dataProvider.updateTimeToRest(_counter);
       }
     });
   }
@@ -173,7 +173,7 @@ class _CustomCounterState extends State<CustomCounter> {
     setState(() {
       if (_counter > 0) {
         _counter--;
-        dataProvider.setStartOfDay(_counter);
+        dataProvider.updateTimeToRest(_counter);
       }
     });
   }

@@ -66,6 +66,16 @@ class ObjectBoxState with ChangeNotifier {
     doneMinutes = 0;
   }
 
+  void updateTimeToRest(int hour) {
+    final currentSetting = _settingBox.get(1) ?? Setting();
+    currentSetting.hourOfRest = hour;
+    timeToRest = DateTime(timeToRest.year, timeToRest.month, timeToRest.day, hour);
+    currentSetting.timeOfRest = timeToRest.toString();
+    _settingBox.put(currentSetting);
+    log("Start of day set to: $hour");
+    notifyListeners();
+  }
+
   /// تهيئة مؤقت إعادة التعيين
   void _initializeResetTimer() {
     final now = DateTime.now();
@@ -219,15 +229,6 @@ class ObjectBoxState with ChangeNotifier {
     currentSetting.star3 = star3;
     _settingBox.put(currentSetting);
     log("حدثت قيمة النجوم");
-    notifyListeners();
-  }
-
-  void setStartOfDay(int value) {
-    timeToRest = DateTime(timeToRest.year, timeToRest.month, timeToRest.day, value);
-    final currentSetting = _settingBox.get(1) ?? Setting();
-    currentSetting.hourOfRest = value;
-    _settingBox.put(currentSetting);
-    log("Start of day set to: $value");
     notifyListeners();
   }
 

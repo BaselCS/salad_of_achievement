@@ -122,7 +122,7 @@ class OkButton extends StatelessWidget {
       onTap: () {
         if (activity.isNotEmpty && min != 0) {
           ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
-          dataProvider.addSession(Session(date: HijriCalendar.now().toString(), timeSpent: min, topic: activity));
+          dataProvider.addSession(Session(date: HijriCalendar.now().toString(), timeSpent: min, activityName: activity));
           Navigator.pop(context);
         }
       },

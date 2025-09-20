@@ -240,7 +240,6 @@ class CountDownControllers {
       isPaused.value = true;
       isRestarted.value = false;
       isResumed.value = false;
-  
     }
   }
 
@@ -252,7 +251,6 @@ class CountDownControllers {
       isResumed.value = true;
       isRestarted.value = false;
       isPaused.value = false;
-  
     }
   }
 
@@ -295,9 +293,10 @@ class CountDownControllers {
   }
 
   void setNonfiction({String activityName = "غير محدد", int sessionTime = 5, int seconds = 5}) async {
+    log("setNonfiction called with $activityName, $sessionTime, $seconds");
     await NotificationHelper.sendScheduledNotification(
       id: 2,
-      title: 'تمت جلسة',
+      title: 'تمت الجلسة',
       message: 'عملت على $activityName لمدة $sessionTime دقيقة',
       imagePath: fruitsPath[sessionTime.toString()]![0],
       seconds: seconds,
@@ -307,7 +306,7 @@ class CountDownControllers {
   Future<void> sendImmediateNotification({String activityName = "غير محدد", int sessionTime = 5}) async {
     await NotificationHelper.sendImmediateNotification(
       id: 1,
-      title: 'تمت جلسة',
+      title: 'تمت الجلسة',
       message: 'عملت على $activityName لمدة $sessionTime دقيقة',
       imagePath: fruitsPath[sessionTime.toString()]![0],
     );

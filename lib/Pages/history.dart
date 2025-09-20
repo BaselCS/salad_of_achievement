@@ -156,17 +156,17 @@ class _SessionDetailsState extends State<SessionDetails> {
                 ? DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: () {
-                        String currentTopic = widget.sessions[index].topic;
-                        bool topicExists = activities.any((activity) => activity.name == currentTopic);
-                        if (!topicExists && activities.isNotEmpty) {
+                        String currentactivityName = widget.sessions[index].activityName;
+                        bool activityNameExists = activities.any((activity) => activity.name == currentactivityName);
+                        if (!activityNameExists && activities.isNotEmpty) {
                           return activities.first.name;
                         }
-                        return currentTopic;
+                        return currentactivityName;
                       }(),
                       onChanged: (String? newValue) {
                         setState(() {
                           if (newValue != null) {
-                            widget.sessions[index].topic = newValue;
+                            widget.sessions[index].activityName = newValue;
                             dataProvider.updateSession(widget.sessions[index]);
                           }
                         });
@@ -179,7 +179,7 @@ class _SessionDetailsState extends State<SessionDetails> {
                       }).toList(),
                     ),
                   )
-                : Text(widget.sessions[index].topic, style: Theme.of(context).textTheme.bodySmall),
+                : Text(widget.sessions[index].activityName, style: Theme.of(context).textTheme.bodySmall),
           );
         },
         separatorBuilder: (BuildContext context, int index) {
