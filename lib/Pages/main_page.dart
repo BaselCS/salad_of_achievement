@@ -3,6 +3,7 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
+// import 'package:salad_of_achievement/utilities/fake_data_generator.dart';
 
 import '../DB/models/object_box.dart';
 
@@ -99,13 +100,13 @@ class MyDrawer extends StatelessWidget {
               Navigator.pushNamed(context, '/statistics');
             },
           ),
-          // ListTile(
-          //   title: const Text('اختبار الإشعارات'),
-          //   leading: const MyIcon(Icons.notifications_active),
-          //   onTap: () {
-          //     Navigator.pushNamed(context, '/notificationTest');
-          //   },
-          // ),
+          ListTile(
+            title: const Text('اختبار الإشعارات'),
+            leading: const MyIcon(Icons.notifications_active),
+            onTap: () {
+              Navigator.pushNamed(context, '/notificationTest');
+            },
+          ),
           ListTile(
             title: const Text('إعدادات'),
             leading: const MyIcon(Icons.settings),

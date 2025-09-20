@@ -14,7 +14,7 @@ class NotificationHelper {
     try {
       // Initialize Awesome Notifications
       await AwesomeNotifications().initialize(
-        'resource://drawable/ic_notification', // Custom notification icon
+        'resource://drawable/ic_notification', // Use simple notification icon
         [
           NotificationChannel(
             channelKey: 'salad_achievement_immediate',
@@ -45,8 +45,25 @@ class NotificationHelper {
         ],
       );
 
-      // Request notification permissions
-      await AwesomeNotifications().requestPermissionToSendNotifications();
+      // Request comprehensive notification permissions for release mode
+      bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
+      if (!isAllowed) {
+        // Request all necessary permissions
+        await AwesomeNotifications().requestPermissionToSendNotifications(
+          channelKey: 'salad_achievement_immediate',
+          permissions: [
+            NotificationPermission.Alert,
+            NotificationPermission.Sound,
+            NotificationPermission.Badge,
+            NotificationPermission.Vibration,
+            NotificationPermission.Light,
+            NotificationPermission.CriticalAlert,
+            NotificationPermission.FullScreenIntent,
+          ],
+        );
+      }
+
+      log('🔔 Notification permissions granted: ${await AwesomeNotifications().isNotificationAllowed()}');
 
       // Set up notification listeners
       AwesomeNotifications().setListeners(
@@ -104,6 +121,7 @@ class NotificationHelper {
           category: NotificationCategory.Reminder,
           displayOnForeground: true,
           displayOnBackground: true,
+          icon: 'resource://drawable/ic_notification',
         ),
       );
 
@@ -142,6 +160,7 @@ class NotificationHelper {
           category: NotificationCategory.Reminder,
           displayOnForeground: true,
           displayOnBackground: true,
+          icon: 'resource://drawable/ic_notification',
         ),
         schedule: NotificationCalendar(
           year: scheduledTime.year,
@@ -170,6 +189,37 @@ class NotificationHelper {
       log('🚫 All notifications cancelled');
     } catch (e) {
       log('❌ Failed to cancel notifications: $e');
+    }
+  }
+
+  /// Check notification status for release mode debugging
+  static Future<void> verifyNotificationSetup() async {
+    try {
+      bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
+      List<NotificationModel> scheduledNotifications = await AwesomeNotifications().listScheduledNotifications();
+
+      log('🔍 Notification Setup Verification:');
+      log('   - Permissions allowed: $isAllowed');
+      log('   - Scheduled notifications: ${scheduledNotifications.length}');
+      log('   - Initialization status: $_isInitialized');
+
+      if (!isAllowed) {
+        log('⚠️ Notifications not allowed - request permissions');
+      }
+    } catch (e) {
+      log('❌ Error verifying notification setup: $e');
+    }
+  }
+
+  /// Force reinitialize for release mode issues
+  static Future<void> forceReinitialize() async {
+    try {
+      _isInitialized = false;
+      await initializeNotifications();
+      await verifyNotificationSetup();
+      log('🔄 Notification system reinitialized');
+    } catch (e) {
+      log('❌ Failed to reinitialize notifications: $e');
     }
   }
 }

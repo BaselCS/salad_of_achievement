@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+    <!-- Notification icon - achievement/star theme -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M10,2l2.5,5h5.5l-4.5,3.5L15,16l-5,-3.5L5,16l1.5,-5.5L2,7h5.5L10,2z"/>
+</vector>

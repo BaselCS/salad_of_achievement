@@ -1,16 +1,41 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     
-    <!-- Notification permissions -->
+    <!-- Essential notification permissions for awesome_notifications -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     
     <application
         android:label="سلطة الإنجاز"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
+        
+        <!-- Awesome Notifications receivers for release mode -->
+        <receiver android:name="me.carda.awesome_notifications.core.receivers.NotificationReceiver"
+            android:exported="false"
+            android:enabled="true" />
+            
+        <receiver android:name="me.carda.awesome_notifications.core.receivers.ScheduledNotificationReceiver"
+            android:exported="false"
+            android:enabled="true" />
+            
+        <receiver android:name="me.carda.awesome_notifications.core.receivers.DismissedNotificationReceiver"
+            android:exported="false"
+            android:enabled="true" />
+            
+        <service android:name="me.carda.awesome_notifications.core.services.ForegroundService"
+            android:exported="false"
+            android:enabled="true"
+            android:stopWithTask="false"
+            tools:replace="android:stopWithTask" />
+        
         <activity
             android:name=".MainActivity"
             android:exported="true"
