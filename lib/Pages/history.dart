@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
@@ -39,7 +40,6 @@ class Body extends StatelessWidget {
     List<GroupedSessions> groupedSessions = dataProvider.groupSessionsByDay(dataProvider.getAllSessions());
     activities = dataProvider.getAllActivities();
     return ListView.separated(
-      reverse: true,
       shrinkWrap: true,
       itemCount: groupedSessions.length,
       itemBuilder: (BuildContext context, int index) {
@@ -146,7 +146,14 @@ class _SessionDetailsState extends State<SessionDetails> {
             trailing: IconButton(
               icon: const Icon(Icons.delete, color: kStrawberryColor),
               onPressed: () {
-                Provider.of<ObjectBoxState>(context, listen: false).deleteSession(widget.sessions[index].id);
+                dataProvider.deleteSession(widget.sessions[index].id);
+                Activity? activity = activities.firstWhereOrNull((activity) => activity.name == widget.sessions[index].activityName);
+                if (activity != null) {
+                  activity.timeSpent -= widget.sessions[index].timeSpent;
+                  dataProvider.updateActivity(activity, null, activity.timeSpent);
+                }
+                dataProvider.deleteFruitUsage(widget.sessions[index].timeSpent);
+
                 setState(() => widget.sessions.removeAt(index));
               },
             ),
@@ -166,8 +173,24 @@ class _SessionDetailsState extends State<SessionDetails> {
                       onChanged: (String? newValue) {
                         setState(() {
                           if (newValue != null) {
+                            int oldSession = widget.sessions[index].id;
+                            Activity? oldActivity = activities.firstWhereOrNull((activity) => activity.name == widget.sessions[index].activityName);
+
                             widget.sessions[index].activityName = newValue;
-                            dataProvider.updateSession(widget.sessions[index]);
+                            dataProvider.updateSession(widget.sessions[index], oldSession);
+
+                            //update The Activity
+                            Activity? newActivity = activities.firstWhereOrNull((activity) => activity.name == newValue);
+                            if (newActivity == null) {
+                              dataProvider.addActivity(Activity(name: newValue, timeSpent: widget.sessions[index].timeSpent));
+                            } else {
+                              newActivity.timeSpent += widget.sessions[index].timeSpent;
+                              dataProvider.updateActivity(newActivity, null, newActivity.timeSpent);
+                            }
+                            if (oldActivity != null) {
+                              oldActivity.timeSpent -= widget.sessions[index].timeSpent;
+                              dataProvider.updateActivity(oldActivity, null, oldActivity.timeSpent);
+                            }
                           }
                         });
                       },

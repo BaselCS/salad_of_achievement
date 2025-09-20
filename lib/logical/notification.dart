@@ -1,4 +1,5 @@
 import 'dart:developer' show log;
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -26,6 +27,7 @@ class NotificationHelper {
             playSound: true,
             soundSource: 'resource://raw/done_sound',
             enableVibration: true,
+            vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
           ),
           NotificationChannel(
             channelKey: 'salad_achievement_scheduled',
@@ -38,6 +40,7 @@ class NotificationHelper {
             playSound: true,
             soundSource: 'resource://raw/done_sound',
             enableVibration: true,
+            vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
           ),
         ],
       );

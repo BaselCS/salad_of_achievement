@@ -116,7 +116,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
       id: 2,
       title: 'إشعار مؤجل',
       message: 'هذا إشعار مؤجل لمدة 5 ثواني!',
-      seconds: 5, 
+      seconds: 5,
       imagePath: 'assets/icons/موز.png',
     );
   }

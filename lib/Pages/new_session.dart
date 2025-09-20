@@ -7,7 +7,7 @@ import 'package:salad_of_achievement/utilities/const.dart';
 import '../DB/models/data_model.dart';
 import '../DB/models/object_box.dart';
 
-int min = 0;
+int minimumValue = 0;
 String activity = '';
 
 class AddNewSession extends StatelessWidget {
@@ -94,7 +94,7 @@ class DropOfTime extends StatelessWidget {
           focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
         ),
         onChanged: (value) {
-          min = int.parse(value!);
+          minimumValue = int.parse(value!);
         },
         items: fruits.keys.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
@@ -120,14 +120,14 @@ class OkButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (activity.isNotEmpty && min != 0) {
+        if (activity.isNotEmpty && minimumValue != 0) {
           ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
-          dataProvider.addSession(Session(date: HijriCalendar.now().toString(), timeSpent: min, activityName: activity));
+          dataProvider.addSession(Session(date: HijriCalendar.now().toString(), timeSpent: minimumValue, activityName: activity));
           Navigator.pop(context);
         }
       },
       child: Container(
-        color: activity.isNotEmpty && min != 0 ? kContainerColor : kActionColor,
+        color: activity.isNotEmpty && minimumValue != 0 ? kContainerColor : kActionColor,
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(4.0),

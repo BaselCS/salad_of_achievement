@@ -23,7 +23,7 @@ late ObjectBoxState objectBox;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize notifications
+  // Initialize notifications (permissions will be handled when app starts)
   await NotificationHelper.initializeNotifications();
 
   objectBox = await ObjectBoxState.create();

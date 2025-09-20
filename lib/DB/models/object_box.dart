@@ -19,7 +19,7 @@ class ObjectBoxState with ChangeNotifier {
   late int star2;
   late int star3;
   late DateTime timeToRest;
-  late int doneMinutes;
+  late int doneMinutes = 0;
   late bool autoStart = true;
 
   ObjectBoxState._create(this._store) {
@@ -63,17 +63,7 @@ class ObjectBoxState with ChangeNotifier {
     star3 = 480;
     autoStart = true;
     timeToRest = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 4);
-    doneMinutes = 0;
-  }
-
-  void updateTimeToRest(int hour) {
-    final currentSetting = _settingBox.get(1) ?? Setting();
-    currentSetting.hourOfRest = hour;
-    timeToRest = DateTime(timeToRest.year, timeToRest.month, timeToRest.day, hour);
-    currentSetting.timeOfRest = timeToRest.toString();
-    _settingBox.put(currentSetting);
-    log("Start of day set to: $hour");
-    notifyListeners();
+    doneMinutes = doneMinutes;
   }
 
   /// تهيئة مؤقت إعادة التعيين
@@ -85,6 +75,18 @@ class ObjectBoxState with ChangeNotifier {
       nextReset = nextReset.add(const Duration(days: 1));
       _resetDoneMinutes(nextReset);
     }
+  }
+
+  /// التحقق من بداية يوم جديد
+  void isNewDay() {
+    final now = DateTime.now();
+    var nextReset = DateTime(timeToRest.year, timeToRest.month, timeToRest.day, timeToRest.hour);
+
+    if (now.isAfter(nextReset)) {
+      nextReset = nextReset.add(const Duration(days: 1));
+      _resetDoneMinutes(nextReset);
+    }
+    notifyListeners();
   }
 
   /// إعادة تعيين الدقائق المكتملة
@@ -114,7 +116,9 @@ class ObjectBoxState with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateSession(Session session) {
+  void updateSession(Session session, int oldSessionID) {
+    doneMinutes += session.timeSpent;
+    deleteSession(oldSessionID);
     _sessionBox.put(session);
     log("حدثت الجلسة: ${session.id}");
     notifyListeners();
@@ -127,11 +131,10 @@ class ObjectBoxState with ChangeNotifier {
       return;
     }
     _sessionBox.remove(session.id);
-    if (session.date == HijriCalendar.now().toString()) {
+    if (HijriLogic.englishToArabicNumber(session.date) == HijriCalendar.now().toString()) {
       doneMinutes -= session.timeSpent;
       doneMinutes = doneMinutes < 0 ? 0 : doneMinutes;
     }
-    deleteFruitUsage(session.timeSpent);
     _updateSettingDoneMinutes();
     log("حذفت الجلسة: ${session.id}");
     notifyListeners();
@@ -232,6 +235,16 @@ class ObjectBoxState with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateTimeToRest(int hour) {
+    final currentSetting = _settingBox.get(1) ?? Setting();
+    currentSetting.hourOfRest = hour;
+    timeToRest = DateTime(timeToRest.year, timeToRest.month, timeToRest.day, hour);
+    currentSetting.timeOfRest = timeToRest.toString();
+    _settingBox.put(currentSetting);
+    log("Start of day set to: $hour");
+    notifyListeners();
+  }
+
   /// [الفواكهة]
   List<FruitUsage> getAllFruitUsage() {
     log("جلبت جميع الفواكهة المستخدمة");
@@ -260,11 +273,10 @@ class ObjectBoxState with ChangeNotifier {
     if (fruitUsage == null) {
       return;
     }
-    fruitUsage.usageCount--;
-    if (fruitUsage.usageCount == 0) {
-      _fruitUsageBox.remove(fruitUsage.id);
-    } else {
-      _fruitUsageBox.put(fruitUsage); //كتحديث
+    if (fruitUsage.usageCount != 0) {
+      fruitUsage.usageCount--;
+
+      _fruitUsageBox.put(fruitUsage);
     }
     log("حذفت فاكهة من سلطتك: ${fruitUsage.id}");
     notifyListeners();

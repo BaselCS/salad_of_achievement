@@ -1,6 +1,7 @@
 import 'dart:developer' show log;
-import 'dart:math' show min, max;
+import 'dart:math' show max, min;
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
@@ -211,9 +212,10 @@ class SaveButton extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
       onPressed: () {
-        if (fruitsId.contains(doneMinutes)) {
+        if (fruitsId.contains(doneMinutes) && activityName != null) {
           addSession(context, doneMinutes, activityName);
           controller.cancelAllNotifications();
+
           Navigator.pop(context);
           Navigator.pushNamed(context, '/');
         }
@@ -241,8 +243,8 @@ class SaveButton extends StatelessWidget {
 
 class CountDownTimer extends StatelessWidget {
   void start() {
-    TimerLogic.instance.setEndingTime(sessionTime * 1);
-    controller.setNonfiction(activityName: activityName ?? "غير محدد", sessionTime: sessionTime, seconds: sessionTime * 1);
+    TimerLogic.instance.setEndingTime(sessionTime * 60);
+    controller.setNonfiction(activityName: activityName ?? "غير محدد", sessionTime: sessionTime, seconds: sessionTime * 60);
   }
 
   void onChange(String string) {
@@ -252,7 +254,7 @@ class CountDownTimer extends StatelessWidget {
     if (minutes == 0 && seconds == 0) {
       return;
     }
-    if ((minutes + seconds) - remain > 10) {
+    if ((minutes * 60 + seconds) - remain > 10) {
       controller.correctTime(remain);
     }
 
@@ -267,7 +269,7 @@ class CountDownTimer extends StatelessWidget {
     doneMinutes = 0;
     double size = min(MediaQuery.of(context).size.width * 0.8, MediaQuery.of(context).size.height * 0.8);
     return MyCircularCountDownTimer(
-      duration: sessionTime * 1,
+      duration: sessionTime * 60,
       initialDuration: 0,
       fillColor: theColor,
       height: size,
@@ -292,6 +294,17 @@ void addSession(BuildContext context, int sessionTime, String? activityName) {
   ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
 
   dataProvider.addSession(Session(date: HijriCalendar.now().toString(), timeSpent: sessionTime, activityName: activityName ?? 'غير محدد'));
+  if (activities.isNotEmpty && activityName != null) {
+    Activity? activity = activities.firstWhereOrNull((activity) => activity.name == activityName);
+    if (activity != null) {
+      activity.timeSpent += sessionTime;
+      dataProvider.updateActivity(activity, null, activity.timeSpent);
+    } else {
+      dataProvider.addActivity(Activity(name: activityName, timeSpent: sessionTime));
+    }
+  }
+  dataProvider.isNewDay();
+
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       backgroundColor: kContainerColor,
@@ -323,6 +336,6 @@ class TimerLogic {
   void setEndingTime(int durationToEnd) {
     final DateTime dateTimeNow = DateTime.now();
     endingTime = dateTimeNow.add(Duration(seconds: durationToEnd));
-    log("TimerLogic  -setEndingTime = ${endingTime.toLocal().toString()}");
+    log("TimerLogic setEndingTime = ${endingTime.toLocal().toString()}");
   }
 }

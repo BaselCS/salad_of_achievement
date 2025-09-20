@@ -3,8 +3,6 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
-import 'package:salad_of_achievement/utilities/fake_data_generator.dart';
-// import 'package:salad_of_achievement/utilities/fake_data_generator.dart';
 
 import '../DB/models/object_box.dart';
 
@@ -25,19 +23,19 @@ class MainPage extends StatelessWidget {
         ),
         actions: [
           // Debug button for generating fake data (remove in production)
-          IconButton(
-            icon: const Icon(Icons.bug_report, color: Colors.orange),
-            tooltip: 'Generate Test Data',
-            onPressed: () => showFakeDataDialog(context),
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.bug_report, color: Colors.orange),
+          //   tooltip: 'Generate Test Data',
+          //   onPressed: () => showFakeDataDialog(context),
+          // ),
           // Database viewer button (for debugging)
-          IconButton(
-            icon: const Icon(Icons.storage, color: Colors.blue),
-            tooltip: 'View Database',
-            onPressed: () {
-              Navigator.pushNamed(context, '/databaseViewer');
-            },
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.storage, color: Colors.blue),
+          //   tooltip: 'View Database',
+          //   onPressed: () {
+          //     Navigator.pushNamed(context, '/databaseViewer');
+          //   },
+          // ),
           Padding(
             padding: const EdgeInsets.only(left: 16.0),
             child: IconButton(
@@ -101,13 +99,13 @@ class MyDrawer extends StatelessWidget {
               Navigator.pushNamed(context, '/statistics');
             },
           ),
-          ListTile(
-            title: const Text('اختبار الإشعارات'),
-            leading: const MyIcon(Icons.notifications_active),
-            onTap: () {
-              Navigator.pushNamed(context, '/notificationTest');
-            },
-          ),
+          // ListTile(
+          //   title: const Text('اختبار الإشعارات'),
+          //   leading: const MyIcon(Icons.notifications_active),
+          //   onTap: () {
+          //     Navigator.pushNamed(context, '/notificationTest');
+          //   },
+          // ),
           ListTile(
             title: const Text('إعدادات'),
             leading: const MyIcon(Icons.settings),
