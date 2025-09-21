@@ -100,13 +100,13 @@ class MyDrawer extends StatelessWidget {
               Navigator.pushNamed(context, '/statistics');
             },
           ),
-          ListTile(
-            title: const Text('اختبار الإشعارات'),
-            leading: const MyIcon(Icons.notifications_active),
-            onTap: () {
-              Navigator.pushNamed(context, '/notificationTest');
-            },
-          ),
+          // ListTile(
+          //   title: const Text('اختبار الإشعارات'),
+          //   leading: const MyIcon(Icons.notifications_active),
+          //   onTap: () {
+          //     Navigator.pushNamed(context, '/notificationTest');
+          //   },
+          // ),
           ListTile(
             title: const Text('إعدادات'),
             leading: const MyIcon(Icons.settings),
