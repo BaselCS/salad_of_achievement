@@ -18,6 +18,7 @@ int sessionTime = 0;
 List<Activity> activities = [];
 int doneMinutes = 0;
 bool isFromNotification = false;
+bool isNotified = false;
 
 String? activityName;
 
@@ -32,21 +33,20 @@ class ActiveSectionPage extends StatelessWidget {
     if (arguments[0] == null) {
       log("No session time provided in arguments, defaulting to 5 minutes.");
     }
-    // activityName = arguments[1] as String?;
     isFromNotification = arguments[2] as bool;
 
     theImage = fruits[time.toString()]![0];
     theColor = fruits[time.toString()]![1];
 
-    if (isFromNotification) {
+    if (isFromNotification && !isNotified) {
+      isNotified = true;
       TimerLogic.instance.setEndingTime(0);
+      activityName = arguments[1] as String?;
       sessionTime = 0;
       doneMinutes = int.parse(time.toString());
     } else {
-      isFromNotification = false;
-      doneMinutes = 0;
+      isNotified = false;
       sessionTime = int.parse(time.toString());
-      activityName = null;
     }
     ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
     activities = dataProvider.getAllActivities();
@@ -135,12 +135,13 @@ class _ActivityNameMenuState extends State<ActivityNameMenu> {
         child: DropdownButton<String>(
           value: activityName,
           onChanged: (String? newValue) {
-            controller.cancelAllNotifications();
             setState(() {
               activityName = newValue!;
-              print("تم تغيير النشاط إلى: $newValue");
             });
-            controller.setNonfiction(activityName: newValue ?? "غير محدد", sessionTime: sessionTime, seconds: TimerLogic.instance.remainingSeconds);
+            if (!isFromNotification) {
+              controller.cancelAllNotifications();
+              controller.setNonfiction(activityName: newValue ?? "غير محدد", sessionTime: sessionTime, seconds: TimerLogic.instance.remainingSeconds);
+            }
           },
           items: activities.map<DropdownMenuItem<String>>((Activity value) {
             return DropdownMenuItem<String>(
