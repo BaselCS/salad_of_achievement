@@ -107,17 +107,20 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
       id: 1,
       title: 'اختبار الإشعار الفوري',
       message: 'هذا إشعار تجريبي فوري مع الصوت المخصص!',
+      //  sessionTime#:#$activityName"
+      payload: "25#:#flutter run --release",
       imagePath: 'assets/icons/appIcon.png',
     );
   }
 
   Future<void> _send5SecondNotification() async {
     await NotificationHelper.sendScheduledNotification(
-      id: 2,
+      id: 1,
       title: 'إشعار مؤجل',
       message: 'هذا إشعار مؤجل لمدة 5 ثواني!',
       seconds: 5,
       imagePath: 'assets/icons/موز.png',
+      payload: "5",
     );
   }
 

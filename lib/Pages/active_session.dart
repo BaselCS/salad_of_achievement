@@ -17,16 +17,37 @@ Color theColor = kTomatoColor;
 int sessionTime = 0;
 List<Activity> activities = [];
 int doneMinutes = 0;
+bool isFromNotification = false;
+
+String? activityName;
 
 class ActiveSectionPage extends StatelessWidget {
   const ActiveSectionPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Object? time = ModalRoute.of(context)!.settings.arguments;
+    // arguments[0] = sessionTime, arguments[1] = activityName, arguments[2] = isFromNotification
+    final List<Object?> arguments = ModalRoute.of(context)!.settings.arguments as List<Object?>;
+    final String time = arguments[0]?.toString() ?? "5";
+    if (arguments[0] == null) {
+      log("No session time provided in arguments, defaulting to 5 minutes.");
+    }
+    // activityName = arguments[1] as String?;
+    isFromNotification = arguments[2] as bool;
+
     theImage = fruits[time.toString()]![0];
     theColor = fruits[time.toString()]![1];
-    sessionTime = int.parse(time.toString());
+
+    if (isFromNotification) {
+      TimerLogic.instance.setEndingTime(0);
+      sessionTime = 0;
+      doneMinutes = int.parse(time.toString());
+    } else {
+      isFromNotification = false;
+      doneMinutes = 0;
+      sessionTime = int.parse(time.toString());
+      activityName = null;
+    }
     ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
     activities = dataProvider.getAllActivities();
     return const Scaffold(backgroundColor: kBackGroundColor, body: Body());
@@ -101,8 +122,6 @@ class ActivityNameMenu extends StatefulWidget {
   State<ActivityNameMenu> createState() => _ActivityNameMenuState();
 }
 
-String? activityName;
-
 class _ActivityNameMenuState extends State<ActivityNameMenu> {
   @override
   Widget build(BuildContext context) {
@@ -119,6 +138,7 @@ class _ActivityNameMenuState extends State<ActivityNameMenu> {
             controller.cancelAllNotifications();
             setState(() {
               activityName = newValue!;
+              print("تم تغيير النشاط إلى: $newValue");
             });
             controller.setNonfiction(activityName: newValue ?? "غير محدد", sessionTime: sessionTime, seconds: TimerLogic.instance.remainingSeconds);
           },
@@ -154,7 +174,12 @@ class CancelButton extends StatelessWidget {
               actions: [
                 InkWell(
                   onTap: () {
-                    Navigator.pop(context1);
+                    if (isFromNotification) {
+                      Navigator.popAndPushNamed(context, "/");
+                    } else {
+                      controller.cancelAllNotifications();
+                      Navigator.pop(context);
+                    }
                   },
                   child: Container(
                     clipBehavior: Clip.antiAlias,
@@ -168,7 +193,7 @@ class CancelButton extends StatelessWidget {
                   onTap: () {
                     controller.cancelAllNotifications();
                     Navigator.pop(context);
-                    Navigator.pop(context);
+                    Navigator.popAndPushNamed(context, "/");
                   },
                   child: Container(
                     clipBehavior: Clip.antiAlias,
@@ -212,12 +237,11 @@ class SaveButton extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
       onPressed: () {
+        print("تم الضغط على زر الحفظ مع doneMinutes = $doneMinutes و activityName = $activityName");
         if (fruitsId.contains(doneMinutes) && activityName != null) {
           addSession(context, doneMinutes, activityName);
           controller.cancelAllNotifications();
-
-          Navigator.pop(context);
-          Navigator.pushNamed(context, '/');
+          Navigator.popAndPushNamed(context, '/');
         }
       },
       child: Padding(
@@ -243,8 +267,10 @@ class SaveButton extends StatelessWidget {
 
 class CountDownTimer extends StatelessWidget {
   void start() {
-    TimerLogic.instance.setEndingTime(sessionTime * 60);
-    controller.setNonfiction(activityName: activityName ?? "غير محدد", sessionTime: sessionTime, seconds: sessionTime * 60);
+    // TimerLogic.instance.setEndingTime(sessionTime * 60);
+    // controller.setNonfiction(activityName: activityName ?? "غير محدد", sessionTime: sessionTime, seconds: sessionTime * 60);
+    TimerLogic.instance.setEndingTime(sessionTime);
+    controller.setNonfiction(activityName: activityName ?? "غير محدد", sessionTime: sessionTime, seconds: sessionTime);
   }
 
   void onChange(String string) {
@@ -254,7 +280,8 @@ class CountDownTimer extends StatelessWidget {
     if (minutes == 0 && seconds == 0) {
       return;
     }
-    if ((minutes * 60 + seconds) - remain > 10) {
+    // if ((minutes * 60 + seconds) - remain > 10) {
+    if ((minutes + seconds) - remain > 1) {
       controller.correctTime(remain);
     }
 
@@ -266,10 +293,14 @@ class CountDownTimer extends StatelessWidget {
   const CountDownTimer({super.key});
   @override
   Widget build(BuildContext context) {
-    doneMinutes = 0;
+    if (!isFromNotification) {
+      doneMinutes = 0;
+    }
+
     double size = min(MediaQuery.of(context).size.width * 0.8, MediaQuery.of(context).size.height * 0.8);
     return MyCircularCountDownTimer(
-      duration: sessionTime * 60,
+      // duration: sessionTime * 60,
+      duration: sessionTime,
       initialDuration: 0,
       fillColor: theColor,
       height: size,
@@ -283,6 +314,9 @@ class CountDownTimer extends StatelessWidget {
         onChange(string);
       },
       onComplete: () {
+        if (isFromNotification) {
+          return;
+        }
         doneMinutes = sessionTime;
       },
       child: theImage,

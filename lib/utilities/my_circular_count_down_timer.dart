@@ -273,7 +273,7 @@ class CountDownControllers {
       _timerState?._controller?.reverse(from: remainingTime / controller._duration!);
       _timerState?._controller!.duration = Duration(seconds: remainingTime);
 
-      log("تم تصحيح الوقت ليصبح $remainingTime أي ${remainingTime % 60} دقيقة و ${remainingTime ~/ 60} ثانية");
+      log("تصحيح الوقت ليصبح $remainingTime أي ${remainingTime % 60} دقيقة و ${remainingTime ~/ 60} ثانية");
     }
   }
 
@@ -295,10 +295,11 @@ class CountDownControllers {
   void setNonfiction({String activityName = "غير محدد", int sessionTime = 5, int seconds = 5}) async {
     log("setNonfiction called with $activityName, $sessionTime, $seconds");
     await NotificationHelper.sendScheduledNotification(
-      id: 2,
-      title: 'تمت الجلسة',
+      id: 1,
+      title: 'أُنجزت الجلسة',
       message: 'عملت على $activityName لمدة $sessionTime دقيقة',
       imagePath: fruitsPath[sessionTime.toString()]![0],
+      payload: "$sessionTime#:#$activityName",
       seconds: seconds,
     );
   }
@@ -306,8 +307,9 @@ class CountDownControllers {
   Future<void> sendImmediateNotification({String activityName = "غير محدد", int sessionTime = 5}) async {
     await NotificationHelper.sendImmediateNotification(
       id: 1,
-      title: 'تمت الجلسة',
+      title: 'أُنجزت الجلسة',
       message: 'عملت على $activityName لمدة $sessionTime دقيقة',
+      payload: "$sessionTime#:#$activityName",
       imagePath: fruitsPath[sessionTime.toString()]![0],
     );
   }

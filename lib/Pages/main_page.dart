@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
+import 'package:salad_of_achievement/Pages/history.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
 // import 'package:salad_of_achievement/utilities/fake_data_generator.dart';
@@ -100,13 +101,13 @@ class MyDrawer extends StatelessWidget {
               Navigator.pushNamed(context, '/statistics');
             },
           ),
-          // ListTile(
-          //   title: const Text('اختبار الإشعارات'),
-          //   leading: const MyIcon(Icons.notifications_active),
-          //   onTap: () {
-          //     Navigator.pushNamed(context, '/notificationTest');
-          //   },
-          // ),
+          ListTile(
+            title: const Text('اختبار الإشعارات'),
+            leading: const MyIcon(Icons.notifications_active),
+            onTap: () {
+              Navigator.pushNamed(context, '/notificationTest');
+            },
+          ),
           ListTile(
             title: const Text('إعدادات'),
             leading: const MyIcon(Icons.settings),
@@ -133,7 +134,7 @@ class VisitableButtons extends StatelessWidget {
         children: fruits.entries.map((entry) {
           return GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, '/activeSection', arguments: entry.key);
+              Navigator.pushNamed(context, '/activeSection', arguments: [entry.key, activityName, false]);
             },
             child: Column(
               children: [

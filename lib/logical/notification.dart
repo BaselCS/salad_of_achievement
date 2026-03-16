@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:salad_of_achievement/main.dart';
 
 class NotificationHelper {
   static bool _isInitialized = false;
@@ -81,10 +82,22 @@ class NotificationHelper {
     }
   }
 
-  /// Handle notification tap
+  /// Handle notification tap actions send arguments to active session page as payload
+  /// payload : "[sessionTime,activityName,isFromNotification]"
   static Future<void> _onNotificationTapped(ReceivedAction receivedAction) async {
-    final String? payload = receivedAction.payload?['payload'];
+    // payload: "$sessionTime#:#$activityName",
+    final List<String> payload = receivedAction.payload?['payload']!.split('#:#') ?? ['No payload'];
+
     log('🔔 Notification tapped with payload: $payload');
+    // Handle navigation or other actions based on payload
+    navigatorKey.currentState?.pushNamedAndRemoveUntil(
+      '/activeSection',
+      (route) => route.isFirst,
+      arguments: [
+        payload[0], payload[1], // payload[1]== activityName payload[0] == sessionTime
+        true, // isFromNotification always true when coming from notification tap
+      ],
+    );
   }
 
   /// Handle notification created
@@ -113,8 +126,10 @@ class NotificationHelper {
         content: NotificationContent(
           id: id,
           channelKey: 'salad_achievement_immediate',
+          groupKey: 'salad_achievement_group',
           title: title,
           body: message,
+          summary: "أنهيت جلسة ",
           payload: payload != null ? {'payload': payload} : null,
           notificationLayout: NotificationLayout.Default,
           wakeUpScreen: true,
@@ -160,6 +175,8 @@ class NotificationHelper {
           category: NotificationCategory.Reminder,
           displayOnForeground: true,
           displayOnBackground: true,
+          // add later
+          // autoDismissible: ,
           icon: 'resource://drawable/ic_notification',
         ),
         schedule: NotificationCalendar(

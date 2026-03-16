@@ -163,7 +163,7 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
                     newTime = 0;
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('تم تعديل المشروع بنجاح', style: TextStyle(color: kActionColor, fontSize: 16)),
+                        content: Text('عُدل المشروع بنجاح', style: TextStyle(color: kActionColor, fontSize: 16)),
                         backgroundColor: kContainerColor,
                         duration: Duration(milliseconds: 500),
                       ),
@@ -186,7 +186,7 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
                     dataProvider.deleteActivity(activities[index]);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('تم حذف المشروع ', style: TextStyle(color: kTomatoColor, fontSize: 16)),
+                        content: Text('حُذف المشروع ', style: TextStyle(color: kTomatoColor, fontSize: 16)),
                         backgroundColor: kContainerColor,
                         duration: Duration(milliseconds: 500),
                       ),
@@ -354,7 +354,7 @@ Future<dynamic> addActivityMassage(BuildContext context, TextEditingController c
                     Navigator.pop(context1);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('تمت إضافة المشروع بنجاح', style: TextStyle(color: kActionColor, fontSize: 16)),
+                        content: Text('أُضيف المشروع بنجاح', style: TextStyle(color: kActionColor, fontSize: 16)),
                         backgroundColor: kContainerColor,
                         duration: Duration(milliseconds: 500),
                       ),

@@ -17,8 +17,11 @@ import 'Pages/notification_test.dart';
 import 'Pages/settings.dart';
 import 'Pages/statistics.dart';
 
+// flutter emulators --launch Pixel_API_35
+
 // طريقة حفظ البيانات
 late ObjectBoxState objectBox;
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,6 +50,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
 
       ///[قسم اللغة]
       localizationsDelegates: const [GlobalCupertinoLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
