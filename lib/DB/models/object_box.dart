@@ -292,8 +292,8 @@ class ObjectBoxState with ChangeNotifier {
 
   /// [الأنشطة]
   List<Activity> getActiveActivities() {
-    log("جلبت جميع الأنشطة المستخدمة");
-    return _activityBox.getAll().whereNot((activity) => !activity.isArchived).toList();
+    log("جلبت جميع الأنشطة النشطة");
+    return _activityBox.getAll().whereNot((activity) => activity.isArchived).toList();
   }
 
   List<Activity> getAllActivities() {

@@ -44,7 +44,7 @@ class Statistics extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('إحصائيات الاستخدام'),
+        title: const Text('إحصائيات الجلسات'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {

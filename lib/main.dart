@@ -17,7 +17,6 @@ import 'Pages/notification_test.dart';
 import 'Pages/settings.dart';
 import 'Pages/statistics.dart';
 
-
 // طريقة حفظ البيانات
 late ObjectBoxState objectBox;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

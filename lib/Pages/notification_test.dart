@@ -108,7 +108,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
       title: 'اختبار الإشعار الفوري',
       message: 'هذا إشعار تجريبي فوري مع الصوت المخصص!',
       //  sessionTime#:#$activityName"
-      payload: "25#:#flutter run --release",
+      payload: "25#:#نشط",
       imagePath: 'assets/icons/appIcon.png',
     );
   }

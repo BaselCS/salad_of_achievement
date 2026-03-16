@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +9,7 @@ import '../DB/models/data_model.dart';
 import '../DB/models/object_box.dart';
 
 int minimumValue = 0;
-String activity = '';
+String activityName = '';
 
 class AddNewSession extends StatelessWidget {
   const AddNewSession({super.key});
@@ -69,7 +70,7 @@ class DropActivity extends StatelessWidget {
           focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
         ),
         onChanged: (String? newValue) {
-          activity = newValue!;
+          activityName = newValue!;
         },
         items: dataProvider.getActiveActivities().map<DropdownMenuItem<String>>((Activity value) {
           return DropdownMenuItem<String>(value: value.name, child: Text(value.name));
@@ -120,14 +121,22 @@ class OkButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (activity.isNotEmpty && minimumValue != 0) {
+        if (activityName.isNotEmpty && minimumValue != 0) {
           ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
-          dataProvider.addSession(Session(date: HijriCalendar.now().toString(), timeSpent: minimumValue, activityName: activity));
+          dataProvider.addSession(Session(date: HijriCalendar.now().toString(), timeSpent: minimumValue, activityName: activityName));
+
+          Activity? activity = dataProvider.getAllActivities().firstWhereOrNull((activity) => activity.name == activityName);
+          if (activity != null) {
+            activity.timeSpent += minimumValue;
+            dataProvider.updateActivity(activity, null, activity.timeSpent);
+          } else {
+            dataProvider.addActivity(Activity(name: activityName, timeSpent: minimumValue));
+          }
           Navigator.pop(context);
         }
       },
       child: Container(
-        color: activity.isNotEmpty && minimumValue != 0 ? kContainerColor : kActionColor,
+        color: activityName.isNotEmpty && minimumValue != 0 ? kContainerColor : kActionColor,
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(4.0),

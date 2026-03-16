@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/Pages/history.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
-// import 'package:salad_of_achievement/utilities/fake_data_generator.dart';
+import 'package:salad_of_achievement/utilities/fake_data_generator.dart';
 
 import '../DB/models/object_box.dart';
 
@@ -25,11 +25,11 @@ class MainPage extends StatelessWidget {
         ),
         actions: [
           // Debug button for generating fake data (remove in production)
-          // IconButton(
-          //   icon: const Icon(Icons.bug_report, color: Colors.orange),
-          //   tooltip: 'Generate Test Data',
-          //   onPressed: () => showFakeDataDialog(context),
-          // ),
+          IconButton(
+            icon: const Icon(Icons.bug_report, color: Colors.orange),
+            tooltip: 'Generate Test Data',
+            onPressed: () => showFakeDataDialog(context),
+          ),
           // Database viewer button (for debugging)
           // IconButton(
           //   icon: const Icon(Icons.storage, color: Colors.blue),
