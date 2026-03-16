@@ -38,7 +38,7 @@ class Body extends StatelessWidget {
   Widget build(BuildContext context) {
     ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context);
     List<GroupedSessions> groupedSessions = dataProvider.groupSessionsByDay(dataProvider.getAllSessions());
-    activities = dataProvider.getAllActivities();
+    activities = dataProvider.getActiveActivities();
     return ListView.separated(
       shrinkWrap: true,
       itemCount: groupedSessions.length,

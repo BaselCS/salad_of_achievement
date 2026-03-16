@@ -121,7 +121,7 @@ class ActivitiesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context);
-    List<Activity> activities = dataProvider.getAllActivities();
+    List<Activity> activities = dataProvider.getActiveActivities();
 
     return Column(
       children: [
@@ -298,7 +298,7 @@ class SettingsTab extends StatelessWidget {
 
   Widget _buildDatabaseStats(BuildContext context, ObjectBoxState dataProvider) {
     int totalSessions = dataProvider.getAllSessions().length;
-    int totalActivities = dataProvider.getAllActivities().length;
+    int totalActivities = dataProvider.getActiveActivities().length;
     int totalFruits = dataProvider.getAllFruitUsage().length;
 
     int totalTimeSpent = dataProvider.getAllSessions().fold(0, (sum, session) => sum + session.timeSpent);

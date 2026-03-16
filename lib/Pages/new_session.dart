@@ -71,7 +71,7 @@ class DropActivity extends StatelessWidget {
         onChanged: (String? newValue) {
           activity = newValue!;
         },
-        items: dataProvider.getAllActivities().map<DropdownMenuItem<String>>((Activity value) {
+        items: dataProvider.getActiveActivities().map<DropdownMenuItem<String>>((Activity value) {
           return DropdownMenuItem<String>(value: value.name, child: Text(value.name));
         }).toList(),
       ),

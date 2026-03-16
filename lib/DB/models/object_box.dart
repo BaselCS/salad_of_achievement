@@ -291,6 +291,11 @@ class ObjectBoxState with ChangeNotifier {
   }
 
   /// [الأنشطة]
+  List<Activity> getActiveActivities() {
+    log("جلبت جميع الأنشطة المستخدمة");
+    return _activityBox.getAll().whereNot((activity) => !activity.isArchived).toList();
+  }
+
   List<Activity> getAllActivities() {
     log("جلبت جميع الأنشطة");
     return _activityBox.getAll();
@@ -299,6 +304,21 @@ class ObjectBoxState with ChangeNotifier {
   void addActivity(Activity activity) {
     _activityBox.put(activity);
     log("إضيف نشاط جديد: ${activity.name}");
+    notifyListeners();
+  }
+
+  void archiveActivity(Activity activity) {
+    activity.isArchived = true;
+    _activityBox.put(activity);
+    log("أرشف النشاط: ${activity.name}");
+
+    notifyListeners();
+  }
+
+  void unarchiveActivity(Activity activity) {
+    activity.isArchived = false;
+    _activityBox.put(activity);
+    log("ألغيت أرشفة النشاط: ${activity.name}");
     notifyListeners();
   }
 

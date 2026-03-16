@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -61,13 +62,31 @@ class Body extends StatelessWidget {
     TextEditingController controllerName = TextEditingController();
     TextEditingController controllerMin = TextEditingController();
     activities = dataProvider.getAllActivities();
+    activities.sortBy((activity) => activity.isArchived ? 1 : 0);
 
+    return ActiveActivities(controllerName: controllerName, controllerMin: controllerMin);
+  }
+}
+
+class ActiveActivities extends StatelessWidget {
+  const ActiveActivities({super.key, required this.controllerName, required this.controllerMin});
+
+  final TextEditingController controllerName;
+  final TextEditingController controllerMin;
+
+  @override
+  Widget build(BuildContext context) {
     return ListView.separated(
       itemCount: activities.length,
       itemBuilder: (BuildContext context, int index) {
         return InkWell(
-          onTap: () {
-            showEditMassage(context, controllerName, index, controllerMin);
+          onTap: () => showEditMassage(context, controllerName, index, controllerMin),
+          onLongPress: () {
+            if (!activities[index].isArchived) {
+              showArchiveMassage(context, index);
+            } else {
+              unarchiveActivityMassage(context, index);
+            }
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -78,7 +97,6 @@ class Body extends StatelessWidget {
               children: [
                 Expanded(child: Text(activities[index].name, style: Theme.of(context).textTheme.bodySmall)),
                 Expanded(
-                  flex: 2,
                   child: Text(
                     textAlign: TextAlign.center,
                     formatDuration(activities[index].timeSpent),
@@ -91,6 +109,9 @@ class Body extends StatelessWidget {
         );
       },
       separatorBuilder: (BuildContext context, int index) {
+        if (index < activities.length - 1 && activities[index].isArchived != activities[index + 1].isArchived) {
+          return Container(height: 5, color: kActionColor);
+        }
         return Divider(color: kWhiteColor..withAlpha(127), height: 1);
       },
     );
@@ -431,4 +452,134 @@ String formatDuration(int durationInMinutes) {
   }
 
   return HijriLogic.englishToArabicNumber(formattedDuration.trim());
+}
+
+// showArchiveMassage
+
+Future<dynamic> showArchiveMassage(BuildContext context, int index) {
+  ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      newTime = 0;
+      // Set the current activity name as initial value
+
+      return AlertDialog(
+        actionsAlignment: MainAxisAlignment.spaceAround,
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text('تربيد مشروع /  نشاط', style: TextStyle(color: kActionColor)),
+        ),
+        content: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.05,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  dataProvider.archiveActivity(activities[index]);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('تُربد المشروع بنجاح', style: TextStyle(color: kActionColor, fontSize: 16)),
+                      backgroundColor: kContainerColor,
+                      duration: Duration(milliseconds: 500),
+                    ),
+                  );
+                  Navigator.pop(context);
+                },
+                child: const SizedBox(
+                  width: 80,
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Text("تربيد", style: TextStyle(fontSize: 16)),
+                    ),
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(kTomatoColor)),
+                child: const SizedBox(
+                  width: 80,
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Text("إلغاء", style: TextStyle(fontSize: 16)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+Future<dynamic> unarchiveActivityMassage(BuildContext context, int index) {
+  ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      newTime = 0;
+      // Set the current activity name as initial value
+
+      return AlertDialog(
+        actionsAlignment: MainAxisAlignment.spaceAround,
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text('تنشيط المشروع  النشاط', style: TextStyle(color: kActionColor)),
+        ),
+        content: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.05,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  dataProvider.unarchiveActivity(activities[index]);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('نُشط المشروع', style: TextStyle(color: kActionColor, fontSize: 16)),
+                      backgroundColor: kContainerColor,
+                      duration: Duration(milliseconds: 500),
+                    ),
+                  );
+                  Navigator.pop(context);
+                },
+                child: const SizedBox(
+                  width: 80,
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Text("تنشيط", style: TextStyle(fontSize: 16)),
+                    ),
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(kTomatoColor)),
+                child: const SizedBox(
+                  width: 80,
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Text("إلغاء", style: TextStyle(fontSize: 16)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }

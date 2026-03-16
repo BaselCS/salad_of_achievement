@@ -37,20 +37,22 @@ class Activity {
   int id;
   String name;
   int timeSpent;
+  bool isArchived;
 
   Activity({
     this.id = 0, // ObjectBox IDs start at 0
     required this.name,
     required this.timeSpent,
+    this.isArchived = false,
   });
 
   Map<String, dynamic> toMap() {
-    return {'id': id, 'name': name, 'time_spent': timeSpent};
+    return {'id': id, 'name': name, 'time_spent': timeSpent, 'is_archived': isArchived};
   }
 
   @override
   String toString() {
-    return 'Activity{id: $id, name: $name, timeSpent: $timeSpent}';
+    return 'Activity{id: $id, name: $name, timeSpent: $timeSpent, isArchived: $isArchived}';
   }
 }
 

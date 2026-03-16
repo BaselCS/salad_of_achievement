@@ -22,7 +22,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(1, 7308131095044400048),
     name: 'Activity',
-    lastPropertyId: const obx_int.IdUid(3, 7604896248958337440),
+    lastPropertyId: const obx_int.IdUid(4, 1755420553263398005),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -41,6 +41,12 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(3, 7604896248958337440),
         name: 'timeSpent',
         type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 1755420553263398005),
+        name: 'isArchived',
+        type: 1,
         flags: 0,
       ),
     ],
@@ -229,10 +235,11 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
       objectToFB: (Activity object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
-        fbb.startTable(4);
+        fbb.startTable(5);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addInt64(2, object.timeSpent);
+        fbb.addBool(3, object.isArchived);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -254,10 +261,17 @@ obx_int.ModelDefinition getObjectBoxModel() {
           8,
           0,
         );
+        final isArchivedParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          10,
+          false,
+        );
         final object = Activity(
           id: idParam,
           name: nameParam,
           timeSpent: timeSpentParam,
+          isArchived: isArchivedParam,
         );
 
         return object;
@@ -444,6 +458,11 @@ class Activity_ {
   /// See [Activity.timeSpent].
   static final timeSpent = obx.QueryIntegerProperty<Activity>(
     _entities[0].properties[2],
+  );
+
+  /// See [Activity.isArchived].
+  static final isArchived = obx.QueryBooleanProperty<Activity>(
+    _entities[0].properties[3],
   );
 }
 

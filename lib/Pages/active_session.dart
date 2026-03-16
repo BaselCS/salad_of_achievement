@@ -27,7 +27,6 @@ class ActiveSectionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // arguments[0] = sessionTime, arguments[1] = activityName, arguments[2] = isFromNotification
     final List<Object?> arguments = ModalRoute.of(context)!.settings.arguments as List<Object?>;
     final String time = arguments[0]?.toString() ?? "5";
     if (arguments[0] == null) {
@@ -49,7 +48,7 @@ class ActiveSectionPage extends StatelessWidget {
       sessionTime = int.parse(time.toString());
     }
     ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
-    activities = dataProvider.getAllActivities();
+    activities = dataProvider.getActiveActivities();
     return const Scaffold(backgroundColor: kBackGroundColor, body: Body());
   }
 }
@@ -238,7 +237,6 @@ class SaveButton extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
       onPressed: () {
-        print("تم الضغط على زر الحفظ مع doneMinutes = $doneMinutes و activityName = $activityName");
         if (fruitsId.contains(doneMinutes) && activityName != null) {
           addSession(context, doneMinutes, activityName);
           controller.cancelAllNotifications();

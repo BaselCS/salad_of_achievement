@@ -17,7 +17,6 @@ import 'Pages/notification_test.dart';
 import 'Pages/settings.dart';
 import 'Pages/statistics.dart';
 
-// flutter emulators --launch Pixel_API_35
 
 // طريقة حفظ البيانات
 late ObjectBoxState objectBox;
