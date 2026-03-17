@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/Pages/history.dart';
+import 'package:salad_of_achievement/Pages/new_session.dart' hide activityName;
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
 import 'package:salad_of_achievement/utilities/fake_data_generator.dart';
+import 'package:salad_of_achievement/utilities/page_animation.dart';
 
 import '../DB/models/object_box.dart';
 
@@ -43,7 +45,7 @@ class MainPage extends StatelessWidget {
             child: IconButton(
               icon: const Icon(Icons.add_circle_rounded),
               onPressed: () {
-                Navigator.pushNamed(context, '/newSession');
+                Navigator.push(context, comeFromUpRoute(const AddNewSession()));
               },
             ),
           ),
