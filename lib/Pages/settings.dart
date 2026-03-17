@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
 import '../DB/models/object_box.dart';
 import '../utilities/const.dart';
+import '../utilities/database_exporter.dart';
 
 //ضف إعددات لمتى يحول اليوم
 class AppSettingsPage extends StatelessWidget {
@@ -51,6 +52,53 @@ class Body extends StatelessWidget {
         ),
         Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height * 0.001, color: Colors.black..withAlpha(127)),
         const Spacer(),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("تصدير البيانات"),
+              Row(
+                children: [
+                  Tooltip(
+                    message: "تصدير كـ CSV",
+                    child: OutlinedButton(
+                      onPressed: () {
+                        final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
+                        DatabaseExporter(objectBox).exportSessionsToCsv();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: kActionColor..withAlpha(127)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        backgroundColor: kBackGroundColor..withAlpha(127),
+                      ),
+                      child: Text("CSV", style: TextStyle(color: kActionColor..withAlpha(127))),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Tooltip(
+                    message: "تصدير كـ JSON",
+                    child: OutlinedButton(
+                      onPressed: () {
+                        final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
+                        DatabaseExporter(objectBox).exportToJson();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: kActionColor..withAlpha(127)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        backgroundColor: kBackGroundColor..withAlpha(127),
+                      ),
+                      child: Text("JSON", style: TextStyle(color: kActionColor..withAlpha(127))),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const Spacer(),
+        Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height * 0.001, color: Colors.black..withAlpha(127)),
+        const Spacer(),
       ],
     );
   }
@@ -61,17 +109,19 @@ class ReSet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: kBackGroundColor..withAlpha(127), borderRadius: BorderRadius.circular(25)),
-      child: IconButton(
-        onPressed: () {
-          final ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
-          dataProvider.setDefaultSettings();
+    return OutlinedButton(
+      onPressed: () {
+        final ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
+        dataProvider.setDefaultSettings();
 
-          Navigator.popAndPushNamed(context, ModalRoute.of(context)!.settings.name!);
-        },
-        icon: Icon(Icons.settings_backup_restore, color: kActionColor..withAlpha(127)),
+        Navigator.popAndPushNamed(context, ModalRoute.of(context)!.settings.name!);
+      },
+      style: OutlinedButton.styleFrom(
+        side: BorderSide(color: kActionColor..withAlpha(127)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        backgroundColor: kBackGroundColor..withAlpha(127),
       ),
+      child: Icon(Icons.settings_backup_restore_outlined, color: kActionColor..withAlpha(127)),
     );
   }
 }
