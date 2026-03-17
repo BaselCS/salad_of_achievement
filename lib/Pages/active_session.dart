@@ -266,8 +266,8 @@ class SaveButton extends StatelessWidget {
 
 class CountDownTimer extends StatelessWidget {
   void start() {
-    TimerLogic.instance.setEndingTime(sessionTime * 60);
-    controller.setNonfiction(activityName: activityName ?? "غير محدد", sessionTime: sessionTime, seconds: sessionTime * 60);
+    TimerLogic.instance.setEndingTime(sessionTime * 1);
+    controller.setNonfiction(activityName: activityName ?? "غير محدد", sessionTime: sessionTime, seconds: sessionTime * 1);
   }
 
   void onChange(String string) {
@@ -277,7 +277,7 @@ class CountDownTimer extends StatelessWidget {
     if (minutes == 0 && seconds == 0) {
       return;
     }
-    if ((minutes * 60 + seconds) - remain > 10) {
+    if ((minutes * 1 + seconds) - remain > 10) {
       controller.correctTime(remain);
     }
 
@@ -295,7 +295,7 @@ class CountDownTimer extends StatelessWidget {
 
     double size = min(MediaQuery.of(context).size.width * 0.8, MediaQuery.of(context).size.height * 0.8);
     return MyCircularCountDownTimer(
-      duration: sessionTime * 60,
+      duration: sessionTime * 1,
       initialDuration: 0,
       fillColor: theColor,
       height: size,

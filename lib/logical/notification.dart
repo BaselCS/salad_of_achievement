@@ -82,14 +82,42 @@ class NotificationHelper {
     }
   }
 
-  /// Handle notification tap actions send arguments to active session page as payload
-  /// payload : "[sessionTime,activityName,isFromNotification]"
-  static Future<void> _onNotificationTapped(ReceivedAction receivedAction) async {
-    // payload: "$sessionTime#:#$activityName",
-    final List<String> payload = receivedAction.payload?['payload']!.split('#:#') ?? ['No payload'];
+  /// Check for initial notification action (when app is launched from notification)
+  static Future<void> checkInitialNotification() async {
+    try {
+      final ReceivedAction? receivedAction = await AwesomeNotifications().getInitialNotificationAction(removeFromActionEvents: true);
+      if (receivedAction != null) {
+        log('🚀 App launched from notification: ${receivedAction.payload}');
+        _handleNotificationNavigation(receivedAction);
+      }
+    } catch (e) {
+      log('❌ Failed to check initial notification: $e');
+    }
+  }
 
-    log('🔔 Notification tapped with payload: $payload');
-    // Handle navigation or other actions based on payload
+  /// Centralized navigation handler
+  static void _handleNotificationNavigation(ReceivedAction receivedAction) {
+    // payload: "$sessionTime#:#$activityName",
+    final String? rawPayload = receivedAction.payload?['payload'];
+    if (rawPayload == null) {
+      log('⚠️ Notification payload is missing');
+      return;
+    }
+
+    final List<String> payload = rawPayload.split('#:#');
+    if (payload.length < 2) {
+      log('⚠️ Invalid payload format: $payload');
+      return;
+    }
+
+    log('🔔 Navigating with payload: $payload');
+
+    // Check if navigator is ready
+    if (navigatorKey.currentState == null) {
+      log('⚠️ Navigator state is null, cannot navigate');
+      return;
+    }
+
     navigatorKey.currentState?.pushNamedAndRemoveUntil(
       '/activeSection',
       (route) => route.isFirst,
@@ -98,6 +126,13 @@ class NotificationHelper {
         true, // isFromNotification always true when coming from notification tap
       ],
     );
+  }
+
+  /// Handle notification tap actions send arguments to active session page as payload
+  /// payload : "[sessionTime,activityName,isFromNotification]"
+  static Future<void> _onNotificationTapped(ReceivedAction receivedAction) async {
+    log('🔔 Notification tapped: ${receivedAction.title}');
+    _handleNotificationNavigation(receivedAction);
   }
 
   /// Handle notification created

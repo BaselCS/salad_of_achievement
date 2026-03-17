@@ -36,7 +36,7 @@ class DatabaseExporter {
       await file.writeAsString(jsonString);
 
       // 4. Share the file
-      await Share.shareXFiles([XFile(file.path)], text: 'Salad of Achievement Backup (JSON)');
+      await SharePlus.instance.share(ShareParams(files: [XFile(file.path)], text: 'Salad of Achievement Backup (JSON)'));
     } catch (e) {
       debugPrint("Error exporting JSON: $e");
     }
@@ -64,7 +64,7 @@ class DatabaseExporter {
       await file.writeAsString(csvContent);
 
       // 3. Share the file
-      await Share.shareXFiles([XFile(file.path)], text: 'Sessions Export (CSV)');
+      await SharePlus.instance.share(ShareParams(files: [XFile(file.path)], text: 'Sessions Export (CSV)'));
     } catch (e) {
       debugPrint("Error exporting CSV: $e");
     }
