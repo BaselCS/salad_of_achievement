@@ -14,8 +14,8 @@ bool isSwitched = true;
 int maxValue = 1;
 
 /// صفحة الإحصائيات
-class Statistics extends StatelessWidget {
-  const Statistics({super.key});
+class StatisticsPage extends StatelessWidget {
+  const StatisticsPage({super.key});
 
   void getMax(List<GroupedSessions> lastWeek, int maxStar) {
     for (int i = 0; i < lastWeek.length; i++) {

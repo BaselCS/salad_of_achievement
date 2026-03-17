@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/Pages/active_session.dart';
+import 'package:salad_of_achievement/Pages/activity.dart';
+import 'package:salad_of_achievement/Pages/history.dart' hide activityName;
 import 'package:salad_of_achievement/Pages/new_session.dart' hide activityName;
+import 'package:salad_of_achievement/Pages/notification_test.dart';
+import 'package:salad_of_achievement/Pages/settings.dart';
+import 'package:salad_of_achievement/Pages/statistics.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
 import 'package:salad_of_achievement/utilities/fake_data_generator.dart';
@@ -87,35 +92,35 @@ class MyDrawer extends StatelessWidget {
             title: const Text('سجل الجلسات'),
             leading: const MyIcon(Icons.assignment),
             onTap: () {
-              Navigator.pushNamed(context, '/history');
+              pushWithName(context, const AppHistoryPage());
             },
           ),
           ListTile(
             title: const Text('أنشطة و مشروعات'),
             leading: const MyIcon(Icons.interests),
             onTap: () {
-              Navigator.pushNamed(context, '/activity');
+              pushWithName(context, const AppActivityPage());
             },
           ),
           ListTile(
             title: const Text('إحصائيات'),
             leading: const MyIcon(Icons.insert_chart),
             onTap: () {
-              Navigator.pushNamed(context, '/statistics');
+              pushWithName(context, const StatisticsPage());
             },
           ),
           ListTile(
             title: const Text('اختبار الإشعارات'),
             leading: const MyIcon(Icons.notifications_active),
             onTap: () {
-              Navigator.pushNamed(context, '/notificationTest');
+              pushWithName(context, const NotificationTestPage());
             },
           ),
           ListTile(
             title: const Text('إعدادات'),
             leading: const MyIcon(Icons.settings),
             onTap: () {
-              Navigator.pushNamed(context, '/settings');
+              pushWithName(context, const AppSettingsPage());
             },
           ),
         ],

@@ -6,15 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/DB/models/object_box.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
 import 'package:salad_of_achievement/logical/notification.dart';
-import 'Pages/activity.dart';
-import 'Pages/database_viewer.dart';
-
-import 'Pages/history.dart';
 import 'Pages/main_page.dart';
-import 'Pages/new_session.dart';
-import 'Pages/notification_test.dart';
-import 'Pages/settings.dart';
-import 'Pages/statistics.dart';
 
 // طريقة حفظ البيانات
 late ObjectBoxState objectBox;
@@ -68,17 +60,7 @@ class _MyAppState extends State<MyApp> {
 
       ///[قسم الصفحات]
       initialRoute: '/',
-      routes: {
-        '/': (_) => const MainPage(),
-        '/statistics': (_) => const Statistics(),
-        '/history': (_) => const AppHistoryPage(),
-        '/activity': (_) => const AppActivityPage(),
-        '/newSession': (_) => const AddNewSession(),
-        '/notificationTest': (_) => const NotificationTestPage(),
-        '/settings': (_) => const AppSettingsPage(),
-        // '/activeSection': (_) => const ActiveSectionPage(),
-        '/databaseViewer': (_) => const DatabaseViewerPage(),
-      },
+      routes: {'/': (_) => const MainPage()},
     );
   }
 
