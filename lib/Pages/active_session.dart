@@ -23,11 +23,11 @@ bool isNotified = false;
 String? activityName;
 
 class ActiveSectionPage extends StatelessWidget {
-  const ActiveSectionPage({super.key});
+  final List<Object?> arguments;
+  const ActiveSectionPage({super.key, required this.arguments});
 
   @override
   Widget build(BuildContext context) {
-    final List<Object?> arguments = ModalRoute.of(context)!.settings.arguments as List<Object?>;
     final String time = arguments[0]?.toString() ?? "5";
     if (arguments[0] == null) {
       log("No session time provided in arguments, defaulting to 5 minutes.");
@@ -174,12 +174,8 @@ class CancelButton extends StatelessWidget {
               actions: [
                 InkWell(
                   onTap: () {
-                    if (isFromNotification) {
-                      Navigator.popAndPushNamed(context, "/");
-                    } else {
-                      controller.cancelAllNotifications();
-                      Navigator.pop(context);
-                    }
+                    controller.cancelAllNotifications();
+                    Navigator.pop(context);
                   },
                   child: Container(
                     clipBehavior: Clip.antiAlias,
@@ -193,7 +189,7 @@ class CancelButton extends StatelessWidget {
                   onTap: () {
                     controller.cancelAllNotifications();
                     Navigator.pop(context);
-                    Navigator.popAndPushNamed(context, "/");
+                    Navigator.pop(context);
                   },
                   child: Container(
                     clipBehavior: Clip.antiAlias,
@@ -240,7 +236,7 @@ class SaveButton extends StatelessWidget {
         if (fruitsId.contains(doneMinutes) && activityName != null) {
           addSession(context, doneMinutes, activityName);
           controller.cancelAllNotifications();
-          Navigator.popAndPushNamed(context, '/');
+          Navigator.pop(context);
         }
       },
       child: Padding(
@@ -314,7 +310,7 @@ class CountDownTimer extends StatelessWidget {
         }
         doneMinutes = sessionTime;
       },
-      child: theImage,
+      child: Hero(tag: sessionTime.toString(), child: theImage),
     );
   }
 }
@@ -345,8 +341,6 @@ void addSession(BuildContext context, int sessionTime, String? activityName) {
       ),
     ),
   );
-
-  Navigator.pop(context);
 }
 
 class TimerLogic {

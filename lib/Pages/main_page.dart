@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
-import 'package:salad_of_achievement/Pages/history.dart';
+import 'package:salad_of_achievement/Pages/active_session.dart';
 import 'package:salad_of_achievement/Pages/new_session.dart' hide activityName;
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
@@ -137,11 +137,13 @@ class VisitableButtons extends StatelessWidget {
         children: fruits.entries.map((entry) {
           return GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, '/activeSection', arguments: [entry.key, activityName, false]);
+              Navigator.push(context, comeFromDownRoute(ActiveSectionPage(arguments: [entry.key, activityName, false])));
             },
             child: Column(
               children: [
-                Expanded(child: entry.value.first),
+                Expanded(
+                  child: Hero(tag: entry.key, child: Image.asset(fruitsPath[entry.key]!, width: 64, height: 64)),
+                ),
                 Expanded(
                   child: Text(HijriLogic.englishToArabicNumber(entry.key), style: TextStyle(color: entry.value.last)),
                 ),

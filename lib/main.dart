@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/DB/models/object_box.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
 import 'package:salad_of_achievement/logical/notification.dart';
-import 'Pages/active_session.dart';
 import 'Pages/activity.dart';
 import 'Pages/database_viewer.dart';
 
@@ -77,7 +76,7 @@ class _MyAppState extends State<MyApp> {
         '/newSession': (_) => const AddNewSession(),
         '/notificationTest': (_) => const NotificationTestPage(),
         '/settings': (_) => const AppSettingsPage(),
-        '/activeSection': (_) => const ActiveSectionPage(),
+        // '/activeSection': (_) => const ActiveSectionPage(),
         '/databaseViewer': (_) => const DatabaseViewerPage(),
       },
     );

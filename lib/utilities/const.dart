@@ -45,7 +45,7 @@ Map<String, List> fruits = {
 };
 
 Map<String, String> fruitsPath = {
-  "5": '$iconPath/برتقال.png',
+  "5": '$iconPath/كرز.png',
   "10": '$iconPath/ليمون.png',
   "15": '$iconPath/فرولة.png',
   "20": '$iconPath/برتقال.png',
