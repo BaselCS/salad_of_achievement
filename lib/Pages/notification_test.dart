@@ -107,7 +107,6 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
       id: 1,
       title: 'اختبار الإشعار الفوري',
       message: 'هذا إشعار تجريبي فوري مع الصوت المخصص!',
-      //  sessionTime#:#$activityName"
       payload: "25#:#نشط",
       imagePath: 'assets/icons/appIcon.png',
     );
@@ -120,7 +119,7 @@ class _NotificationTestPageState extends State<NotificationTestPage> {
       message: 'هذا إشعار مؤجل لمدة 5 ثواني!',
       seconds: 5,
       imagePath: 'assets/icons/موز.png',
-      payload: "25#:#نشط",
+      payload: "25#:#ممارسة الرياضة",
     );
   }
 

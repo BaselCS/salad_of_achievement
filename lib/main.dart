@@ -45,6 +45,15 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
+  void initState() {
+    super.initState();
+    // Check if app was launched from notification after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NotificationHelper.checkInitialNotification();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
