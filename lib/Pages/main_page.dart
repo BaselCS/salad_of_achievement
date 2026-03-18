@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/Pages/active_session.dart';
 import 'package:salad_of_achievement/Pages/activity.dart';
 import 'package:salad_of_achievement/Pages/history.dart' hide activityName;
-import 'package:salad_of_achievement/Pages/new_session.dart' hide activityName;
+import 'package:salad_of_achievement/Pages/new_session.dart';
 import 'package:salad_of_achievement/Pages/notification_test.dart';
 import 'package:salad_of_achievement/Pages/settings.dart';
 import 'package:salad_of_achievement/Pages/statistics.dart';

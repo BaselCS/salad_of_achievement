@@ -8,8 +8,8 @@ import 'package:salad_of_achievement/utilities/const.dart';
 import '../DB/models/data_model.dart';
 import '../DB/models/object_box.dart';
 
-int minimumValue = 0;
-String activityName = '';
+final ValueNotifier<int> timeValue = ValueNotifier(0);
+final ValueNotifier<String> activityLabel = ValueNotifier('');
 
 class AddNewSession extends StatelessWidget {
   const AddNewSession({super.key});
@@ -24,6 +24,8 @@ class AddNewSession extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
+            timeValue.value = 0; // Reset time value when going back
+            activityLabel.value = ''; // Reset activity label when going back
           },
         ),
       ),
@@ -70,7 +72,7 @@ class DropActivity extends StatelessWidget {
           focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
         ),
         onChanged: (String? newValue) {
-          activityName = newValue!;
+          activityLabel.value = newValue!;
         },
         items: dataProvider.getActiveActivities().map<DropdownMenuItem<String>>((Activity value) {
           return DropdownMenuItem<String>(value: value.name, child: Text(value.name));
@@ -95,7 +97,7 @@ class DropOfTime extends StatelessWidget {
           focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
         ),
         onChanged: (value) {
-          minimumValue = int.parse(value!);
+          timeValue.value = int.parse(value!);
         },
         items: fruits.keys.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
@@ -119,34 +121,49 @@ class OkButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        if (activityName.isNotEmpty && minimumValue != 0) {
-          ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
-          dataProvider.addSession(Session(date: HijriCalendar.now().toString(), timeSpent: minimumValue, activityName: activityName));
+    // Wrap with AnimatedBuilder
+    return AnimatedBuilder(
+      animation: Listenable.merge([timeValue, activityLabel]),
+      builder: (context, child) {
+        // Check values using .value
+        bool isEnabled = activityLabel.value.isNotEmpty && timeValue.value != 0;
 
-          Activity? activity = dataProvider.getAllActivities().firstWhereOrNull((activity) => activity.name == activityName);
-          if (activity != null) {
-            activity.timeSpent += minimumValue;
-            dataProvider.updateActivity(activity, null, activity.timeSpent);
-          } else {
-            dataProvider.addActivity(Activity(name: activityName, timeSpent: minimumValue));
-          }
-          Navigator.pop(context);
-        }
-      },
-      child: Container(
-        color: activityName.isNotEmpty && minimumValue != 0 ? kContainerColor : kActionColor,
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: FittedBox(
-              fit: BoxFit.fill,
-              child: Text("أضف الجلسة", style: const TextTheme().bodySmall),
+        return GestureDetector(
+          onTap: () {
+            // Update logic to use .value
+            if (isEnabled) {
+              ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
+
+              dataProvider.addSession(Session(date: HijriCalendar.now().toString(), timeSpent: timeValue.value, activityName: activityLabel.value));
+
+              Activity? activity = dataProvider.getAllActivities().firstWhereOrNull((activity) => activity.name == activityLabel.value);
+
+              if (activity != null) {
+                activity.timeSpent += timeValue.value;
+                dataProvider.updateActivity(activity, null, activity.timeSpent);
+              } else {
+                dataProvider.addActivity(Activity(name: activityLabel.value, timeSpent: timeValue.value));
+              }
+              Navigator.pop(context);
+              timeValue.value = 0; // Reset time value after adding session
+              activityLabel.value = ''; // Reset activity label after adding session
+            }
+          },
+          child: Container(
+            // Use the isEnabled flag for color
+            color: isEnabled ? kActionColor : kContainerColor,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: FittedBox(
+                  fit: BoxFit.fill,
+                  child: Text("أضف الجلسة", style: const TextTheme().bodySmall),
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
