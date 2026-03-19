@@ -170,7 +170,6 @@ class BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context);
-
     return BottomAppBar(
       height: MediaQuery.of(context).size.height * 0.15,
       padding: const EdgeInsets.fromLTRB(4, 15, 8, 4),

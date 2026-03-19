@@ -44,7 +44,7 @@ class ObjectBoxState with ChangeNotifier {
 
   /// تهيئة الإعدادات
   void _initializeSettings() {
-    final setting = _settingBox.get(1);
+    final setting = _settingBox.getAll().firstOrNull;
     if (setting == null) {
       setDefaultSettings();
     } else {
@@ -63,36 +63,67 @@ class ObjectBoxState with ChangeNotifier {
     star3 = 480;
     autoStart = true;
     timeToRest = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 4);
-    doneMinutes = doneMinutes;
+    doneMinutes = 0;
+
+    final defaultSetting = Setting(
+      star1: star1,
+      star2: star2,
+      star3: star3,
+      hourOfRest: timeToRest.hour,
+      timeOfRest: timeToRest.toString(),
+      doneMinutes: doneMinutes,
+    );
+    _settingBox.put(defaultSetting);
   }
 
   /// تهيئة مؤقت إعادة التعيين
   void _initializeResetTimer() {
-    final now = DateTime.now();
-    var nextReset = DateTime(timeToRest.year, timeToRest.month, timeToRest.day, timeToRest.hour);
-
-    if (now.isAfter(nextReset)) {
-      nextReset = nextReset.add(const Duration(days: 1));
-      _resetDoneMinutes(nextReset);
-    }
+    isNewDay();
   }
 
   /// التحقق من بداية يوم جديد
   void isNewDay() {
+    final setting = _settingBox.getAll().firstOrNull;
+    if (setting == null) {
+      notifyListeners();
+      return;
+    }
+
     final now = DateTime.now();
-    var nextReset = DateTime(timeToRest.year, timeToRest.month, timeToRest.day, timeToRest.hour);
+    final nextReset = _resolveNextReset(now, setting);
+
+    // Keep in-memory state synchronized with persisted settings.
+    timeToRest = nextReset;
+    if (doneMinutes != setting.doneMinutes) {
+      doneMinutes = setting.doneMinutes;
+    }
+
+    // Persist a normalized reset timestamp if needed.
+    if (setting.timeOfRest != nextReset.toString()) {
+      setting.timeOfRest = nextReset.toString();
+      _settingBox.put(setting);
+    }
 
     if (now.isAfter(nextReset)) {
-      nextReset = nextReset.add(const Duration(days: 1));
-      _resetDoneMinutes(nextReset);
+      _resetDoneMinutes(nextReset.add(const Duration(days: 1)));
+      return;
     }
+
     notifyListeners();
+  }
+
+  DateTime _resolveNextReset(DateTime now, Setting setting) {
+    final parsed = DateTime.tryParse(setting.timeOfRest);
+    final fallback = DateTime(now.year, now.month, now.day, setting.hourOfRest);
+    final base = parsed ?? fallback;
+    return DateTime(base.year, base.month, base.day, setting.hourOfRest);
   }
 
   /// إعادة تعيين الدقائق المكتملة
   void _resetDoneMinutes(DateTime nextReset) {
     doneMinutes = 0;
-    final currentSetting = _settingBox.get(1) ?? Setting();
+    timeToRest = nextReset;
+    final currentSetting = _settingBox.getAll().firstOrNull ?? Setting();
     currentSetting.doneMinutes = doneMinutes;
     currentSetting.timeOfRest = nextReset.toString();
     _settingBox.put(currentSetting);
@@ -108,6 +139,8 @@ class ObjectBoxState with ChangeNotifier {
   }
 
   void addSession(Session session) {
+    // Ensure the day rollover is applied before counting the new session.
+    isNewDay();
     _sessionBox.put(session);
     doneMinutes += session.timeSpent;
     addFruitUsage(time: session.timeSpent);
@@ -211,7 +244,7 @@ class ObjectBoxState with ChangeNotifier {
   }
 
   void _updateSettingDoneMinutes() {
-    final currentSetting = _settingBox.get(1) ?? Setting();
+    final currentSetting = _settingBox.getAll().firstOrNull ?? Setting();
     currentSetting.doneMinutes = doneMinutes;
     _settingBox.put(currentSetting);
   }
@@ -226,7 +259,7 @@ class ObjectBoxState with ChangeNotifier {
     if (newStar3 != 0) {
       star3 = newStar3;
     }
-    final currentSetting = _settingBox.get(1) ?? Setting();
+    final currentSetting = _settingBox.getAll().firstOrNull ?? Setting();
     currentSetting.star1 = star1;
     currentSetting.star2 = star2;
     currentSetting.star3 = star3;
@@ -236,7 +269,7 @@ class ObjectBoxState with ChangeNotifier {
   }
 
   void updateTimeToRest(int hour) {
-    final currentSetting = _settingBox.get(1) ?? Setting();
+    final currentSetting = _settingBox.getAll().firstOrNull ?? Setting();
     currentSetting.hourOfRest = hour;
     timeToRest = DateTime(timeToRest.year, timeToRest.month, timeToRest.day, hour);
     currentSetting.timeOfRest = timeToRest.toString();

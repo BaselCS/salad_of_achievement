@@ -275,7 +275,7 @@ class _EditTimeFilledState extends State<EditTimeFilled> {
                   int days = int.tryParse(value) ?? 0;
                   int hours = int.tryParse(controllerHour.text) ?? 0;
                   int minutes = int.tryParse(controllerMin.text) ?? 0;
-                  newTime = (days * 24 * 60) + (hours * 60) + minutes;
+                  newTime = (days * 24 * 1) + (hours * 1) + minutes;
                 },
               ),
             ),
@@ -294,7 +294,7 @@ class _EditTimeFilledState extends State<EditTimeFilled> {
                   int days = int.tryParse(controllerDay.text) ?? 0;
                   int hours = int.tryParse(value) ?? 0;
                   int minutes = int.tryParse(controllerMin.text) ?? 0;
-                  newTime = (days * 24 * 60) + (hours * 60) + minutes;
+                  newTime = (days * 24 * 1) + (hours * 1) + minutes;
                 },
               ),
             ),
@@ -313,7 +313,7 @@ class _EditTimeFilledState extends State<EditTimeFilled> {
                   int days = int.tryParse(controllerDay.text) ?? 0;
                   int hours = int.tryParse(controllerHour.text) ?? 0;
                   int minutes = int.tryParse(value) ?? 0;
-                  newTime = (days * 24 * 60) + (hours * 60) + minutes;
+                  newTime = (days * 24 * 1) + (hours * 1) + minutes;
                 },
               ),
             ),
@@ -409,8 +409,8 @@ String formatDuration(int durationInMinutes) {
     return 'اعقِلْها وتوكَّلْ';
   }
 
-  final int days = durationInMinutes ~/ (24 * 60);
-  final int hours = (durationInMinutes % (24 * 60)) ~/ 60;
+  final int days = durationInMinutes ~/ (24 * 1);
+  final int hours = (durationInMinutes % (24 * 1)) ~/ 60;
   final int minutes = durationInMinutes % 60;
 
   String formattedDuration = '';

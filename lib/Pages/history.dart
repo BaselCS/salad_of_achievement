@@ -42,6 +42,7 @@ class Body extends StatelessWidget {
     return ListView.separated(
       shrinkWrap: true,
       itemCount: groupedSessions.length,
+      reverse: true,
       itemBuilder: (BuildContext context, int index) {
         return ListTile(
           tileColor: kBorderColor,
