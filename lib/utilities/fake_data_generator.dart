@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
+import 'package:salad_of_achievement/logical/app_logger.dart';
 import '../DB/models/data_model.dart';
 import '../DB/models/object_box.dart';
 
@@ -34,7 +35,7 @@ class FakeDataGenerator {
 
   /// Generate fake activities
   static Future<void> generateFakeActivities(ObjectBoxState objectBox) async {
-    print('🎭 Generating fake activities...');
+    AppLogger.log('🎭 Generating fake activities...', tag: 'fake-data');
 
     // Clear existing activities - we'll use deleteAll() to clear everything
     List<Activity> existingActivities = objectBox.getAllActivities();
@@ -61,19 +62,19 @@ class FakeDataGenerator {
       objectBox.addActivity(activity);
     }
 
-    print('✅ Generated $numActivities fake activities');
+    AppLogger.log('✅ Generated $numActivities fake activities', tag: 'fake-data');
   }
 
   /// Generate fake sessions for the last 30 days
   static Future<void> generateFakeSessions(ObjectBoxState objectBox) async {
-    print('🎭 Generating fake sessions...');
+    AppLogger.log('🎭 Generating fake sessions...', tag: 'fake-data');
 
     // Clear existing sessions
     objectBox.deleteAllSessions();
 
     List<Activity> activities = objectBox.getAllActivities();
     if (activities.isEmpty) {
-      print('⚠️ No activities found. Generate activities first.');
+      AppLogger.log('⚠️ No activities found. Generate activities first.', tag: 'fake-data');
       return;
     }
 
@@ -104,12 +105,12 @@ class FakeDataGenerator {
       }
     }
 
-    print('✅ Generated $totalSessions fake sessions over 30 days');
+    AppLogger.log('✅ Generated $totalSessions fake sessions over 30 days', tag: 'fake-data');
   }
 
   /// Generate fake fruit usage data
   static Future<void> generateFakeFruitUsage(ObjectBoxState objectBox) async {
-    print('🎭 Generating fake fruit usage...');
+    AppLogger.log('🎭 Generating fake fruit usage...', tag: 'fake-data');
 
     // Clear existing fruit usage
     List<int> fruitIds = [5, 10, 15, 20, 25, 30, 40, 50, 60];
@@ -128,12 +129,12 @@ class FakeDataGenerator {
       }
     }
 
-    print('✅ Generated fake fruit usage data');
+    AppLogger.log('✅ Generated fake fruit usage data', tag: 'fake-data');
   }
 
   /// Generate realistic settings
   static Future<void> generateFakeSettings(ObjectBoxState objectBox) async {
-    print('🎭 Setting up realistic app settings...');
+    AppLogger.log('🎭 Setting up realistic app settings...', tag: 'fake-data');
 
     // Set up realistic star thresholds and daily progress
     int dailyProgress = 120 + _random.nextInt(300); // 120 to 420 minutes
@@ -150,41 +151,41 @@ class FakeDataGenerator {
     // Update the settings through the public method
     objectBox.updateStares(newStar1: 120, newStar2: 240, newStar3: 480);
 
-    print('✅ Set up realistic settings with $dailyProgress minutes of daily progress');
+    AppLogger.log('✅ Set up realistic settings with $dailyProgress minutes of daily progress', tag: 'fake-data');
   }
 
   /// Generate all fake data at once
   static Future<void> generateAllFakeData(ObjectBoxState objectBox) async {
-    print('🎭 Starting fake data generation...');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    AppLogger.log('🎭 Starting fake data generation...', tag: 'fake-data');
+    AppLogger.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', tag: 'fake-data');
 
     await generateFakeActivities(objectBox);
     await generateFakeSessions(objectBox);
     await generateFakeFruitUsage(objectBox);
     await generateFakeSettings(objectBox);
 
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('🎉 All fake data generated successfully!');
-    print('📊 Your app is now ready for testing with sample data');
+    AppLogger.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', tag: 'fake-data');
+    AppLogger.log('🎉 All fake data generated successfully!', tag: 'fake-data');
+    AppLogger.log('📊 Your app is now ready for testing with sample data', tag: 'fake-data');
 
     // Print summary
     List<Activity> activities = objectBox.getAllActivities();
     List<Session> sessions = objectBox.getAllSessions();
 
-    print('📈 Summary:');
-    print('   - ${activities.length} activities');
-    print('   - ${sessions.length} sessions');
-    print('   - ${objectBox.doneMinutes} minutes of daily progress');
-    print('   - Fruit usage data for all time intervals');
+    AppLogger.log('📈 Summary:', tag: 'fake-data');
+    AppLogger.log('   - ${activities.length} activities', tag: 'fake-data');
+    AppLogger.log('   - ${sessions.length} sessions', tag: 'fake-data');
+    AppLogger.log('   - ${objectBox.doneMinutes} minutes of daily progress', tag: 'fake-data');
+    AppLogger.log('   - Fruit usage data for all time intervals', tag: 'fake-data');
   }
 
   /// Clear all fake data
   static Future<void> clearAllData(ObjectBoxState objectBox) async {
-    print('🧹 Clearing all data...');
+    AppLogger.log('🧹 Clearing all data...', tag: 'fake-data');
 
     objectBox.deleteAll();
 
-    print('✅ All data cleared successfully');
+    AppLogger.log('✅ All data cleared successfully', tag: 'fake-data');
   }
 
   /// Generate data for a specific scenario
@@ -206,7 +207,7 @@ class FakeDataGenerator {
 
   /// Generate data for a beginner user
   static Future<void> _generateBeginnerData(ObjectBoxState objectBox) async {
-    print('🌱 Generating beginner user data...');
+    AppLogger.log('🌱 Generating beginner user data...', tag: 'fake-data');
 
     objectBox.deleteAll();
 
@@ -237,12 +238,12 @@ class FakeDataGenerator {
     }
 
     objectBox.doneMinutes = 45; // Low daily progress
-    print('✅ Beginner data generated');
+    AppLogger.log('✅ Beginner data generated', tag: 'fake-data');
   }
 
   /// Generate data for an active user
   static Future<void> _generateActiveUserData(ObjectBoxState objectBox) async {
-    print('🔥 Generating active user data...');
+    AppLogger.log('🔥 Generating active user data...', tag: 'fake-data');
 
     objectBox.deleteAll();
     await generateFakeActivities(objectBox);
@@ -250,12 +251,12 @@ class FakeDataGenerator {
     await generateFakeFruitUsage(objectBox);
 
     objectBox.doneMinutes = 280; // High daily progress
-    print('✅ Active user data generated');
+    AppLogger.log('✅ Active user data generated', tag: 'fake-data');
   }
 
   /// Generate data for an expert user
   static Future<void> _generateExpertData(ObjectBoxState objectBox) async {
-    print('🏆 Generating expert user data...');
+    AppLogger.log('🏆 Generating expert user data...', tag: 'fake-data');
 
     objectBox.deleteAll();
     await generateFakeActivities(objectBox);
@@ -284,7 +285,7 @@ class FakeDataGenerator {
 
     await generateFakeFruitUsage(objectBox);
     objectBox.doneMinutes = 520; // Very high daily progress
-    print('✅ Expert user data generated');
+    AppLogger.log('✅ Expert user data generated', tag: 'fake-data');
   }
 }
 

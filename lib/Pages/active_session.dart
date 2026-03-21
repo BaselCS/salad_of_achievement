@@ -1,4 +1,3 @@
-import 'dart:developer' show log;
 import 'dart:math' show max, min;
 
 import 'package:collection/collection.dart';
@@ -8,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../DB/models/data_model.dart';
 import '../DB/models/object_box.dart';
+import '../logical/app_logger.dart';
 import '../utilities/const.dart';
 import '../utilities/my_circular_count_down_timer.dart';
 
@@ -30,7 +30,7 @@ class ActiveSectionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final String time = arguments[0]?.toString() ?? "5";
     if (arguments[0] == null) {
-      log("No session time provided in arguments, defaulting to 5 minutes.");
+      AppLogger.log("No session time provided in arguments, defaulting to 5 minutes.", tag: 'active-session');
     }
     isFromNotification = arguments[2] as bool;
 
@@ -67,9 +67,41 @@ class Body extends StatefulWidget {
   State<Body> createState() => _BodyState();
 }
 
-class _BodyState extends State<Body> {
+class _BodyState extends State<Body> with WidgetsBindingObserver {
   IconData theIcon = Icons.pause;
   int remainingAfterStop = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) {
+      return;
+    }
+
+    // DateTime-based remaining time keeps moving in background; sync visuals on resume.
+    if (!controller.isPaused.value) {
+      final int remain = TimerLogic.instance.remainingSeconds;
+      controller.correctTime(remain);
+      if (remain <= 0) {
+        theIcon = Icons.play_arrow;
+      }
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -87,7 +119,7 @@ class _BodyState extends State<Body> {
               child: IconButton(
                 onPressed: () {
                   if (controller.isPaused.value) {
-                    log("تم الاستئناف");
+                    AppLogger.log("تم الاستئناف", tag: 'active-session');
                     TimerLogic.instance.setEndingTime(remainingAfterStop);
                     theIcon = Icons.pause;
                     controller.resume();
@@ -101,7 +133,7 @@ class _BodyState extends State<Body> {
                       );
                     }
                   } else {
-                    log("تم الإيقاف");
+                    AppLogger.log("تم الإيقاف", tag: 'active-session');
                     theIcon = Icons.play_arrow;
                     controller.pause();
                     remainingAfterStop = TimerLogic.instance.remainingSeconds;
@@ -239,11 +271,25 @@ class SaveButton extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
       onPressed: () {
-        if (fruitsId.contains(doneMinutes) && activityName != null) {
-          addSession(context, doneMinutes, activityName);
-          controller.cancelAllNotifications();
-          Navigator.pop(context);
+        if (activityName == null || activityName!.trim().isEmpty) {
+          AppLogger.log("Save blocked: activity is missing.", tag: 'active-session');
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(backgroundColor: Colors.red, content: Text('اختر نشاطا قبل حفظ الجلسة'), duration: Duration(seconds: 2)));
+          return;
         }
+
+        if (!fruitsId.contains(doneMinutes)) {
+          AppLogger.log("Save blocked: invalid doneMinutes value ($doneMinutes).", tag: 'active-session');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(backgroundColor: Colors.orange, content: Text('لا يمكن حفظ الجلسة الآن، أكمل وقتا صالحا أولا'), duration: Duration(seconds: 2)),
+          );
+          return;
+        }
+
+        addSession(context, doneMinutes, activityName);
+        controller.cancelAllNotifications();
+        Navigator.pop(context);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),
@@ -268,18 +314,19 @@ class SaveButton extends StatelessWidget {
 
 class CountDownTimer extends StatelessWidget {
   void start() {
-    TimerLogic.instance.setEndingTime(sessionTime * 1);
-    controller.setNonfiction(activityName: activityName ?? "غير محدد", sessionTime: sessionTime, seconds: sessionTime * 1);
+    TimerLogic.instance.setEndingTime(sessionTime * 60);
+    controller.setNonfiction(activityName: activityName ?? "غير محدد", sessionTime: sessionTime, seconds: sessionTime * 60);
   }
 
   void onChange(String string) {
     int minutes = int.parse(string.split(":")[0]);
     int seconds = int.parse(string.split(":")[1]);
+    int uiRemaining = (minutes * 60) + seconds;
     int remain = TimerLogic.instance.remainingSeconds;
     if (minutes == 0 && seconds == 0) {
       return;
     }
-    if ((minutes * 1 + seconds) - remain > 10) {
+    if ((uiRemaining - remain).abs() > 2) {
       controller.correctTime(remain);
     }
 
@@ -297,7 +344,7 @@ class CountDownTimer extends StatelessWidget {
 
     double size = min(MediaQuery.of(context).size.width * 0.8, MediaQuery.of(context).size.height * 0.8);
     return MyCircularCountDownTimer(
-      duration: sessionTime * 1,
+      duration: sessionTime * 60,
       initialDuration: 0,
       fillColor: theColor,
       height: size,
@@ -364,6 +411,6 @@ class TimerLogic {
   void setEndingTime(int durationToEnd) {
     final DateTime dateTimeNow = DateTime.now();
     endingTime = dateTimeNow.add(Duration(seconds: durationToEnd));
-    log("TimerLogic setEndingTime = ${endingTime.toLocal().toString()}");
+    AppLogger.log("TimerLogic setEndingTime = ${endingTime.toLocal().toString()}", tag: 'timer');
   }
 }

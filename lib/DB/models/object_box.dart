@@ -1,9 +1,9 @@
-import 'dart:developer';
 import 'dart:math' show min;
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
+import 'package:salad_of_achievement/logical/app_logger.dart';
 
 import '../../objectbox.g.dart';
 import 'data_model.dart';
@@ -128,13 +128,13 @@ class ObjectBoxState with ChangeNotifier {
     currentSetting.timeOfRest = nextReset.toString();
     _settingBox.put(currentSetting);
     notifyListeners();
-    log("يوم جديد");
+    AppLogger.log("يوم جديد", tag: 'objectbox');
   }
 
   /// [الجلسات]
   List<Session> getAllSessions() {
     List<Session> list = _sessionBox.getAll();
-    log("جلبت جميع الجلسات");
+    AppLogger.log("جلبت جميع الجلسات", tag: 'objectbox');
     return list;
   }
 
@@ -145,7 +145,7 @@ class ObjectBoxState with ChangeNotifier {
     doneMinutes += session.timeSpent;
     addFruitUsage(time: session.timeSpent);
     _updateSettingDoneMinutes();
-    log("إضيفت جلسة جديدة : ${session.id}");
+    AppLogger.log("إضيفت جلسة جديدة : ${session.id}", tag: 'objectbox');
     notifyListeners();
   }
 
@@ -153,14 +153,14 @@ class ObjectBoxState with ChangeNotifier {
     doneMinutes += session.timeSpent;
     deleteSession(oldSessionID);
     _sessionBox.put(session);
-    log("حدثت الجلسة: ${session.id}");
+    AppLogger.log("حدثت الجلسة: ${session.id}", tag: 'objectbox');
     notifyListeners();
   }
 
   void deleteSession(int id) {
     Session? session = _sessionBox.get(id);
     if (session == null) {
-      log("الجلسة غير موجودة");
+      AppLogger.log("الجلسة غير موجودة", tag: 'objectbox');
       return;
     }
     _sessionBox.remove(session.id);
@@ -169,7 +169,7 @@ class ObjectBoxState with ChangeNotifier {
       doneMinutes = doneMinutes < 0 ? 0 : doneMinutes;
     }
     _updateSettingDoneMinutes();
-    log("حذفت الجلسة: ${session.id}");
+    AppLogger.log("حذفت الجلسة: ${session.id}", tag: 'objectbox');
     notifyListeners();
   }
 
@@ -177,7 +177,7 @@ class ObjectBoxState with ChangeNotifier {
     _sessionBox.removeAll();
     doneMinutes = 0;
     _updateSettingDoneMinutes();
-    log("حذفت جميع الجلسات");
+    AppLogger.log("حذفت جميع الجلسات", tag: 'objectbox');
     notifyListeners();
   }
 
@@ -193,7 +193,7 @@ class ObjectBoxState with ChangeNotifier {
 
       groupedSessions.add(GroupedSessions(date: date, dayName: dayName, sessions: sessions, totalMinutes: timeSpent.toInt()));
     });
-    log("الجلسات جمعت");
+    AppLogger.log("الجلسات جمعت", tag: 'objectbox');
     return groupedSessions;
   }
 
@@ -202,14 +202,14 @@ class ObjectBoxState with ChangeNotifier {
     List<GroupedSessions> sessionsByDay = groupSessionsByDay(sessions);
     List<GroupedSessions> lastWeek = [];
     if (sessionsByDay.isEmpty) {
-      log("لا توجد جلسات");
+      AppLogger.log("لا توجد جلسات", tag: 'objectbox');
       return [];
     }
     for (int i = 1; i <= min(sessionsByDay.length, 9); i++) {
       lastWeek.add(sessionsByDay[sessionsByDay.length - i]);
     }
 
-    log("معلومات الأسبوع المنصرم جاهزة");
+    AppLogger.log("معلومات الأسبوع المنصرم جاهزة", tag: 'objectbox');
     return lastWeek;
   }
 
@@ -224,7 +224,7 @@ class ObjectBoxState with ChangeNotifier {
       UserStatistics.averageDailyProductivity = 0;
       UserStatistics.mostProductiveDate = "احرص على ما ينفعُك، واستعنْ بالله، ولا تعجز";
       UserStatistics.mostProductiveDay = 0;
-      log("إحصائات المستخدم قارغة");
+      AppLogger.log("إحصائات المستخدم قارغة", tag: 'objectbox');
       return;
     }
 
@@ -240,7 +240,7 @@ class ObjectBoxState with ChangeNotifier {
     UserStatistics.averageDailyProductivity = totalTime / sessionsByDay.length;
     UserStatistics.mostProductiveDate = mostActiveDay;
     UserStatistics.mostProductiveDay = maxTimeSpent;
-    log("إحصائات المستخدم قارغة");
+    AppLogger.log("إحصائات المستخدم قارغة", tag: 'objectbox');
   }
 
   void _updateSettingDoneMinutes() {
@@ -264,7 +264,7 @@ class ObjectBoxState with ChangeNotifier {
     currentSetting.star2 = star2;
     currentSetting.star3 = star3;
     _settingBox.put(currentSetting);
-    log("حدثت قيمة النجوم");
+    AppLogger.log("حدثت قيمة النجوم", tag: 'objectbox');
     notifyListeners();
   }
 
@@ -274,13 +274,13 @@ class ObjectBoxState with ChangeNotifier {
     timeToRest = DateTime(timeToRest.year, timeToRest.month, timeToRest.day, hour);
     currentSetting.timeOfRest = timeToRest.toString();
     _settingBox.put(currentSetting);
-    log("Start of day set to: $hour");
+    AppLogger.log("Start of day set to: $hour", tag: 'objectbox');
     notifyListeners();
   }
 
   /// [الفواكهة]
   List<FruitUsage> getAllFruitUsage() {
-    log("جلبت جميع الفواكهة المستخدمة");
+    AppLogger.log("جلبت جميع الفواكهة المستخدمة", tag: 'objectbox');
     List<FruitUsage> list = _fruitUsageBox.getAll();
     List<int> id = [5, 10, 15, 20, 25, 30, 40, 50, 60];
     if (list.length != 9) {
@@ -297,7 +297,7 @@ class ObjectBoxState with ChangeNotifier {
     final FruitUsage fruitUsage = _fruitUsageBox.get(time) ?? FruitUsage(id: time, usageCount: 1);
     fruitUsage.usageCount++;
     _fruitUsageBox.put(fruitUsage);
-    log("إضيفت قاكهة جديدة لسلطتك: ${fruitUsage.id}");
+    AppLogger.log("إضيفت قاكهة جديدة لسلطتك: ${fruitUsage.id}", tag: 'objectbox');
     notifyListeners();
   }
 
@@ -311,7 +311,7 @@ class ObjectBoxState with ChangeNotifier {
 
       _fruitUsageBox.put(fruitUsage);
     }
-    log("حذفت فاكهة من سلطتك: ${fruitUsage.id}");
+    AppLogger.log("حذفت فاكهة من سلطتك: ${fruitUsage.id}", tag: 'objectbox');
     notifyListeners();
   }
 
@@ -325,25 +325,25 @@ class ObjectBoxState with ChangeNotifier {
 
   /// [الأنشطة]
   List<Activity> getActiveActivities() {
-    log("جلبت جميع الأنشطة النشطة");
+    AppLogger.log("جلبت جميع الأنشطة النشطة", tag: 'objectbox');
     return _activityBox.getAll().whereNot((activity) => activity.isArchived).toList();
   }
 
   List<Activity> getAllActivities() {
-    log("جلبت جميع الأنشطة");
+    AppLogger.log("جلبت جميع الأنشطة", tag: 'objectbox');
     return _activityBox.getAll();
   }
 
   void addActivity(Activity activity) {
     _activityBox.put(activity);
-    log("إضيف نشاط جديد: ${activity.name}");
+    AppLogger.log("إضيف نشاط جديد: ${activity.name}", tag: 'objectbox');
     notifyListeners();
   }
 
   void archiveActivity(Activity activity) {
     activity.isArchived = true;
     _activityBox.put(activity);
-    log("أرشف النشاط: ${activity.name}");
+    AppLogger.log("أرشف النشاط: ${activity.name}", tag: 'objectbox');
 
     notifyListeners();
   }
@@ -351,7 +351,7 @@ class ObjectBoxState with ChangeNotifier {
   void unarchiveActivity(Activity activity) {
     activity.isArchived = false;
     _activityBox.put(activity);
-    log("ألغيت أرشفة النشاط: ${activity.name}");
+    AppLogger.log("ألغيت أرشفة النشاط: ${activity.name}", tag: 'objectbox');
     notifyListeners();
   }
 
@@ -359,13 +359,13 @@ class ObjectBoxState with ChangeNotifier {
     activity.name = name ?? activity.name;
     activity.timeSpent = timeSpent ?? activity.timeSpent;
     _activityBox.put(activity);
-    log("حدث النشاط: ${activity.id}");
+    AppLogger.log("حدث النشاط: ${activity.id}", tag: 'objectbox');
     notifyListeners();
   }
 
   void deleteActivity(Activity activity) {
     _activityBox.remove(activity.id);
-    log("حذف نشاط: ${activity.id}");
+    AppLogger.log("حذف نشاط: ${activity.id}", tag: 'objectbox');
     notifyListeners();
   }
 
@@ -380,7 +380,7 @@ class ObjectBoxState with ChangeNotifier {
     UserStatistics.mostProductiveDate = HijriCalendar.now().toString();
     UserStatistics.mostProductiveDay = 0;
 
-    log("All data deleted");
+    AppLogger.log("All data deleted", tag: 'objectbox');
     notifyListeners();
   }
 }

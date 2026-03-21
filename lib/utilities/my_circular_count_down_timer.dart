@@ -1,8 +1,6 @@
-import 'dart:developer';
-
 import 'package:circular_countdown_timer/custom_timer_painter.dart';
 import 'package:flutter/material.dart';
-import 'package:salad_of_achievement/Pages/active_session.dart';
+import 'package:salad_of_achievement/logical/app_logger.dart';
 import 'package:salad_of_achievement/logical/notification.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
 
@@ -71,6 +69,7 @@ class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer> with
   AnimationController? _controller;
   Animation<double>? _countDownAnimation;
   CountDownControllers? countDownController;
+  bool _hasStarted = false;
 
   String get time {
     String timeStamp = "";
@@ -136,7 +135,10 @@ class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer> with
       switch (status) {
         // بدأ الوقت ولكن بالعكس
         case AnimationStatus.reverse:
-          _onStart();
+          if (!_hasStarted) {
+            _hasStarted = true;
+            _onStart();
+          }
           break;
         // انتهى الوقت
         case AnimationStatus.dismissed:
@@ -270,10 +272,16 @@ class CountDownControllers {
 
   void correctTime(int remainingTime) {
     if (_timerState != null && _timerState?._controller != null) {
-      _timerState?._controller?.reverse(from: remainingTime / controller._duration!);
-      _timerState?._controller!.duration = Duration(seconds: remainingTime);
+      final int totalDuration = _duration ?? _timerState!._controller!.duration!.inSeconds;
+      if (totalDuration <= 0) {
+        return;
+      }
 
-      log("تصحيح الوقت ليصبح $remainingTime أي ${remainingTime % 60} دقيقة و ${remainingTime ~/ 60} ثانية");
+      final int clampedRemaining = remainingTime.clamp(0, totalDuration);
+      final double from = clampedRemaining / totalDuration;
+      _timerState?._controller?.reverse(from: from);
+
+      AppLogger.log("تصحيح الوقت ليصبح $clampedRemaining أي ${clampedRemaining ~/ 60} دقيقة و ${clampedRemaining % 60} ثانية", tag: 'timer');
     }
   }
 
@@ -293,7 +301,7 @@ class CountDownControllers {
   }
 
   void setNonfiction({String activityName = "غير محدد", int sessionTime = 5, int seconds = 5}) async {
-    log("setNonfiction called with $activityName, $sessionTime, $seconds");
+    AppLogger.log("setNonfiction called with $activityName, $sessionTime, $seconds", tag: 'timer');
     await NotificationHelper.sendScheduledNotification(
       id: 1,
       title: 'أُنجزت الجلسة',

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
+import 'package:salad_of_achievement/logical/app_logger.dart';
 import '../DB/models/object_box.dart';
 import '../utilities/const.dart';
 import '../utilities/database_exporter.dart';
@@ -72,7 +73,7 @@ class Body extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                         backgroundColor: kBackGroundColor..withAlpha(127),
                       ),
-                      child: Text("CSV", style: TextStyle(color: kActionColor..withAlpha(127))),
+                      child: Text("جدولية", style: TextStyle(color: kActionColor..withAlpha(127))),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -88,10 +89,36 @@ class Body extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                         backgroundColor: kBackGroundColor..withAlpha(127),
                       ),
-                      child: Text("JSON", style: TextStyle(color: kActionColor..withAlpha(127))),
+                      child: Text("جيسونية", style: TextStyle(color: kActionColor..withAlpha(127))),
                     ),
                   ),
                 ],
+              ),
+            ],
+          ),
+        ),
+        const Spacer(),
+        Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height * 0.001, color: Colors.black..withAlpha(127)),
+        const Spacer(),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("سجل الأخطاء"),
+              Tooltip(
+                message: "مشاركة ملف السجل",
+                child: OutlinedButton(
+                  onPressed: () async {
+                    await AppLogger.shareLogs();
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: kActionColor..withAlpha(127)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    backgroundColor: kBackGroundColor..withAlpha(127),
+                  ),
+                  child: Text("مشاركة", style: TextStyle(color: kActionColor..withAlpha(127))),
+                ),
               ),
             ],
           ),

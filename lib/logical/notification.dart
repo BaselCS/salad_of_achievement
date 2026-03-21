@@ -1,9 +1,9 @@
-import 'dart:developer' show log;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:salad_of_achievement/main.dart';
+import 'package:salad_of_achievement/logical/app_logger.dart';
 
 class NotificationHelper {
   static bool _isInitialized = false;
@@ -64,7 +64,7 @@ class NotificationHelper {
         );
       }
 
-      log('🔔 Notification permissions granted: ${await AwesomeNotifications().isNotificationAllowed()}');
+      AppLogger.log('🔔 Notification permissions granted: ${await AwesomeNotifications().isNotificationAllowed()}', tag: 'notification');
 
       // Set up notification listeners
       AwesomeNotifications().setListeners(
@@ -75,9 +75,9 @@ class NotificationHelper {
       );
 
       _isInitialized = true;
-      log('✅ Awesome Notification system initialized successfully');
+      AppLogger.log('✅ Awesome Notification system initialized successfully', tag: 'notification');
     } catch (e) {
-      log('❌ Failed to initialize notifications: $e');
+      AppLogger.log('❌ Failed to initialize notifications: $e', tag: 'notification');
       rethrow;
     }
   }
@@ -87,11 +87,11 @@ class NotificationHelper {
     try {
       final ReceivedAction? receivedAction = await AwesomeNotifications().getInitialNotificationAction(removeFromActionEvents: true);
       if (receivedAction != null) {
-        log('🚀 App launched from notification: ${receivedAction.payload}');
+        AppLogger.log('🚀 App launched from notification: ${receivedAction.payload}', tag: 'notification');
         _handleNotificationNavigation(receivedAction);
       }
     } catch (e) {
-      log('❌ Failed to check initial notification: $e');
+      AppLogger.log('❌ Failed to check initial notification: $e', tag: 'notification');
     }
   }
 
@@ -100,21 +100,21 @@ class NotificationHelper {
     // payload: "$sessionTime#:#$activityName",
     final String? rawPayload = receivedAction.payload?['payload'];
     if (rawPayload == null) {
-      log('⚠️ Notification payload is missing');
+      AppLogger.log('⚠️ Notification payload is missing', tag: 'notification');
       return;
     }
 
     final List<String> payload = rawPayload.split('#:#');
     if (payload.length < 2) {
-      log('⚠️ Invalid payload format: $payload');
+      AppLogger.log('⚠️ Invalid payload format: $payload', tag: 'notification');
       return;
     }
 
-    log('🔔 Navigating with payload: $payload');
+    AppLogger.log('🔔 Navigating with payload: $payload', tag: 'notification');
 
     // Check if navigator is ready
     if (navigatorKey.currentState == null) {
-      log('⚠️ Navigator state is null, cannot navigate');
+      AppLogger.log('⚠️ Navigator state is null, cannot navigate', tag: 'notification');
       return;
     }
 
@@ -131,23 +131,23 @@ class NotificationHelper {
   /// Handle notification tap actions send arguments to active session page as payload
   /// payload : "[sessionTime,activityName,isFromNotification]"
   static Future<void> _onNotificationTapped(ReceivedAction receivedAction) async {
-    log('🔔 Notification tapped: ${receivedAction.title}');
+    AppLogger.log('🔔 Notification tapped: ${receivedAction.title}', tag: 'notification');
     _handleNotificationNavigation(receivedAction);
   }
 
   /// Handle notification created
   static Future<void> _onNotificationCreated(ReceivedNotification receivedNotification) async {
-    log('🔔 Notification created: ${receivedNotification.title}');
+    AppLogger.log('🔔 Notification created: ${receivedNotification.title}', tag: 'notification');
   }
 
   /// Handle notification displayed
   static Future<void> _onNotificationDisplayed(ReceivedNotification receivedNotification) async {
-    log('🔔 Notification displayed: ${receivedNotification.title}');
+    AppLogger.log('🔔 Notification displayed: ${receivedNotification.title}', tag: 'notification');
   }
 
   /// Handle notification dismissed
   static Future<void> _onDismissActionReceived(ReceivedAction receivedAction) async {
-    log('🔔 Notification dismissed: ${receivedAction.title}');
+    AppLogger.log('🔔 Notification dismissed: ${receivedAction.title}', tag: 'notification');
   }
 
   /// Send an immediate notification (إشعار فوري)
@@ -175,9 +175,9 @@ class NotificationHelper {
         ),
       );
 
-      log('🔔 Immediate notification sent: $title');
+      AppLogger.log('🔔 Immediate notification sent: $title', tag: 'notification');
     } catch (e) {
-      log('❌ Failed to send immediate notification: $e');
+      AppLogger.log('❌ Failed to send immediate notification: $e', tag: 'notification');
       rethrow;
     }
   }
@@ -226,10 +226,10 @@ class NotificationHelper {
         ),
       );
 
-      log("📅 Scheduled for $scheduledTime");
-      log('🔔 Notification scheduled for $seconds seconds: $title');
+      AppLogger.log("📅 Scheduled for $scheduledTime", tag: 'notification');
+      AppLogger.log('🔔 Notification scheduled for $seconds seconds: $title', tag: 'notification');
     } catch (e) {
-      log('❌ Failed to schedule notification: $e');
+      AppLogger.log('❌ Failed to schedule notification: $e', tag: 'notification');
       rethrow;
     }
   }
@@ -238,9 +238,9 @@ class NotificationHelper {
   static Future<void> cancelAllNotifications() async {
     try {
       await AwesomeNotifications().cancelAll();
-      log('🚫 All notifications cancelled');
+      AppLogger.log('🚫 All notifications cancelled', tag: 'notification');
     } catch (e) {
-      log('❌ Failed to cancel notifications: $e');
+      AppLogger.log('❌ Failed to cancel notifications: $e', tag: 'notification');
     }
   }
 
@@ -250,16 +250,16 @@ class NotificationHelper {
       bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
       List<NotificationModel> scheduledNotifications = await AwesomeNotifications().listScheduledNotifications();
 
-      log('🔍 Notification Setup Verification:');
-      log('   - Permissions allowed: $isAllowed');
-      log('   - Scheduled notifications: ${scheduledNotifications.length}');
-      log('   - Initialization status: $_isInitialized');
+      AppLogger.log('🔍 Notification Setup Verification:', tag: 'notification');
+      AppLogger.log('   - Permissions allowed: $isAllowed', tag: 'notification');
+      AppLogger.log('   - Scheduled notifications: ${scheduledNotifications.length}', tag: 'notification');
+      AppLogger.log('   - Initialization status: $_isInitialized', tag: 'notification');
 
       if (!isAllowed) {
-        log('⚠️ Notifications not allowed - request permissions');
+        AppLogger.log('⚠️ Notifications not allowed - request permissions', tag: 'notification');
       }
     } catch (e) {
-      log('❌ Error verifying notification setup: $e');
+      AppLogger.log('❌ Error verifying notification setup: $e', tag: 'notification');
     }
   }
 
@@ -269,9 +269,9 @@ class NotificationHelper {
       _isInitialized = false;
       await initializeNotifications();
       await verifyNotificationSetup();
-      log('🔄 Notification system reinitialized');
+      AppLogger.log('🔄 Notification system reinitialized', tag: 'notification');
     } catch (e) {
-      log('❌ Failed to reinitialize notifications: $e');
+      AppLogger.log('❌ Failed to reinitialize notifications: $e', tag: 'notification');
     }
   }
 }
