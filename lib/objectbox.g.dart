@@ -22,7 +22,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(1, 7308131095044400048),
     name: 'Activity',
-    lastPropertyId: const obx_int.IdUid(4, 1755420553263398005),
+    lastPropertyId: const obx_int.IdUid(5, 3492701836903456567),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -47,6 +47,12 @@ final _entities = <obx_int.ModelEntity>[
         id: const obx_int.IdUid(4, 1755420553263398005),
         name: 'isArchived',
         type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 3492701836903456567),
+        name: 'group',
+        type: 9,
         flags: 0,
       ),
     ],
@@ -78,7 +84,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(3, 4144517228415667832),
     name: 'Session',
-    lastPropertyId: const obx_int.IdUid(5, 1944272196284508478),
+    lastPropertyId: const obx_int.IdUid(6, 1362406018544335599),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -102,6 +108,12 @@ final _entities = <obx_int.ModelEntity>[
       obx_int.ModelProperty(
         id: const obx_int.IdUid(5, 1944272196284508478),
         name: 'activityName',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 1362406018544335599),
+        name: 'group',
         type: 9,
         flags: 0,
       ),
@@ -235,11 +247,13 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
       objectToFB: (Activity object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
-        fbb.startTable(5);
+        final groupOffset = fbb.writeString(object.group);
+        fbb.startTable(6);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addInt64(2, object.timeSpent);
         fbb.addBool(3, object.isArchived);
+        fbb.addOffset(4, groupOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -267,11 +281,15 @@ obx_int.ModelDefinition getObjectBoxModel() {
           10,
           false,
         );
+        final groupParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 12, '');
         final object = Activity(
           id: idParam,
           name: nameParam,
           timeSpent: timeSpentParam,
           isArchived: isArchivedParam,
+          group: groupParam,
         );
 
         return object;
@@ -323,11 +341,15 @@ obx_int.ModelDefinition getObjectBoxModel() {
       objectToFB: (Session object, fb.Builder fbb) {
         final dateOffset = fbb.writeString(object.date);
         final activityNameOffset = fbb.writeString(object.activityName);
-        fbb.startTable(6);
+        final groupOffset = object.group == null
+            ? null
+            : fbb.writeString(object.group!);
+        fbb.startTable(7);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, dateOffset);
         fbb.addInt64(2, object.timeSpent);
         fbb.addOffset(4, activityNameOffset);
+        fbb.addOffset(5, groupOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -352,11 +374,15 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final activityNameParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 12, '');
+        final groupParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 14);
         final object = Session(
           id: idParam,
           date: dateParam,
           timeSpent: timeSpentParam,
           activityName: activityNameParam,
+          group: groupParam,
         );
 
         return object;
@@ -464,6 +490,11 @@ class Activity_ {
   static final isArchived = obx.QueryBooleanProperty<Activity>(
     _entities[0].properties[3],
   );
+
+  /// See [Activity.group].
+  static final group = obx.QueryStringProperty<Activity>(
+    _entities[0].properties[4],
+  );
 }
 
 /// [FruitUsage] entity fields to define ObjectBox queries.
@@ -499,6 +530,11 @@ class Session_ {
   /// See [Session.activityName].
   static final activityName = obx.QueryStringProperty<Session>(
     _entities[2].properties[3],
+  );
+
+  /// See [Session.group].
+  static final group = obx.QueryStringProperty<Session>(
+    _entities[2].properties[4],
   );
 }
 

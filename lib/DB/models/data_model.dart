@@ -7,12 +7,14 @@ class Session {
   String date;
   int timeSpent;
   String activityName;
+  String? group;
 
   Session({
     this.id = 0, // ObjectBox IDs start at 0
     required this.date,
     required this.timeSpent,
     required this.activityName,
+    required this.group,
   });
 
   // Convert a Session into a Map. The keys must correspond to the names of the columns in the database.
@@ -22,12 +24,13 @@ class Session {
       'date': date, // Format: YYYY-MM-DD
       'time_spent': timeSpent,
       'activityName': activityName,
+      "group": group,
     };
   }
 
   @override
   String toString() {
-    return 'Session{id: $id, date: $date, timeSpent: $timeSpent, activityName: $activityName}\n';
+    return 'Session{id: $id, date: $date, timeSpent: $timeSpent, activityName: $activityName, group: $group}\n';
   }
 }
 
@@ -38,21 +41,29 @@ class Activity {
   String name;
   int timeSpent;
   bool isArchived;
+  String group;
 
   Activity({
     this.id = 0, // ObjectBox IDs start at 0
     required this.name,
     required this.timeSpent,
     this.isArchived = false,
+    this.group = 'General',
   });
 
   Map<String, dynamic> toMap() {
-    return {'id': id, 'name': name, 'time_spent': timeSpent, 'is_archived': isArchived};
+    return {
+      'id': id,
+      'name': name,
+      'time_spent': timeSpent,
+      'is_archived': isArchived,
+      'group': group,
+    };
   }
 
   @override
   String toString() {
-    return 'Activity{id: $id, name: $name, timeSpent: $timeSpent, isArchived: $isArchived}';
+    return 'Activity{id: $id, name: $name, timeSpent: $timeSpent, isArchived: $isArchived, group: $group}';
   }
 }
 
@@ -87,10 +98,27 @@ class Setting {
   int hourOfRest; //الساعة الي يصفر بعدها بنظام 24 ساعة
   String timeOfRest = '';
   int doneMinutes;
-  Setting({this.id = 0, this.star1 = 120, this.star2 = 240, this.star3 = 480, this.hourOfRest = 4, this.timeOfRest = '', this.doneMinutes = 0});
+
+  Setting({
+    this.id = 0,
+    this.star1 = 120,
+    this.star2 = 240,
+    this.star3 = 480,
+    this.hourOfRest = 4,
+    this.timeOfRest = '',
+    this.doneMinutes = 0,
+  });
 
   Map<String, dynamic> toMap() {
-    return {'id': id, 'star1': star1, 'star2': star2, 'star3': star3, 'done_minutes': doneMinutes, 'hour_of_rest': hourOfRest, 'time_of_rest': timeOfRest};
+    return {
+      'id': id,
+      'star1': star1,
+      'star2': star2,
+      'star3': star3,
+      'done_minutes': doneMinutes,
+      'hour_of_rest': hourOfRest,
+      'time_of_rest': timeOfRest,
+    };
   }
 
   @override
@@ -106,7 +134,11 @@ class UserStatistics {
 
   // Convert a UserStatistics instance into a Map for ObjectBox.
   Map<String, dynamic> toMap() {
-    return {'mostProductiveDate': mostProductiveDate, 'mostProductiveDay': mostProductiveDay, 'averageDailyProductivity': averageDailyProductivity};
+    return {
+      'mostProductiveDate': mostProductiveDate,
+      'mostProductiveDay': mostProductiveDay,
+      'averageDailyProductivity': averageDailyProductivity,
+    };
   }
 
   @override
@@ -120,7 +152,12 @@ class GroupedSessions {
   String dayName;
   int totalMinutes = 0;
   List<Session> sessions;
-  GroupedSessions({required this.date, required this.dayName, required this.sessions, required this.totalMinutes});
+  GroupedSessions({
+    required this.date,
+    required this.dayName,
+    required this.sessions,
+    required this.totalMinutes,
+  });
 
   Map<String, dynamic> toMap() {
     return {'date': date, 'day_name': dayName, 'sessions': sessions};

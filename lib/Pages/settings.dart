@@ -54,7 +54,7 @@ class Body extends StatelessWidget {
         Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height * 0.001, color: Colors.black..withAlpha(127)),
         const Spacer(),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -83,6 +83,60 @@ class Body extends StatelessWidget {
                       onPressed: () {
                         final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
                         DatabaseExporter(objectBox).exportToJson();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: kActionColor..withAlpha(127)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        backgroundColor: kBackGroundColor..withAlpha(127),
+                      ),
+                      child: Text("جيسونية", style: TextStyle(color: kActionColor..withAlpha(127))),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height * 0.001, color: Colors.black..withAlpha(127)),
+        const Spacer(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("استيراد البيانات"),
+              Row(
+                children: [
+                  Tooltip(
+                    message: "استيراد من CSV",
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
+                        bool success = await DatabaseExporter(objectBox).importSessionsFromCsv();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(success ? "تم استيراد الجلسات بنجاح" : "فشل في استيراد الجلسات")));
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: kActionColor..withAlpha(127)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        backgroundColor: kBackGroundColor..withAlpha(127),
+                      ),
+                      child: Text("جدولية", style: TextStyle(color: kActionColor..withAlpha(127))),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Tooltip(
+                    message: "استيراد من JSON",
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
+                        bool success = await DatabaseExporter(objectBox).importFromJson();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text(success ? "تم استيراد البيانات بنجاح" : "فشل في استيراد البيانات")));
+                        }
                       },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: kActionColor..withAlpha(127)),

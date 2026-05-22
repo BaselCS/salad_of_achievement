@@ -2,7 +2,6 @@ import 'dart:math' show max, min;
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
 
 import '../DB/models/data_model.dart';
@@ -30,7 +29,10 @@ class ActiveSectionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final String time = arguments[0]?.toString() ?? "5";
     if (arguments[0] == null) {
-      AppLogger.log("No session time provided in arguments, defaulting to 5 minutes.", tag: 'active-session');
+      AppLogger.log(
+        "No session time provided in arguments, defaulting to 5 minutes.",
+        tag: 'active-session',
+      );
     }
     isFromNotification = arguments[2] as bool;
 
@@ -47,7 +49,10 @@ class ActiveSectionPage extends StatelessWidget {
       isNotified = false;
       sessionTime = int.parse(time.toString());
     }
-    ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
+    ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(
+      context,
+      listen: false,
+    );
     activities = dataProvider.getActiveActivities();
     return PopScope(
       canPop: true,
@@ -90,15 +95,13 @@ class _BodyState extends State<Body> with WidgetsBindingObserver {
     }
 
     // DateTime-based remaining time keeps moving in background; sync visuals on resume.
-    if (!controller.isPaused.value) {
-      final int remain = TimerLogic.instance.remainingSeconds;
-      controller.correctTime(remain);
-      if (remain <= 0) {
-        theIcon = Icons.play_arrow;
-      }
-      if (mounted) {
-        setState(() {});
-      }
+    final int remain = TimerLogic.instance.remainingSeconds;
+    controller.correctTime(remain);
+    if (remain <= 0) {
+      theIcon = Icons.play_arrow;
+    }
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -120,11 +123,14 @@ class _BodyState extends State<Body> with WidgetsBindingObserver {
                 onPressed: () {
                   if (controller.isPaused.value) {
                     AppLogger.log("تم الاستئناف", tag: 'active-session');
-                    TimerLogic.instance.setEndingTime(remainingAfterStop);
+                    TimerLogic.instance.resume();
                     theIcon = Icons.pause;
                     controller.resume();
                     if (TimerLogic.instance.remainingSeconds <= 0) {
-                      controller.sendImmediateNotification(activityName: activityName ?? "غير محدد", sessionTime: sessionTime);
+                      controller.sendImmediateNotification(
+                        activityName: activityName ?? "غير محدد",
+                        sessionTime: sessionTime,
+                      );
                     } else {
                       controller.setNonfiction(
                         activityName: activityName ?? "غير محدد",
@@ -137,6 +143,7 @@ class _BodyState extends State<Body> with WidgetsBindingObserver {
                     theIcon = Icons.play_arrow;
                     controller.pause();
                     remainingAfterStop = TimerLogic.instance.remainingSeconds;
+                    TimerLogic.instance.pause(remainingAfterStop);
                     controller.cancelAllNotifications();
                   }
                   setState(() {});
@@ -144,7 +151,10 @@ class _BodyState extends State<Body> with WidgetsBindingObserver {
                 icon: Icon(theIcon, color: Colors.white, size: 30),
               ),
             ),
-            const Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [CancelButton(), SaveButton()]),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [CancelButton(), SaveButton()],
+            ),
           ],
         ),
       ),
@@ -167,23 +177,31 @@ class _ActivityNameMenuState extends State<ActivityNameMenu> {
       width: MediaQuery.of(context).size.width * 0.5,
       height: MediaQuery.of(context).size.height * 0.05,
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.0), color: kContainerColor),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16.0),
+        color: kContainerColor,
+      ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: activityName,
+          isExpanded: true,
           onChanged: (String? newValue) {
             setState(() {
               activityName = newValue!;
             });
             if (!isFromNotification) {
               controller.cancelAllNotifications();
-              controller.setNonfiction(activityName: newValue ?? "غير محدد", sessionTime: sessionTime, seconds: TimerLogic.instance.remainingSeconds);
+              controller.setNonfiction(
+                activityName: newValue ?? "غير محدد",
+                sessionTime: sessionTime,
+                seconds: TimerLogic.instance.remainingSeconds,
+              );
             }
           },
           items: activities.map<DropdownMenuItem<String>>((Activity value) {
             return DropdownMenuItem<String>(
               value: value.name,
-              child: FittedBox(child: Text(value.name)),
+              child: Text(value.name, overflow: TextOverflow.clip),
             );
           }).toList(),
         ),
@@ -219,8 +237,16 @@ class CancelButton extends StatelessWidget {
                     clipBehavior: Clip.antiAlias,
                     padding: const EdgeInsets.all(4.0),
                     width: MediaQuery.of(context1).size.width * 0.15,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(4.0), color: kContainerColor),
-                    child: Center(child: Text("لا", style: Theme.of(context).textTheme.bodySmall!)),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4.0),
+                      color: kContainerColor,
+                    ),
+                    child: Center(
+                      child: Text(
+                        "لا",
+                        style: Theme.of(context).textTheme.bodySmall!,
+                      ),
+                    ),
                   ),
                 ),
                 InkWell(
@@ -233,8 +259,16 @@ class CancelButton extends StatelessWidget {
                     clipBehavior: Clip.antiAlias,
                     padding: const EdgeInsets.all(4.0),
                     width: MediaQuery.of(context1).size.width * 0.15,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(4.0), color: Colors.red),
-                    child: Center(child: Text("نعم", style: Theme.of(context).textTheme.bodySmall!)),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4.0),
+                      color: Colors.red,
+                    ),
+                    child: Center(
+                      child: Text(
+                        "نعم",
+                        style: Theme.of(context).textTheme.bodySmall!,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -255,7 +289,10 @@ class CancelButton extends StatelessWidget {
                 child: Icon(Icons.cancel, color: Colors.red),
               ),
             ),
-            Text('إلغاء الجلسة ', style: Theme.of(context).textTheme.bodySmall!),
+            Text(
+              'إلغاء الجلسة ',
+              style: Theme.of(context).textTheme.bodySmall!,
+            ),
           ],
         ),
       ),
@@ -272,22 +309,39 @@ class SaveButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
       onPressed: () {
         if (activityName == null || activityName!.trim().isEmpty) {
-          AppLogger.log("Save blocked: activity is missing.", tag: 'active-session');
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(backgroundColor: Colors.red, content: Text('اختر نشاطا قبل حفظ الجلسة'), duration: Duration(seconds: 2)));
-          return;
-        }
-
-        if (!fruitsId.contains(doneMinutes)) {
-          AppLogger.log("Save blocked: invalid doneMinutes value ($doneMinutes).", tag: 'active-session');
+          AppLogger.log(
+            "Save blocked: activity is missing.",
+            tag: 'active-session',
+          );
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(backgroundColor: Colors.orange, content: Text('لا يمكن حفظ الجلسة الآن، أكمل وقتا صالحا أولا'), duration: Duration(seconds: 2)),
+            const SnackBar(
+              backgroundColor: Colors.red,
+              content: Text('اختر نشاطا قبل حفظ الجلسة'),
+              duration: Duration(seconds: 2),
+            ),
           );
           return;
         }
 
-        addSession(context, doneMinutes, activityName);
+        final int remain = TimerLogic.instance.remainingSeconds;
+        final int currentDone = (sessionTime * 60 - remain) ~/ 60;
+
+        if (!fruitsId.contains(currentDone)) {
+          AppLogger.log(
+            "Save blocked: current completion ($currentDone min) is not a valid milestone.",
+            tag: 'active-session',
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: theColor,
+              content: Text('لا يمكن حفظ الجلسة الآن، أكمل وقتا صالحا أولا'),
+              duration: Duration(seconds: 1),
+            ),
+          );
+          return;
+        }
+
+        addSession(context, currentDone, activityName);
         controller.cancelAllNotifications();
         Navigator.pop(context);
       },
@@ -315,7 +369,11 @@ class SaveButton extends StatelessWidget {
 class CountDownTimer extends StatelessWidget {
   void start() {
     TimerLogic.instance.setEndingTime(sessionTime * 60);
-    controller.setNonfiction(activityName: activityName ?? "غير محدد", sessionTime: sessionTime, seconds: sessionTime * 60);
+    controller.setNonfiction(
+      activityName: activityName ?? "غير محدد",
+      sessionTime: sessionTime,
+      seconds: sessionTime * 60,
+    );
   }
 
   void onChange(String string) {
@@ -342,7 +400,10 @@ class CountDownTimer extends StatelessWidget {
       doneMinutes = 0;
     }
 
-    double size = min(MediaQuery.of(context).size.width * 0.8, MediaQuery.of(context).size.height * 0.8);
+    double size = min(
+      MediaQuery.of(context).size.width * 0.8,
+      MediaQuery.of(context).size.height * 0.8,
+    );
     return MyCircularCountDownTimer(
       duration: sessionTime * 60,
       initialDuration: 0,
@@ -369,17 +430,34 @@ class CountDownTimer extends StatelessWidget {
 }
 
 void addSession(BuildContext context, int sessionTime, String? activityName) {
-  ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
+  ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(
+    context,
+    listen: false,
+  );
+  final Activity? activity = activities.firstWhereOrNull(
+    (activity) => activity.name == activityName,
+  );
+  final String activityGroup = activity?.group ?? 'General';
 
-  dataProvider.addSession(Session(date: HijriCalendar.now().toString(), timeSpent: sessionTime, activityName: activityName ?? 'غير محدد'));
-  if (activities.isNotEmpty && activityName != null) {
-    Activity? activity = activities.firstWhereOrNull((activity) => activity.name == activityName);
-    if (activity != null) {
-      activity.timeSpent += sessionTime;
-      dataProvider.updateActivity(activity, null, activity.timeSpent);
-    } else {
-      dataProvider.addActivity(Activity(name: activityName, timeSpent: sessionTime));
-    }
+  dataProvider.addSession(
+    Session(
+      date: dataProvider.getCurrentSessionDate(),
+      timeSpent: sessionTime,
+      activityName: activityName ?? 'غير محدد',
+      group: activityGroup,
+    ),
+  );
+  if (activity != null) {
+    activity.timeSpent += sessionTime;
+    dataProvider.updateActivity(activity, null, activity.timeSpent);
+  } else if (activityName != null) {
+    dataProvider.addActivity(
+      Activity(
+        name: activityName,
+        timeSpent: sessionTime,
+        group: activityGroup,
+      ),
+    );
   }
 
   ScaffoldMessenger.of(context).showSnackBar(
@@ -397,20 +475,39 @@ void addSession(BuildContext context, int sessionTime, String? activityName) {
 
 class TimerLogic {
   static late DateTime endingTime;
+  static bool _isPaused = false;
+  static int _remainingSecondsAtPause = 0;
 
   static final TimerLogic _instance = TimerLogic();
 
   static TimerLogic get instance => _instance;
 
   int get remainingSeconds {
+    if (_isPaused) {
+      return _remainingSecondsAtPause;
+    }
     final DateTime dateTimeNow = DateTime.now();
     Duration remainingTime = endingTime.difference(dateTimeNow);
     return max(0, remainingTime.inSeconds);
   }
 
+  void pause(int remaining) {
+    _isPaused = true;
+    _remainingSecondsAtPause = remaining;
+  }
+
+  void resume() {
+    _isPaused = false;
+    setEndingTime(_remainingSecondsAtPause);
+  }
+
   void setEndingTime(int durationToEnd) {
+    _isPaused = false;
     final DateTime dateTimeNow = DateTime.now();
     endingTime = dateTimeNow.add(Duration(seconds: durationToEnd));
-    AppLogger.log("TimerLogic setEndingTime = ${endingTime.toLocal().toString()}", tag: 'timer');
+    AppLogger.log(
+      "TimerLogic setEndingTime = ${endingTime.toLocal().toString()}",
+      tag: 'timer',
+    );
   }
 }

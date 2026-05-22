@@ -24,7 +24,9 @@ void main() async {
 
   //دمجة مع الجالب
   //provider
-  runApp(ChangeNotifierProvider(create: (_) => objectBox, child: const MyApp()));
+  runApp(
+    ChangeNotifierProvider(create: (_) => objectBox, child: const MyApp()),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -51,7 +53,11 @@ class _MyAppState extends State<MyApp> {
       navigatorKey: navigatorKey,
 
       ///[قسم اللغة]
-      localizationsDelegates: const [GlobalCupertinoLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
+      localizationsDelegates: const [
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
       supportedLocales: const [Locale("ar", "SA")],
       locale: const Locale("ar", "SA"),
 
@@ -66,13 +72,17 @@ class _MyAppState extends State<MyApp> {
 
   //للأمانة عفسه ما أنصح تسويها مره ثانية إلا لو تعلمت لها زين
   ThemeData myTheme() {
-    return ThemeData(brightness: Brightness.dark, fontFamily: "alfont").copyWith(
+    return ThemeData(
+      brightness: Brightness.dark,
+      fontFamily: "alfont",
+    ).copyWith(
       scaffoldBackgroundColor: kBackGroundColor,
       primaryColor: kBackGroundColor,
       cardColor: kContainerColor,
       canvasColor: kContainerColor,
       primaryColorDark: kBackGroundColor,
       iconTheme: const IconThemeData(color: kActionColor),
+
       appBarTheme: const AppBarTheme(
         backgroundColor: kContainerColor,
         elevation: 0,
@@ -83,22 +93,35 @@ class _MyAppState extends State<MyApp> {
         border: OutlineInputBorder(),
         labelStyle: TextStyle(color: Colors.black),
         hintStyle: TextStyle(color: Colors.black),
-        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
-        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.black, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.black, width: 1),
+        ),
       ),
-      bottomAppBarTheme: const BottomAppBarThemeData(color: kContainerColor, elevation: 0, padding: EdgeInsets.all(8)),
+      bottomAppBarTheme: const BottomAppBarThemeData(
+        color: kContainerColor,
+        elevation: 0,
+        padding: EdgeInsets.all(8),
+      ),
       textTheme: const TextTheme(
         bodyMedium: TextStyle(color: kWhiteColor, fontSize: 28),
         bodySmall: TextStyle(color: kWhiteColor, fontSize: 18),
       ),
-      listTileTheme: const ListTileThemeData(minLeadingWidth: 32, contentPadding: EdgeInsets.fromLTRB(8, 4, 8, 8)),
+      listTileTheme: const ListTileThemeData(
+        minLeadingWidth: 32,
+        contentPadding: EdgeInsets.fromLTRB(8, 4, 8, 8),
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           foregroundColor: kWhiteColor,
           backgroundColor: kActionColor,
           minimumSize: const Size(88, 36),
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
         ),
       ),
       switchTheme: SwitchThemeData(
@@ -110,8 +133,16 @@ class _MyAppState extends State<MyApp> {
         backgroundColor: kBackGroundColor,
         titleTextStyle: const TextStyle(color: kActionColor, fontSize: 32),
         contentTextStyle: const TextStyle(color: kWhiteColor, fontSize: 24),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+        ),
         elevation: 0,
+      ),
+
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: kActionColor,
+        selectionColor: kActionColor,
+        selectionHandleColor: kActionColor,
       ),
     );
   }

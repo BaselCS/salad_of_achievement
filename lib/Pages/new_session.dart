@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
@@ -19,7 +18,10 @@ class AddNewSession extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const FittedBox(fit: BoxFit.cover, child: Text('إضافة جلسة جديدة')),
+        title: const FittedBox(
+          fit: BoxFit.cover,
+          child: Text('إضافة جلسة جديدة'),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -46,7 +48,9 @@ class Body extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(children: [DropActivity(), SizedBox(height: 20), DropOfTime()]),
+            Column(
+              children: [DropActivity(), SizedBox(height: 20), DropOfTime()],
+            ),
             OkButton(),
           ],
         ),
@@ -68,15 +72,24 @@ class DropActivity extends StatelessWidget {
       child: DropdownButtonFormField<String>(
         hint: const Text('اختر نشاط / مشروع', style: TextStyle(fontSize: 16)),
         decoration: const InputDecoration(
-          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
-          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black, width: 1),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black, width: 1),
+          ),
         ),
         onChanged: (String? newValue) {
           activityLabel.value = newValue!;
         },
-        items: dataProvider.getActiveActivities().map<DropdownMenuItem<String>>((Activity value) {
-          return DropdownMenuItem<String>(value: value.name, child: Text(value.name));
-        }).toList(),
+        items: dataProvider.getActiveActivities().map<DropdownMenuItem<String>>(
+          (Activity value) {
+            return DropdownMenuItem<String>(
+              value: value.name,
+              child: Text(value.name),
+            );
+          },
+        ).toList(),
       ),
     );
   }
@@ -93,8 +106,12 @@ class DropOfTime extends StatelessWidget {
       child: DropdownButtonFormField(
         hint: const Text('اختر طول الجلسة', style: TextStyle(fontSize: 16)),
         decoration: const InputDecoration(
-          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
-          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black, width: 1)),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black, width: 1),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black, width: 1),
+          ),
         ),
         onChanged: (value) {
           timeValue.value = int.parse(value!);
@@ -132,21 +149,42 @@ class OkButton extends StatelessWidget {
           onTap: () {
             // Update logic to use .value
             if (isEnabled) {
-              ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
+              ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(
+                context,
+                listen: false,
+              );
+              final Activity? activity = dataProvider
+                  .getAllActivities()
+                  .firstWhereOrNull(
+                    (activity) => activity.name == activityLabel.value,
+                  );
+              final String activityGroup = activity?.group ?? 'General';
 
-              dataProvider.addSession(Session(date: HijriCalendar.now().toString(), timeSpent: timeValue.value, activityName: activityLabel.value));
-
-              Activity? activity = dataProvider.getAllActivities().firstWhereOrNull((activity) => activity.name == activityLabel.value);
+              dataProvider.addSession(
+                Session(
+                  date: dataProvider.getCurrentSessionDate(),
+                  timeSpent: timeValue.value,
+                  activityName: activityLabel.value,
+                  group: activityGroup,
+                ),
+              );
 
               if (activity != null) {
                 activity.timeSpent += timeValue.value;
                 dataProvider.updateActivity(activity, null, activity.timeSpent);
               } else {
-                dataProvider.addActivity(Activity(name: activityLabel.value, timeSpent: timeValue.value));
+                dataProvider.addActivity(
+                  Activity(
+                    name: activityLabel.value,
+                    timeSpent: timeValue.value,
+                    group: activityGroup,
+                  ),
+                );
               }
               Navigator.pop(context);
               timeValue.value = 0; // Reset time value after adding session
-              activityLabel.value = ''; // Reset activity label after adding session
+              activityLabel.value =
+                  ''; // Reset activity label after adding session
             }
           },
           child: Container(

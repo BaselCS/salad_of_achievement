@@ -51,7 +51,14 @@ class ObjectBoxState with ChangeNotifier {
       star1 = setting.star1;
       star2 = setting.star2;
       star3 = setting.star3;
-      timeToRest = DateTime.tryParse(setting.timeOfRest) ?? DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, setting.hourOfRest);
+      timeToRest =
+          DateTime.tryParse(setting.timeOfRest) ??
+          DateTime(
+            DateTime.now().year,
+            DateTime.now().month,
+            DateTime.now().day,
+            setting.hourOfRest,
+          );
       doneMinutes = setting.doneMinutes;
     }
   }
@@ -62,7 +69,12 @@ class ObjectBoxState with ChangeNotifier {
     star2 = 240;
     star3 = 480;
     autoStart = true;
-    timeToRest = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 4);
+    timeToRest = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+      4,
+    );
     doneMinutes = 0;
 
     final defaultSetting = Setting(
@@ -164,13 +176,25 @@ class ObjectBoxState with ChangeNotifier {
       return;
     }
     _sessionBox.remove(session.id);
-    if (HijriLogic.englishToArabicNumber(session.date) == HijriCalendar.now().toString()) {
+    if (HijriLogic.englishToArabicNumber(session.date) ==
+        getCurrentSessionDate()) {
       doneMinutes -= session.timeSpent;
       doneMinutes = doneMinutes < 0 ? 0 : doneMinutes;
     }
     _updateSettingDoneMinutes();
     AppLogger.log("حذفت الجلسة: ${session.id}", tag: 'objectbox');
     notifyListeners();
+  }
+
+  /// Current Hijri date adjusted to the app's reset hour.
+  String getCurrentSessionDate() {
+    final DateTime now = DateTime.now();
+    final int resetHour =
+        _settingBox.getAll().firstOrNull?.hourOfRest ?? timeToRest.hour;
+    final DateTime logicalNow = now.hour < resetHour
+        ? now.subtract(const Duration(days: 1))
+        : now;
+    return HijriCalendar.fromDate(logicalNow).toString();
   }
 
   void deleteAllSessions() {
@@ -183,15 +207,28 @@ class ObjectBoxState with ChangeNotifier {
 
   /// تجميع الجلسات حسب اليوم
   List<GroupedSessions> groupSessionsByDay(List<Session> sessions) {
-    final Map<String, List<Session>> sessionsByDay = groupBy(sessions, (session) => session.date);
+    final Map<String, List<Session>> sessionsByDay = groupBy(
+      sessions,
+      (session) => session.date,
+    );
 
     List<GroupedSessions> groupedSessions = [];
 
     sessionsByDay.forEach((date, sessions) {
-      double timeSpent = sessions.fold(0, (previousValue, element) => previousValue + element.timeSpent);
+      double timeSpent = sessions.fold(
+        0,
+        (previousValue, element) => previousValue + element.timeSpent,
+      );
       String dayName = HijriLogic.hijriDateToDayName(date);
 
-      groupedSessions.add(GroupedSessions(date: date, dayName: dayName, sessions: sessions, totalMinutes: timeSpent.toInt()));
+      groupedSessions.add(
+        GroupedSessions(
+          date: date,
+          dayName: dayName,
+          sessions: sessions,
+          totalMinutes: timeSpent.toInt(),
+        ),
+      );
     });
     AppLogger.log("الجلسات جمعت", tag: 'objectbox');
     return groupedSessions;
@@ -222,7 +259,8 @@ class ObjectBoxState with ChangeNotifier {
     String mostActiveDay = "";
     if (sessionsByDay.isEmpty) {
       UserStatistics.averageDailyProductivity = 0;
-      UserStatistics.mostProductiveDate = "احرص على ما ينفعُك، واستعنْ بالله، ولا تعجز";
+      UserStatistics.mostProductiveDate =
+          "احرص على ما ينفعُك، واستعنْ بالله، ولا تعجز";
       UserStatistics.mostProductiveDay = 0;
       AppLogger.log("إحصائات المستخدم قارغة", tag: 'objectbox');
       return;
@@ -271,7 +309,12 @@ class ObjectBoxState with ChangeNotifier {
   void updateTimeToRest(int hour) {
     final currentSetting = _settingBox.getAll().firstOrNull ?? Setting();
     currentSetting.hourOfRest = hour;
-    timeToRest = DateTime(timeToRest.year, timeToRest.month, timeToRest.day, hour);
+    timeToRest = DateTime(
+      timeToRest.year,
+      timeToRest.month,
+      timeToRest.day,
+      hour,
+    );
     currentSetting.timeOfRest = timeToRest.toString();
     _settingBox.put(currentSetting);
     AppLogger.log("Start of day set to: $hour", tag: 'objectbox');
@@ -294,10 +337,14 @@ class ObjectBoxState with ChangeNotifier {
   }
 
   void addFruitUsage({int time = 5}) {
-    final FruitUsage fruitUsage = _fruitUsageBox.get(time) ?? FruitUsage(id: time, usageCount: 1);
+    final FruitUsage fruitUsage =
+        _fruitUsageBox.get(time) ?? FruitUsage(id: time, usageCount: 1);
     fruitUsage.usageCount++;
     _fruitUsageBox.put(fruitUsage);
-    AppLogger.log("إضيفت قاكهة جديدة لسلطتك: ${fruitUsage.id}", tag: 'objectbox');
+    AppLogger.log(
+      "إضيفت قاكهة جديدة لسلطتك: ${fruitUsage.id}",
+      tag: 'objectbox',
+    );
     notifyListeners();
   }
 
@@ -326,7 +373,10 @@ class ObjectBoxState with ChangeNotifier {
   /// [الأنشطة]
   List<Activity> getActiveActivities() {
     AppLogger.log("جلبت جميع الأنشطة النشطة", tag: 'objectbox');
-    return _activityBox.getAll().whereNot((activity) => activity.isArchived).toList();
+    return _activityBox
+        .getAll()
+        .whereNot((activity) => activity.isArchived)
+        .toList();
   }
 
   List<Activity> getAllActivities() {
@@ -355,9 +405,15 @@ class ObjectBoxState with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateActivity(Activity activity, String? name, int? timeSpent) {
+  void updateActivity(
+    Activity activity,
+    String? name,
+    int? timeSpent, [
+    String? group,
+  ]) {
     activity.name = name ?? activity.name;
     activity.timeSpent = timeSpent ?? activity.timeSpent;
+    activity.group = group ?? activity.group;
     _activityBox.put(activity);
     AppLogger.log("حدث النشاط: ${activity.id}", tag: 'objectbox');
     notifyListeners();

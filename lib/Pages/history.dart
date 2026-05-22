@@ -37,12 +37,13 @@ class Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context);
-    List<GroupedSessions> groupedSessions = dataProvider.groupSessionsByDay(dataProvider.getAllSessions());
+    List<GroupedSessions> groupedSessions = dataProvider.groupSessionsByDay(
+      dataProvider.getAllSessions(),
+    );
     activities = dataProvider.getActiveActivities();
     return ListView.separated(
       shrinkWrap: true,
       itemCount: groupedSessions.length,
-      reverse: true,
       itemBuilder: (BuildContext context, int index) {
         return ListTile(
           tileColor: kBorderColor,
@@ -50,34 +51,53 @@ class Body extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => SessionDetails("${groupedSessions[index].dayName} ${groupedSessions[index].date}هـ", groupedSessions[index].sessions),
+                builder: (context) => SessionDetails(
+                  "${groupedSessions[index].dayName} ${groupedSessions[index].date}هـ",
+                  groupedSessions[index].sessions,
+                ),
               ),
             );
           },
           leading: Container(
-            decoration: const BoxDecoration(color: Colors.black, borderRadius: BorderRadius.all(Radius.circular(10))),
+            decoration: const BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
             width: 80,
             height: 40,
             padding: const EdgeInsets.all(5),
-            child: StarsShower(groupedSessions[index].totalMinutes, dataProvider.star1, dataProvider.star2, dataProvider.star3),
+            child: StarsShower(
+              groupedSessions[index].totalMinutes,
+              dataProvider.star1,
+              dataProvider.star2,
+              dataProvider.star3,
+            ),
           ),
           title: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
               "${groupedSessions[index].dayName} ${HijriLogic.englishToArabicNumber(groupedSessions[index].date)}هـ",
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: kActionColor),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall!.copyWith(color: kActionColor),
             ),
           ),
           trailing: FittedBox(
             child: Text(
               "دقيقة ${HijriLogic.englishToArabicNumber(groupedSessions[index].totalMinutes.toString())}",
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: kActionColor),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall!.copyWith(color: kActionColor),
             ),
           ),
         );
       },
       separatorBuilder: (BuildContext context, int index) {
-        return Container(color: kWhiteColor..withAlpha(127), width: MediaQuery.of(context).size.width, height: 1);
+        return Container(
+          color: kWhiteColor..withAlpha(127),
+          width: MediaQuery.of(context).size.width,
+          height: 1,
+        );
       },
     );
   }
@@ -88,7 +108,13 @@ class StarsShower extends StatelessWidget {
   final int star1;
   final int star2;
   final int star3;
-  const StarsShower(this.totalTime, this.star1, this.star2, this.star3, {super.key});
+  const StarsShower(
+    this.totalTime,
+    this.star1,
+    this.star2,
+    this.star3, {
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +148,10 @@ class _SessionDetailsState extends State<SessionDetails> {
       backgroundColor: kInnerBackGroundColor,
       appBar: AppBar(
         centerTitle: true,
-        title: FittedBox(fit: BoxFit.fill, child: Text(HijriLogic.englishToArabicNumber(widget.title))),
+        title: FittedBox(
+          fit: BoxFit.fill,
+          child: Text(HijriLogic.englishToArabicNumber(widget.title)),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -137,7 +166,10 @@ class _SessionDetailsState extends State<SessionDetails> {
             tileColor: kBorderColor,
             leading: Container(
               //الفاكهة
-              decoration: const BoxDecoration(color: Colors.black, borderRadius: BorderRadius.all(Radius.circular(10))),
+              decoration: const BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
               width: 75,
               height: 60,
               padding: const EdgeInsets.all(5),
@@ -148,10 +180,17 @@ class _SessionDetailsState extends State<SessionDetails> {
               icon: const Icon(Icons.delete, color: kStrawberryColor),
               onPressed: () {
                 dataProvider.deleteSession(widget.sessions[index].id);
-                Activity? activity = activities.firstWhereOrNull((activity) => activity.name == widget.sessions[index].activityName);
+                Activity? activity = activities.firstWhereOrNull(
+                  (activity) =>
+                      activity.name == widget.sessions[index].activityName,
+                );
                 if (activity != null) {
                   activity.timeSpent -= widget.sessions[index].timeSpent;
-                  dataProvider.updateActivity(activity, null, activity.timeSpent);
+                  dataProvider.updateActivity(
+                    activity,
+                    null,
+                    activity.timeSpent,
+                  );
                 }
                 dataProvider.deleteFruitUsage(widget.sessions[index].timeSpent);
 
@@ -164,8 +203,11 @@ class _SessionDetailsState extends State<SessionDetails> {
                 ? DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: () {
-                        String currentactivityName = widget.sessions[index].activityName;
-                        bool activityNameExists = activities.any((activity) => activity.name == currentactivityName);
+                        String currentactivityName =
+                            widget.sessions[index].activityName;
+                        bool activityNameExists = activities.any(
+                          (activity) => activity.name == currentactivityName,
+                        );
                         if (!activityNameExists && activities.isNotEmpty) {
                           return activities.first.name;
                         }
@@ -175,39 +217,79 @@ class _SessionDetailsState extends State<SessionDetails> {
                         setState(() {
                           if (newValue != null) {
                             int oldSession = widget.sessions[index].id;
-                            Activity? oldActivity = activities.firstWhereOrNull((activity) => activity.name == widget.sessions[index].activityName);
+                            Activity? oldActivity = activities.firstWhereOrNull(
+                              (activity) =>
+                                  activity.name ==
+                                  widget.sessions[index].activityName,
+                            );
+                            Activity? newActivity = activities.firstWhereOrNull(
+                              (activity) => activity.name == newValue,
+                            );
 
                             widget.sessions[index].activityName = newValue;
-                            dataProvider.updateSession(widget.sessions[index], oldSession);
+                            widget.sessions[index].group =
+                                newActivity?.group ?? 'General';
+                            dataProvider.updateSession(
+                              widget.sessions[index],
+                              oldSession,
+                            );
 
                             //update The Activity
-                            Activity? newActivity = activities.firstWhereOrNull((activity) => activity.name == newValue);
                             if (newActivity == null) {
-                              dataProvider.addActivity(Activity(name: newValue, timeSpent: widget.sessions[index].timeSpent));
+                              dataProvider.addActivity(
+                                Activity(
+                                  name: newValue,
+                                  timeSpent: widget.sessions[index].timeSpent,
+                                  group:
+                                      widget.sessions[index].group ?? 'General',
+                                ),
+                              );
                             } else {
-                              newActivity.timeSpent += widget.sessions[index].timeSpent;
-                              dataProvider.updateActivity(newActivity, null, newActivity.timeSpent);
+                              newActivity.timeSpent +=
+                                  widget.sessions[index].timeSpent;
+                              dataProvider.updateActivity(
+                                newActivity,
+                                null,
+                                newActivity.timeSpent,
+                              );
                             }
                             if (oldActivity != null) {
-                              oldActivity.timeSpent -= widget.sessions[index].timeSpent;
-                              dataProvider.updateActivity(oldActivity, null, oldActivity.timeSpent);
+                              oldActivity.timeSpent -=
+                                  widget.sessions[index].timeSpent;
+                              dataProvider.updateActivity(
+                                oldActivity,
+                                null,
+                                oldActivity.timeSpent,
+                              );
                             }
                           }
                         });
                       },
-                      items: activities.map<DropdownMenuItem<String>>((Activity value) {
+                      items: activities.map<DropdownMenuItem<String>>((
+                        Activity value,
+                      ) {
                         return DropdownMenuItem<String>(
                           value: value.name,
-                          child: Text(value.name, style: Theme.of(context).textTheme.bodySmall),
+                          child: Text(
+                            value.name,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
                         );
                       }).toList(),
                     ),
                   )
-                : Text(widget.sessions[index].activityName, style: Theme.of(context).textTheme.bodySmall),
+                : Text(
+                    widget.sessions[index].activityName,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
           );
         },
         separatorBuilder: (BuildContext context, int index) {
-          return Container(color: kWhiteColor..withAlpha(127), width: MediaQuery.of(context).size.width, height: 1);
+          return Container(
+            color: kWhiteColor..withAlpha(127),
+            width: MediaQuery.of(context).size.width,
+            height: 1,
+          );
         },
       ),
     );

@@ -3,6 +3,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:math';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
@@ -47,11 +48,13 @@ class FakeDataGenerator {
     int numActivities = 8 + _random.nextInt(5);
 
     for (int i = 0; i < numActivities; i++) {
-      String activityName = _sampleActivities[_random.nextInt(_sampleActivities.length)];
+      String activityName =
+          _sampleActivities[_random.nextInt(_sampleActivities.length)];
 
       // Ensure unique activity names
       while (objectBox.getAllActivities().any((a) => a.name == activityName)) {
-        activityName = _sampleActivities[_random.nextInt(_sampleActivities.length)];
+        activityName =
+            _sampleActivities[_random.nextInt(_sampleActivities.length)];
       }
 
       // Generate random time spent (30 minutes to 20 hours)
@@ -62,7 +65,10 @@ class FakeDataGenerator {
       objectBox.addActivity(activity);
     }
 
-    AppLogger.log('✅ Generated $numActivities fake activities', tag: 'fake-data');
+    AppLogger.log(
+      '✅ Generated $numActivities fake activities',
+      tag: 'fake-data',
+    );
   }
 
   /// Generate fake sessions for the last 30 days
@@ -74,7 +80,10 @@ class FakeDataGenerator {
 
     List<Activity> activities = objectBox.getAllActivities();
     if (activities.isEmpty) {
-      AppLogger.log('⚠️ No activities found. Generate activities first.', tag: 'fake-data');
+      AppLogger.log(
+        '⚠️ No activities found. Generate activities first.',
+        tag: 'fake-data',
+      );
       return;
     }
 
@@ -85,27 +94,38 @@ class FakeDataGenerator {
     for (int dayOffset = 0; dayOffset < 30; dayOffset++) {
       DateTime sessionDate = now.subtract(Duration(days: dayOffset));
       HijriCalendar hijriDate = HijriCalendar.fromDate(sessionDate);
-      String hijriDateString = '${hijriDate.hYear}/${hijriDate.hMonth}/${hijriDate.hDay}';
+      String hijriDateString =
+          '${hijriDate.hYear}/${hijriDate.hMonth}/${hijriDate.hDay}';
 
       // Random number of sessions per day (0-5)
       int sessionsPerDay = _random.nextInt(6);
 
       for (int i = 0; i < sessionsPerDay; i++) {
         // Random activity
-        Activity randomActivity = activities[_random.nextInt(activities.length)];
+        Activity randomActivity =
+            activities[_random.nextInt(activities.length)];
 
         // Random session duration (5, 10, 15, 20, 25, 30, 40, 50, or 60 minutes)
         List<int> possibleDurations = [5, 10, 15, 20, 25, 30, 40, 50, 60];
-        int duration = possibleDurations[_random.nextInt(possibleDurations.length)];
+        int duration =
+            possibleDurations[_random.nextInt(possibleDurations.length)];
 
-        Session session = Session(date: hijriDateString, timeSpent: duration, activityName: randomActivity.name);
+        Session session = Session(
+          date: hijriDateString,
+          timeSpent: duration,
+          activityName: randomActivity.name,
+          group: randomActivity.group,
+        );
 
         objectBox.addSession(session);
         totalSessions++;
       }
     }
 
-    AppLogger.log('✅ Generated $totalSessions fake sessions over 30 days', tag: 'fake-data');
+    AppLogger.log(
+      '✅ Generated $totalSessions fake sessions over 30 days',
+      tag: 'fake-data',
+    );
   }
 
   /// Generate fake fruit usage data
@@ -151,7 +171,10 @@ class FakeDataGenerator {
     // Update the settings through the public method
     objectBox.updateStares(newStar1: 120, newStar2: 240, newStar3: 480);
 
-    AppLogger.log('✅ Set up realistic settings with $dailyProgress minutes of daily progress', tag: 'fake-data');
+    AppLogger.log(
+      '✅ Set up realistic settings with $dailyProgress minutes of daily progress',
+      tag: 'fake-data',
+    );
   }
 
   /// Generate all fake data at once
@@ -166,7 +189,10 @@ class FakeDataGenerator {
 
     AppLogger.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', tag: 'fake-data');
     AppLogger.log('🎉 All fake data generated successfully!', tag: 'fake-data');
-    AppLogger.log('📊 Your app is now ready for testing with sample data', tag: 'fake-data');
+    AppLogger.log(
+      '📊 Your app is now ready for testing with sample data',
+      tag: 'fake-data',
+    );
 
     // Print summary
     List<Activity> activities = objectBox.getAllActivities();
@@ -175,8 +201,14 @@ class FakeDataGenerator {
     AppLogger.log('📈 Summary:', tag: 'fake-data');
     AppLogger.log('   - ${activities.length} activities', tag: 'fake-data');
     AppLogger.log('   - ${sessions.length} sessions', tag: 'fake-data');
-    AppLogger.log('   - ${objectBox.doneMinutes} minutes of daily progress', tag: 'fake-data');
-    AppLogger.log('   - Fruit usage data for all time intervals', tag: 'fake-data');
+    AppLogger.log(
+      '   - ${objectBox.doneMinutes} minutes of daily progress',
+      tag: 'fake-data',
+    );
+    AppLogger.log(
+      '   - Fruit usage data for all time intervals',
+      tag: 'fake-data',
+    );
   }
 
   /// Clear all fake data
@@ -189,7 +221,10 @@ class FakeDataGenerator {
   }
 
   /// Generate data for a specific scenario
-  static Future<void> generateScenarioData(ObjectBoxState objectBox, String scenario) async {
+  static Future<void> generateScenarioData(
+    ObjectBoxState objectBox,
+    String scenario,
+  ) async {
     switch (scenario.toLowerCase()) {
       case 'beginner':
         await _generateBeginnerData(objectBox);
@@ -212,10 +247,17 @@ class FakeDataGenerator {
     objectBox.deleteAll();
 
     // Few activities
-    List<String> beginnerActivities = ['قراءة القرآن', 'ممارسة الرياضة', 'دراسة البرمجة'];
+    List<String> beginnerActivities = [
+      'قراءة القرآن',
+      'ممارسة الرياضة',
+      'دراسة البرمجة',
+    ];
 
     for (String activityName in beginnerActivities) {
-      Activity activity = Activity(name: activityName, timeSpent: _random.nextInt(60) + 30);
+      Activity activity = Activity(
+        name: activityName,
+        timeSpent: _random.nextInt(60) + 30,
+      );
       objectBox.addActivity(activity);
     }
 
@@ -226,12 +268,21 @@ class FakeDataGenerator {
         // 50% chance of having sessions
         DateTime sessionDate = now.subtract(Duration(days: dayOffset));
         HijriCalendar hijriDate = HijriCalendar.fromDate(sessionDate);
-        String hijriDateString = '${hijriDate.hYear}/${hijriDate.hMonth}/${hijriDate.hDay}';
+        String hijriDateString =
+            '${hijriDate.hYear}/${hijriDate.hMonth}/${hijriDate.hDay}';
 
+        final String activityName =
+            beginnerActivities[_random.nextInt(beginnerActivities.length)];
         Session session = Session(
           date: hijriDateString,
           timeSpent: [5, 10, 15][_random.nextInt(3)], // Short sessions
-          activityName: beginnerActivities[_random.nextInt(beginnerActivities.length)],
+          activityName: activityName,
+          group:
+              objectBox
+                  .getAllActivities()
+                  .firstWhereOrNull((activity) => activity.name == activityName)
+                  ?.group ??
+              'General',
         );
         objectBox.addSession(session);
       }
@@ -269,16 +320,23 @@ class FakeDataGenerator {
       // 60 days of data
       DateTime sessionDate = now.subtract(Duration(days: dayOffset));
       HijriCalendar hijriDate = HijriCalendar.fromDate(sessionDate);
-      String hijriDateString = '${hijriDate.hYear}/${hijriDate.hMonth}/${hijriDate.hDay}';
+      String hijriDateString =
+          '${hijriDate.hYear}/${hijriDate.hMonth}/${hijriDate.hDay}';
 
       int sessionsPerDay = 3 + _random.nextInt(5); // 3-7 sessions per day
 
       for (int i = 0; i < sessionsPerDay; i++) {
-        Activity randomActivity = activities[_random.nextInt(activities.length)];
+        Activity randomActivity =
+            activities[_random.nextInt(activities.length)];
         List<int> expertDurations = [25, 30, 40, 50, 60]; // Longer sessions
         int duration = expertDurations[_random.nextInt(expertDurations.length)];
 
-        Session session = Session(date: hijriDateString, timeSpent: duration, activityName: randomActivity.name);
+        Session session = Session(
+          date: hijriDateString,
+          timeSpent: duration,
+          activityName: randomActivity.name,
+          group: randomActivity.group,
+        );
         objectBox.addSession(session);
       }
     }
@@ -302,36 +360,59 @@ void showFakeDataDialog(BuildContext context) {
             child: const Text('Clear All'),
             onPressed: () async {
               Navigator.of(context).pop();
-              final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
+              final objectBox = Provider.of<ObjectBoxState>(
+                context,
+                listen: false,
+              );
               await FakeDataGenerator.clearAllData(objectBox);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('🧹 All data cleared!')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('🧹 All data cleared!')),
+              );
             },
           ),
           TextButton(
             child: const Text('Beginner'),
             onPressed: () async {
               Navigator.of(context).pop();
-              final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
-              await FakeDataGenerator.generateScenarioData(objectBox, 'beginner');
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('🌱 Beginner data generated!')));
+              final objectBox = Provider.of<ObjectBoxState>(
+                context,
+                listen: false,
+              );
+              await FakeDataGenerator.generateScenarioData(
+                objectBox,
+                'beginner',
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('🌱 Beginner data generated!')),
+              );
             },
           ),
           TextButton(
             child: const Text('Active User'),
             onPressed: () async {
               Navigator.of(context).pop();
-              final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
+              final objectBox = Provider.of<ObjectBoxState>(
+                context,
+                listen: false,
+              );
               await FakeDataGenerator.generateScenarioData(objectBox, 'active');
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('🔥 Active user data generated!')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('🔥 Active user data generated!')),
+              );
             },
           ),
           TextButton(
             child: const Text('Expert'),
             onPressed: () async {
               Navigator.of(context).pop();
-              final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
+              final objectBox = Provider.of<ObjectBoxState>(
+                context,
+                listen: false,
+              );
               await FakeDataGenerator.generateScenarioData(objectBox, 'expert');
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('🏆 Expert data generated!')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('🏆 Expert data generated!')),
+              );
             },
           ),
         ],

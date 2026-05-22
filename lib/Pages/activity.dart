@@ -11,6 +11,113 @@ import '../utilities/const.dart';
 List<Activity> activities = [];
 int newTime = 0;
 
+List<String> _availableGroups({String? currentGroup}) {
+  final Set<String> groups = activities
+      .map((activity) => activity.group.trim())
+      .where((group) => group.isNotEmpty)
+      .toSet();
+  if (currentGroup != null && currentGroup.trim().isNotEmpty) {
+    groups.add(currentGroup.trim());
+  }
+
+  final List<String> sortedGroups = groups.toList()
+    ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+  return sortedGroups.isEmpty ? ['General'] : sortedGroups;
+}
+
+Widget _groupAutocompleteField({
+  required String initialValue,
+  required ValueChanged<String> onChanged,
+}) {
+  return Autocomplete<String>(
+    initialValue: TextEditingValue(text: initialValue),
+    optionsBuilder: (TextEditingValue value) {
+      final String query = value.text.trim().toLowerCase();
+      final List<String> groups = _availableGroups(currentGroup: initialValue);
+
+      if (query.isEmpty) {
+        return groups;
+      }
+
+      final List<String> matches = groups
+          .where((group) => group.toLowerCase().contains(query))
+          .toList();
+      if (matches.isNotEmpty) {
+        return matches;
+      }
+
+      return <String>[value.text.trim()];
+    },
+    onSelected: (String selection) {
+      onChanged(selection);
+    },
+    optionsViewBuilder:
+        (
+          BuildContext context,
+          AutocompleteOnSelected<String> onSelected,
+          Iterable<String> options,
+        ) {
+          return Align(
+            alignment: Alignment.topLeft,
+            child: Material(
+              color: kContainerColor,
+              elevation: 4,
+              borderRadius: BorderRadius.circular(12),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxHeight: 180,
+                  maxWidth: 320,
+                ),
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  itemCount: options.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final String option = options.elementAt(index);
+                    return InkWell(
+                      onTap: () => onSelected(option),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        child: Text(
+                          option,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(fontSize: 24),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          );
+        },
+    fieldViewBuilder:
+        (
+          BuildContext context,
+          TextEditingController textEditingController,
+          FocusNode focusNode,
+          VoidCallback onFieldSubmitted,
+        ) {
+          return TextField(
+            controller: textEditingController,
+            focusNode: focusNode,
+            onChanged: onChanged,
+            onSubmitted: (_) => onFieldSubmitted(),
+            decoration: InputDecoration(
+              fillColor: kContainerColor,
+              filled: true,
+              hintText: 'المجموعة',
+              hintStyle: TextStyle(color: Colors.white.withAlpha(64)),
+            ),
+          );
+        },
+  );
+}
+
 class AppActivityPage extends StatelessWidget {
   const AppActivityPage({super.key});
 
@@ -20,7 +127,10 @@ class AppActivityPage extends StatelessWidget {
       backgroundColor: kInnerBackGroundColor,
       appBar: AppBar(
         centerTitle: true,
-        title: const FittedBox(fit: BoxFit.fill, child: Text('أنشطة و مشروعات')),
+        title: const FittedBox(
+          fit: BoxFit.fill,
+          child: Text('أنشطة و مشروعات'),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -64,12 +174,19 @@ class Body extends StatelessWidget {
     activities = dataProvider.getAllActivities();
     activities.sortBy((activity) => activity.isArchived ? 1 : 0);
 
-    return ActiveActivities(controllerName: controllerName, controllerMin: controllerMin);
+    return ActiveActivities(
+      controllerName: controllerName,
+      controllerMin: controllerMin,
+    );
   }
 }
 
 class ActiveActivities extends StatelessWidget {
-  const ActiveActivities({super.key, required this.controllerName, required this.controllerMin});
+  const ActiveActivities({
+    super.key,
+    required this.controllerName,
+    required this.controllerMin,
+  });
 
   final TextEditingController controllerName;
   final TextEditingController controllerMin;
@@ -80,7 +197,8 @@ class ActiveActivities extends StatelessWidget {
       itemCount: activities.length,
       itemBuilder: (BuildContext context, int index) {
         return InkWell(
-          onTap: () => showEditMassage(context, controllerName, index, controllerMin),
+          onTap: () =>
+              showEditMassage(context, controllerName, index, controllerMin),
           onLongPress: () {
             if (!activities[index].isArchived) {
               showArchiveMassage(context, index);
@@ -95,12 +213,19 @@ class ActiveActivities extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(child: Text(activities[index].name, style: Theme.of(context).textTheme.bodySmall)),
+                Expanded(
+                  child: Text(
+                    activities[index].name,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
                 Expanded(
                   child: Text(
                     textAlign: TextAlign.center,
                     formatDuration(activities[index].timeSpent),
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: kActionColor),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall!.copyWith(color: kActionColor),
                   ),
                 ),
               ],
@@ -109,7 +234,8 @@ class ActiveActivities extends StatelessWidget {
         );
       },
       separatorBuilder: (BuildContext context, int index) {
-        if (index < activities.length - 1 && activities[index].isArchived != activities[index + 1].isArchived) {
+        if (index < activities.length - 1 &&
+            activities[index].isArchived != activities[index + 1].isArchived) {
           return Container(height: 5, color: kActionColor);
         }
         return Divider(color: kWhiteColor..withAlpha(127), height: 1);
@@ -118,20 +244,32 @@ class ActiveActivities extends StatelessWidget {
   }
 }
 
-Future<dynamic> showEditMassage(BuildContext context, TextEditingController controllerName, int index, TextEditingController controllerMin) {
-  ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
+Future<dynamic> showEditMassage(
+  BuildContext context,
+  TextEditingController controllerName,
+  int index,
+  TextEditingController controllerMin,
+) {
+  ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(
+    context,
+    listen: false,
+  );
   return showDialog(
     context: context,
     builder: (BuildContext context) {
       newTime = 0;
       // Set the current activity name as initial value
       controllerName.text = activities[index].name;
+      String selectedGroup = activities[index].group;
 
       return AlertDialog(
         actionsAlignment: MainAxisAlignment.spaceAround,
         title: const FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text('تعديل مشروع /  نشاط', style: TextStyle(color: kActionColor)),
+          child: Text(
+            'تعديل مشروع /  نشاط',
+            style: TextStyle(color: kActionColor),
+          ),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -139,12 +277,20 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
             TextField(
               autofocus: true,
               controller: controllerName,
+              cursorColor: kActionColor,
               decoration: InputDecoration(
                 fillColor: kContainerColor,
                 filled: true,
                 hintText: activities[index].name,
                 hintStyle: TextStyle(color: Colors.white.withAlpha(64)),
               ),
+            ),
+            const SizedBox(height: 16),
+            _groupAutocompleteField(
+              initialValue: selectedGroup,
+              onChanged: (String value) {
+                selectedGroup = value;
+              },
             ),
             const SizedBox(height: 16),
             EditTimeFilled(index),
@@ -164,12 +310,20 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
                     }
 
                     // Check if the new name already exists (but not for the current activity)
-                    bool nameExists = activities.any((activity) => activity.name.toLowerCase() == newName.toLowerCase() && activity.id != activities[index].id);
+                    bool nameExists = activities.any(
+                      (activity) =>
+                          activity.name.toLowerCase() ==
+                              newName.toLowerCase() &&
+                          activity.id != activities[index].id,
+                    );
 
                     if (nameExists) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('اسم المشروع موجود بالفعل', style: TextStyle(color: kTomatoColor, fontSize: 16)),
+                          content: Text(
+                            'اسم المشروع موجود بالفعل',
+                            style: TextStyle(color: kTomatoColor, fontSize: 16),
+                          ),
                           backgroundColor: kContainerColor,
                           duration: Duration(seconds: 2),
                         ),
@@ -178,13 +332,23 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
                     }
 
                     // Update the activity name and time in the database
-                    dataProvider.updateActivity(activities[index], newName, newTime);
+                    dataProvider.updateActivity(
+                      activities[index],
+                      newName,
+                      newTime,
+                      selectedGroup.trim().isEmpty
+                          ? 'General'
+                          : selectedGroup.trim(),
+                    );
                     controllerName.clear();
                     controllerMin.clear();
                     newTime = 0;
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('عُدل المشروع بنجاح', style: TextStyle(color: kActionColor, fontSize: 16)),
+                        content: Text(
+                          'عُدل المشروع بنجاح',
+                          style: TextStyle(color: kActionColor, fontSize: 16),
+                        ),
                         backgroundColor: kContainerColor,
                         duration: Duration(milliseconds: 500),
                       ),
@@ -195,7 +359,10 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
                     width: 80,
                     child: Center(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         child: Text("تعديل", style: TextStyle(fontSize: 16)),
                       ),
                     ),
@@ -207,7 +374,10 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
                     dataProvider.deleteActivity(activities[index]);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('حُذف المشروع ', style: TextStyle(color: kTomatoColor, fontSize: 16)),
+                        content: Text(
+                          'حُذف المشروع ',
+                          style: TextStyle(color: kTomatoColor, fontSize: 16),
+                        ),
                         backgroundColor: kContainerColor,
                         duration: Duration(milliseconds: 500),
                       ),
@@ -215,12 +385,19 @@ Future<dynamic> showEditMassage(BuildContext context, TextEditingController cont
 
                     Navigator.pop(context);
                   },
-                  style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(kTomatoColor)),
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all<Color>(
+                      kTomatoColor,
+                    ),
+                  ),
                   child: const SizedBox(
                     width: 80,
                     child: Center(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         child: Text("حذف", style: TextStyle(fontSize: 16)),
                       ),
                     ),
@@ -255,7 +432,9 @@ class _EditTimeFilledState extends State<EditTimeFilled> {
         FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
-            activities[widget.index].timeSpent != 0 ? formatDuration(activities[widget.index].timeSpent) : "لم تبدأ بعد",
+            activities[widget.index].timeSpent != 0
+                ? formatDuration(activities[widget.index].timeSpent)
+                : "لم تبدأ بعد",
             style: const TextStyle(color: kActionColor),
           ),
         ),
@@ -324,16 +503,27 @@ class _EditTimeFilledState extends State<EditTimeFilled> {
   }
 }
 
-Future<dynamic> addActivityMassage(BuildContext context, TextEditingController controller, TextEditingController controllerMin) {
-  ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
+Future<dynamic> addActivityMassage(
+  BuildContext context,
+  TextEditingController controller,
+  TextEditingController controllerMin,
+) {
+  ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(
+    context,
+    listen: false,
+  );
   return showDialog(
     context: context,
     builder: (context1) {
+      String selectedGroup = 'General';
       return AlertDialog(
         actionsAlignment: MainAxisAlignment.spaceAround,
         title: const FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text('إضافة مشروع /  نشاط', style: TextStyle(color: kActionColor)),
+          child: Text(
+            'إضافة مشروع /  نشاط',
+            style: TextStyle(color: kActionColor),
+          ),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -348,6 +538,13 @@ Future<dynamic> addActivityMassage(BuildContext context, TextEditingController c
                 hintText: 'اسم المشروع',
                 hintStyle: TextStyle(color: Colors.white.withAlpha(64)),
               ),
+            ),
+            const SizedBox(height: 16),
+            _groupAutocompleteField(
+              initialValue: selectedGroup,
+              onChanged: (String value) {
+                selectedGroup = value;
+              },
             ),
             const SizedBox(height: 16),
             TextField(
@@ -366,16 +563,32 @@ Future<dynamic> addActivityMassage(BuildContext context, TextEditingController c
             // زر الإضافة
             ElevatedButton(
               onPressed: () {
-                if (controller.text.isNotEmpty && controller.text != 'الاسم موجود بالفعل' && controller.text != 'أدخل اسم المشروع') {
-                  if (activities.indexWhere((element) => element.name == controller.text) == -1) {
+                if (controller.text.isNotEmpty &&
+                    controller.text != 'الاسم موجود بالفعل' &&
+                    controller.text != 'أدخل اسم المشروع') {
+                  if (activities.indexWhere(
+                        (element) => element.name == controller.text,
+                      ) ==
+                      -1) {
                     int duration = int.tryParse(controllerMin.text) ?? 0;
-                    dataProvider.addActivity(Activity(name: controller.text, timeSpent: duration));
+                    dataProvider.addActivity(
+                      Activity(
+                        name: controller.text,
+                        timeSpent: duration,
+                        group: selectedGroup.trim().isEmpty
+                            ? 'General'
+                            : selectedGroup.trim(),
+                      ),
+                    );
                     controller.clear();
                     controllerMin.clear();
                     Navigator.pop(context1);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('أُضيف المشروع بنجاح', style: TextStyle(color: kActionColor, fontSize: 16)),
+                        content: Text(
+                          'أُضيف المشروع بنجاح',
+                          style: TextStyle(color: kActionColor, fontSize: 16),
+                        ),
                         backgroundColor: kContainerColor,
                         duration: Duration(milliseconds: 500),
                       ),
@@ -457,7 +670,10 @@ String formatDuration(int durationInMinutes) {
 // showArchiveMassage
 
 Future<dynamic> showArchiveMassage(BuildContext context, int index) {
-  ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
+  ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(
+    context,
+    listen: false,
+  );
   return showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -468,7 +684,10 @@ Future<dynamic> showArchiveMassage(BuildContext context, int index) {
         actionsAlignment: MainAxisAlignment.spaceAround,
         title: const FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text('تربيد مشروع /  نشاط', style: TextStyle(color: kActionColor)),
+          child: Text(
+            'تربيد مشروع /  نشاط',
+            style: TextStyle(color: kActionColor),
+          ),
         ),
         content: SizedBox(
           height: MediaQuery.of(context).size.height * 0.05,
@@ -480,7 +699,10 @@ Future<dynamic> showArchiveMassage(BuildContext context, int index) {
                   dataProvider.archiveActivity(activities[index]);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('تُربد المشروع بنجاح', style: TextStyle(color: kActionColor, fontSize: 16)),
+                      content: Text(
+                        'تُربد المشروع بنجاح',
+                        style: TextStyle(color: kActionColor, fontSize: 16),
+                      ),
                       backgroundColor: kContainerColor,
                       duration: Duration(milliseconds: 500),
                     ),
@@ -501,7 +723,9 @@ Future<dynamic> showArchiveMassage(BuildContext context, int index) {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(kTomatoColor)),
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all<Color>(kTomatoColor),
+                ),
                 child: const SizedBox(
                   width: 80,
                   child: Center(
@@ -521,7 +745,10 @@ Future<dynamic> showArchiveMassage(BuildContext context, int index) {
 }
 
 Future<dynamic> unarchiveActivityMassage(BuildContext context, int index) {
-  ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
+  ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(
+    context,
+    listen: false,
+  );
   return showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -532,7 +759,10 @@ Future<dynamic> unarchiveActivityMassage(BuildContext context, int index) {
         actionsAlignment: MainAxisAlignment.spaceAround,
         title: const FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text('تنشيط المشروع  النشاط', style: TextStyle(color: kActionColor)),
+          child: Text(
+            'تنشيط المشروع  النشاط',
+            style: TextStyle(color: kActionColor),
+          ),
         ),
         content: SizedBox(
           height: MediaQuery.of(context).size.height * 0.05,
@@ -544,7 +774,10 @@ Future<dynamic> unarchiveActivityMassage(BuildContext context, int index) {
                   dataProvider.unarchiveActivity(activities[index]);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('نُشط المشروع', style: TextStyle(color: kActionColor, fontSize: 16)),
+                      content: Text(
+                        'نُشط المشروع',
+                        style: TextStyle(color: kActionColor, fontSize: 16),
+                      ),
                       backgroundColor: kContainerColor,
                       duration: Duration(milliseconds: 500),
                     ),
@@ -565,7 +798,9 @@ Future<dynamic> unarchiveActivityMassage(BuildContext context, int index) {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                style: ButtonStyle(backgroundColor: WidgetStateProperty.all<Color>(kTomatoColor)),
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all<Color>(kTomatoColor),
+                ),
                 child: const SizedBox(
                   width: 80,
                   child: Center(
