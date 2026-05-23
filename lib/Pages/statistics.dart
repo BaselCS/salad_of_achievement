@@ -2,12 +2,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
 
-import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
 
 import '../DB/models/data_model.dart';
-import '../DB/models/object_box.dart';
+import '../main.dart' show objectBox;
 
 List<GroupedSessions> lastWeek = [];
 bool isSwitched = true;
@@ -32,7 +31,7 @@ class StatisticsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // يحصل على البيانات
-    final ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context);
+    final dataProvider = objectBox;
 
     lastWeek = dataProvider.getLastWeek();
     dataProvider.getUserStatistics();
@@ -55,8 +54,16 @@ class StatisticsPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            MostActiveDay(height * 0.1359375, UserStatistics.mostProductiveDate, UserStatistics.mostProductiveDay),
-            AverageProductivity(height * 0.26328125, UserStatistics.averageDailyProductivity.toInt(), averageWeek),
+            MostActiveDay(
+              height * 0.1359375,
+              UserStatistics.mostProductiveDate,
+              UserStatistics.mostProductiveDay,
+            ),
+            AverageProductivity(
+              height * 0.26328125,
+              UserStatistics.averageDailyProductivity.toInt(),
+              averageWeek,
+            ),
             AverageGraph(height * 0.4203125, lastWeek),
             FavoriteFruit(height * 0.7171875, dataProvider.getAllFruitUsage()),
           ],
@@ -78,7 +85,10 @@ class MostActiveDay extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: kBorderColor, borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(
+          color: kBorderColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
         height: height,
         width: double.infinity,
         child: minutes != 0
@@ -86,21 +96,34 @@ class MostActiveDay extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('اليوم الأكثر إنجازاً', style: Theme.of(context).textTheme.bodyMedium!),
+                  Text(
+                    'اليوم الأكثر إنجازاً',
+                    style: Theme.of(context).textTheme.bodyMedium!,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(HijriLogic.englishToArabicNumber(date), style: Theme.of(context).textTheme.bodySmall!),
+                      Text(
+                        HijriLogic.englishToArabicNumber(date),
+                        style: Theme.of(context).textTheme.bodySmall!,
+                      ),
                       Text(
                         '${HijriLogic.englishToArabicNumber(minutes.toString())} دقيقة',
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: kActionColor),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall!.copyWith(color: kActionColor),
                       ),
                     ],
                   ),
                 ],
               )
             : FittedBox(
-                child: Text(date, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: kActionColor)),
+                child: Text(
+                  date,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium!.copyWith(color: kActionColor),
+                ),
               ),
       ),
     );
@@ -112,7 +135,12 @@ class AverageProductivity extends StatelessWidget {
   final int overAllAverage;
   final int averageWeek;
 
-  const AverageProductivity(this.height, this.overAllAverage, this.averageWeek, {super.key});
+  const AverageProductivity(
+    this.height,
+    this.overAllAverage,
+    this.averageWeek, {
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +148,10 @@ class AverageProductivity extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: kBorderColor, borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(
+          color: kBorderColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
         height: height,
         width: double.infinity,
         child: overAllAverage != 0
@@ -129,14 +160,22 @@ class AverageProductivity extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   //النصوص
-                  Text('متوسط إنجازك اليومي', style: Theme.of(context).textTheme.bodyMedium!),
+                  Text(
+                    'متوسط إنجازك اليومي',
+                    style: Theme.of(context).textTheme.bodyMedium!,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("منذ بدء استخدام التطبيق", style: Theme.of(context).textTheme.bodySmall!),
+                      Text(
+                        "منذ بدء استخدام التطبيق",
+                        style: Theme.of(context).textTheme.bodySmall!,
+                      ),
                       Text(
                         '${HijriLogic.englishToArabicNumber(overAllAverage.toString())} دقيقة',
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: kActionColor),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall!.copyWith(color: kActionColor),
                       ),
                     ],
                   ),
@@ -144,10 +183,15 @@ class AverageProductivity extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("خلال آخر سبعة أيام عمل", style: Theme.of(context).textTheme.bodySmall!),
+                      Text(
+                        "خلال آخر سبعة أيام عمل",
+                        style: Theme.of(context).textTheme.bodySmall!,
+                      ),
                       Text(
                         '${HijriLogic.englishToArabicNumber(averageWeek.toString())} دقيقة',
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: kActionColor),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall!.copyWith(color: kActionColor),
                       ),
                     ],
                   ),
@@ -155,7 +199,9 @@ class AverageProductivity extends StatelessWidget {
                   FittedBox(
                     child: Text(
                       'المتوسط لا يشمل الأيام التي لم تستخدم فيها التطبيق',
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white..withAlpha(127)),
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        color: Colors.white..withAlpha(127),
+                      ),
                     ),
                   ),
                 ],
@@ -165,7 +211,9 @@ class AverageProductivity extends StatelessWidget {
                   child: Text(
                     "لا تَزُولُ قَدَمَا عَبْدٍ يَوْمَ القِيَامَةِ حَتَّى يُسْأَلَ عَنْ عُمُرِهِ فِيمَا أَفْنَاهُ، وَعَنْ عِلْمِهِ فِيمَ فَعَلَ، وَعَنْ مَالِهِ مِنْ أَيْنَ اكْتَسَبَهُ وَفِيمَ أَنْفَقَهُ، وَعَنْ جِسْمِهِ فِيمَ أَبْلَاهُ",
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: kActionColor),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall!.copyWith(color: kActionColor),
                   ),
                 ),
               ),
@@ -187,7 +235,10 @@ class AverageGraph extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: kBorderColor, borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(
+          color: kBorderColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
         height: height,
         width: double.infinity,
         child: lastWeek.isNotEmpty
@@ -197,7 +248,12 @@ class AverageGraph extends StatelessWidget {
                 children: [
                   //النصوص
                   Expanded(
-                    child: FittedBox(child: Text('معدل الإنجاز خلال آخر سبعة أيام', style: Theme.of(context).textTheme.bodyMedium!)),
+                    child: FittedBox(
+                      child: Text(
+                        'معدل الإنجاز خلال آخر سبعة أيام',
+                        style: Theme.of(context).textTheme.bodyMedium!,
+                      ),
+                    ),
                   ),
                   Expanded(
                     flex: 5,
@@ -212,20 +268,35 @@ class AverageGraph extends StatelessWidget {
                             children: [
                               FittedBox(
                                 child: Text(
-                                  HijriLogic.englishToArabicNumber(lastWeek[index].totalMinutes.toString()),
+                                  HijriLogic.englishToArabicNumber(
+                                    lastWeek[index].totalMinutes.toString(),
+                                  ),
                                   style: Theme.of(context).textTheme.bodySmall!,
                                 ),
                               ),
-                              SizedBox(width: min(width / (lastWeek.length + 1), 60), height: height * 0.5, child: VerticalBar(lastWeek[index].totalMinutes)),
+                              SizedBox(
+                                width: min(width / (lastWeek.length + 1), 60),
+                                height: height * 0.5,
+                                child: VerticalBar(
+                                  lastWeek[index].totalMinutes,
+                                ),
+                              ),
                               FittedBox(
                                 child: FittedBox(
                                   child: Text(
                                     " ${HijriLogic.englishToArabicNumber(lastWeek[index].date.split("/")[2])}/${HijriLogic.englishToArabicNumber(lastWeek[index].date.split("/")[1])} ",
-                                    style: Theme.of(context).textTheme.bodySmall!,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall!,
                                   ),
                                 ),
                               ),
-                              FittedBox(child: Text(" ${lastWeek[index].dayName} ", style: Theme.of(context).textTheme.bodySmall!)),
+                              FittedBox(
+                                child: Text(
+                                  " ${lastWeek[index].dayName} ",
+                                  style: Theme.of(context).textTheme.bodySmall!,
+                                ),
+                              ),
                             ],
                           ),
                         );
@@ -239,7 +310,9 @@ class AverageGraph extends StatelessWidget {
                   child: Text(
                     "اقْتَرَبَ لِلنَّاسِ حِسَابُهُمْ وَهُمْ فِي غَفْلَةٍ مُعْرِضُونَ",
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: kActionColor),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall!.copyWith(color: kActionColor),
                   ),
                 ),
               ),
@@ -294,7 +367,10 @@ class FavoriteFruit extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: kBorderColor, borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(
+          color: kBorderColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
         height: height,
         width: double.infinity,
         child: count > 0
@@ -303,11 +379,18 @@ class FavoriteFruit extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   //النصوص
-                  FittedBox(child: Text('خضرواتك المفضلة', style: Theme.of(context).textTheme.bodyMedium!)),
+                  FittedBox(
+                    child: Text(
+                      'خضرواتك المفضلة',
+                      style: Theme.of(context).textTheme.bodyMedium!,
+                    ),
+                  ),
                   FittedBox(
                     child: Text(
                       'ترتيب انواع الجلسات حسب عدد مرات الاستخدام',
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white..withAlpha(127)),
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        color: Colors.white..withAlpha(127),
+                      ),
                     ),
                   ),
                   Expanded(
@@ -318,19 +401,34 @@ class FavoriteFruit extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: SizedBox(height: 50, width: 50, child: fruits[list[index].id.toString()]!.first),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
+                              child: SizedBox(
+                                height: 50,
+                                width: 50,
+                                child: fruits[list[index].id.toString()]!.first,
+                              ),
                             ),
                             Expanded(
                               child: LinearProgressIndicator(
                                 value: list[index].usageCount / count,
                                 minHeight: 20,
-                                valueColor: const AlwaysStoppedAnimation<Color>(kActionColor),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  kActionColor,
+                                ),
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Text(HijriLogic.englishToArabicNumber(list[index].usageCount.toString()), style: Theme.of(context).textTheme.bodySmall!),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
+                              child: Text(
+                                HijriLogic.englishToArabicNumber(
+                                  list[index].usageCount.toString(),
+                                ),
+                                style: Theme.of(context).textTheme.bodySmall!,
+                              ),
                             ),
                           ],
                         );
@@ -341,8 +439,12 @@ class FavoriteFruit extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 24),
                     child: FittedBox(
                       child: Text(
-                        count == 0 ? "لم تستخدم الخضروات بعد" : "المجموع: ${HijriLogic.englishToArabicNumber(count.toString())} مرات",
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.white..withAlpha(127)),
+                        count == 0
+                            ? "لم تستخدم الخضروات بعد"
+                            : "المجموع: ${HijriLogic.englishToArabicNumber(count.toString())} مرات",
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                          color: Colors.white..withAlpha(127),
+                        ),
                       ),
                     ),
                   ),
@@ -353,7 +455,9 @@ class FavoriteFruit extends StatelessWidget {
                   child: Text(
                     "إنَّما الأعمالُ بالنِّيَّاتِ وإنَّما لِكلِّ امرئٍ ما نوى فمن كانت هجرتُهُ إلى اللَّهِ ورسولِهِ فَهجرتُهُ إلى اللَّهِ ورسولِهِ ومن كانت هجرتُهُ إلى دنيا يصيبُها أو امرأةٍ ينْكحُها فَهجرتُهُ إلى ما هاجرَ إليْهِ",
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: kActionColor),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall!.copyWith(color: kActionColor),
                   ),
                 ),
               ),

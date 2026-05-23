@@ -1,36 +1,23 @@
 import 'package:objectbox/objectbox.dart';
 
 @Entity()
-class Session {
+class ActivityGroup {
   @Id()
   int id;
-  String date;
-  int timeSpent;
-  String activityName;
-  String? group;
+  String name;
 
-  Session({
-    this.id = 0, // ObjectBox IDs start at 0
-    required this.date,
-    required this.timeSpent,
-    required this.activityName,
-    required this.group,
-  });
+  @Backlink('groupRef')
+  final ToMany<Activity> activities = ToMany<Activity>();
 
-  // Convert a Session into a Map. The keys must correspond to the names of the columns in the database.
+  ActivityGroup({this.id = 0, required this.name});
+
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'date': date, // Format: YYYY-MM-DD
-      'time_spent': timeSpent,
-      'activityName': activityName,
-      "group": group,
-    };
+    return {'id': id, 'name': name};
   }
 
   @override
   String toString() {
-    return 'Session{id: $id, date: $date, timeSpent: $timeSpent, activityName: $activityName, group: $group}\n';
+    return 'ActivityGroup{id: $id, name: $name}';
   }
 }
 
@@ -41,15 +28,33 @@ class Activity {
   String name;
   int timeSpent;
   bool isArchived;
-  String group;
+
+  @Backlink('activityRef')
+  final ToMany<Session> sessions = ToMany<Session>();
+
+  final ToOne<ActivityGroup> groupRef = ToOne<ActivityGroup>();
+
+  @Transient()
+  String _fallbackGroupName = 'مرجأة';
+
+  String get group => groupRef.target?.name ?? _fallbackGroupName;
+  set group(String value) {
+    _fallbackGroupName = value.trim().isEmpty ? 'مرجأة' : value.trim();
+  }
 
   Activity({
-    this.id = 0, // ObjectBox IDs start at 0
+    this.id = 0,
     required this.name,
     required this.timeSpent,
     this.isArchived = false,
-    this.group = 'General',
-  });
+    String group = 'مرجأة',
+    ActivityGroup? groupEntity,
+  }) {
+    this.group = group;
+    if (groupEntity != null) {
+      groupRef.target = groupEntity;
+    }
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -57,13 +62,85 @@ class Activity {
       'name': name,
       'time_spent': timeSpent,
       'is_archived': isArchived,
-      'group': group,
+      'group_name': group,
+      'group_id': groupRef.targetId,
     };
   }
 
   @override
   String toString() {
     return 'Activity{id: $id, name: $name, timeSpent: $timeSpent, isArchived: $isArchived, group: $group}';
+  }
+}
+
+@Entity()
+class Session {
+  @Id()
+  int id;
+  int durationInMinutes;
+  String date;
+
+  final ToOne<Activity> activityRef = ToOne<Activity>();
+
+  @Transient()
+  String _activityNameFallback = 'غير محدد';
+
+  @Transient()
+  String _groupNameFallback = 'مرجأة';
+
+  int get timeSpent => durationInMinutes;
+  set timeSpent(int value) {
+    durationInMinutes = value;
+  }
+
+  String get activityName => activityRef.target?.name ?? _activityNameFallback;
+  set activityName(String value) {
+    _activityNameFallback = value.trim().isEmpty ? 'غير محدد' : value.trim();
+  }
+
+  String? get group =>
+      activityRef.target?.groupRef.target?.name ?? _groupNameFallback;
+  set group(String? value) {
+    _groupNameFallback = value == null || value.trim().isEmpty
+        ? 'مرجأة'
+        : value.trim();
+  }
+
+  Session({
+    this.id = 0,
+    required this.date,
+    int? durationInMinutes,
+    int? timeSpent,
+    Activity? activity,
+    String? activityName,
+    String? group,
+  }) : durationInMinutes = durationInMinutes ?? timeSpent ?? 0 {
+    if (activity != null) {
+      activityRef.target = activity;
+    }
+    if (activityName != null) {
+      this.activityName = activityName;
+    }
+    if (group != null) {
+      this.group = group;
+    }
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'date': date,
+      'duration_in_minutes': durationInMinutes,
+      'time_spent': durationInMinutes,
+      'activity_id': activityRef.targetId,
+      'activityName': activityName,
+      'group_name': group,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'Session{id: $id, date: $date, durationInMinutes: $durationInMinutes, activityName: $activityName, group: $group}';
   }
 }
 

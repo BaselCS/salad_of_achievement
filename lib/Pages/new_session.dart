@@ -1,11 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
 
 import '../DB/models/data_model.dart';
-import '../DB/models/object_box.dart';
+import '../main.dart' show objectBox;
 
 final ValueNotifier<int> timeValue = ValueNotifier(0);
 final ValueNotifier<String> activityLabel = ValueNotifier('');
@@ -64,7 +63,7 @@ class DropActivity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context);
+    final dataProvider = objectBox;
 
     return Container(
       color: kContainerColor,
@@ -149,16 +148,13 @@ class OkButton extends StatelessWidget {
           onTap: () {
             // Update logic to use .value
             if (isEnabled) {
-              ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(
-                context,
-                listen: false,
-              );
+              final dataProvider = objectBox;
               final Activity? activity = dataProvider
                   .getAllActivities()
                   .firstWhereOrNull(
                     (activity) => activity.name == activityLabel.value,
                   );
-              final String activityGroup = activity?.group ?? 'General';
+              final String activityGroup = activity?.group ?? 'مرجأة';
 
               dataProvider.addSession(
                 Session(

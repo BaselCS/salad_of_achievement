@@ -1,11 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
 
 import '../DB/models/data_model.dart';
-import '../DB/models/object_box.dart';
 import '../utilities/const.dart';
+import '../main.dart' show objectBox;
 
 List<Activity> activities = [];
 
@@ -36,10 +35,11 @@ class Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context);
-    List<GroupedSessions> groupedSessions = dataProvider.groupSessionsByDay(
-      dataProvider.getAllSessions(),
-    );
+    final dataProvider = objectBox;
+    List<GroupedSessions> groupedSessions = dataProvider
+        .groupSessionsByDay(dataProvider.getAllSessions())
+        .reversed
+        .toList();
     activities = dataProvider.getActiveActivities();
     return ListView.separated(
       shrinkWrap: true,
@@ -143,7 +143,7 @@ String? activityName;
 class _SessionDetailsState extends State<SessionDetails> {
   @override
   Widget build(BuildContext context) {
-    ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context);
+    final dataProvider = objectBox;
     return Scaffold(
       backgroundColor: kInnerBackGroundColor,
       appBar: AppBar(
@@ -173,7 +173,7 @@ class _SessionDetailsState extends State<SessionDetails> {
               width: 75,
               height: 60,
               padding: const EdgeInsets.all(5),
-              child: fruits[widget.sessions[index].timeSpent.toString()]![0],
+              child: fruits[widget.sessions[index].timeSpent.toString()]?[0],
             ), //الفاكهة ثم اللون
             //الأيقونة
             trailing: IconButton(
@@ -228,7 +228,7 @@ class _SessionDetailsState extends State<SessionDetails> {
 
                             widget.sessions[index].activityName = newValue;
                             widget.sessions[index].group =
-                                newActivity?.group ?? 'General';
+                                newActivity?.group ?? 'مرجأة';
                             dataProvider.updateSession(
                               widget.sessions[index],
                               oldSession,
@@ -241,7 +241,7 @@ class _SessionDetailsState extends State<SessionDetails> {
                                   name: newValue,
                                   timeSpent: widget.sessions[index].timeSpent,
                                   group:
-                                      widget.sessions[index].group ?? 'General',
+                                      widget.sessions[index].group ?? 'مرجأة',
                                 ),
                               );
                             } else {

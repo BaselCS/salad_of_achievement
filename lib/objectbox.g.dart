@@ -22,7 +22,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(1, 7308131095044400048),
     name: 'Activity',
-    lastPropertyId: const obx_int.IdUid(5, 3492701836903456567),
+    lastPropertyId: const obx_int.IdUid(6, 4099186033111950745),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -55,9 +55,23 @@ final _entities = <obx_int.ModelEntity>[
         type: 9,
         flags: 0,
       ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 4099186033111950745),
+        name: 'groupRefId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(1, 1375476486268460241),
+        relationTarget: 'ActivityGroup',
+      ),
     ],
     relations: <obx_int.ModelRelation>[],
-    backlinks: <obx_int.ModelBacklink>[],
+    backlinks: <obx_int.ModelBacklink>[
+      obx_int.ModelBacklink(
+        name: 'sessions',
+        srcEntity: 'Session',
+        srcField: 'activityRef',
+      ),
+    ],
   ),
   obx_int.ModelEntity(
     id: const obx_int.IdUid(2, 7786140021838116532),
@@ -84,7 +98,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(3, 4144517228415667832),
     name: 'Session',
-    lastPropertyId: const obx_int.IdUid(6, 1362406018544335599),
+    lastPropertyId: const obx_int.IdUid(8, 8169293960425033858),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -116,6 +130,20 @@ final _entities = <obx_int.ModelEntity>[
         name: 'group',
         type: 9,
         flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 2605184604548720691),
+        name: 'durationInMinutes',
+        type: 6,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(8, 8169293960425033858),
+        name: 'activityRefId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(2, 6076768824629741737),
+        relationTarget: 'Activity',
       ),
     ],
     relations: <obx_int.ModelRelation>[],
@@ -173,6 +201,34 @@ final _entities = <obx_int.ModelEntity>[
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
   ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(6, 4235555054428622720),
+    name: 'ActivityGroup',
+    lastPropertyId: const obx_int.IdUid(2, 9085437878649815716),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 3463886570057096586),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 9085437878649815716),
+        name: 'name',
+        type: 9,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[
+      obx_int.ModelBacklink(
+        name: 'activities',
+        srcEntity: 'Activity',
+        srcField: 'groupRef',
+      ),
+    ],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -213,8 +269,8 @@ Future<obx.Store> openStore({
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(5, 1891301343357838477),
-    lastIndexId: const obx_int.IdUid(0, 0),
+    lastEntityId: const obx_int.IdUid(6, 4235555054428622720),
+    lastIndexId: const obx_int.IdUid(2, 6076768824629741737),
     lastRelationId: const obx_int.IdUid(0, 0),
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [7609313741310014007],
@@ -239,8 +295,14 @@ obx_int.ModelDefinition getObjectBoxModel() {
   final bindings = <Type, obx_int.EntityDefinition>{
     Activity: obx_int.EntityDefinition<Activity>(
       model: _entities[0],
-      toOneRelations: (Activity object) => [],
-      toManyRelations: (Activity object) => {},
+      toOneRelations: (Activity object) => [object.groupRef],
+      toManyRelations: (Activity object) => {
+        obx_int.RelInfo<Session>.toOneBacklink(
+          8,
+          object.id,
+          (Session srcObject) => srcObject.activityRef,
+        ): object.sessions,
+      },
       getId: (Activity object) => object.id,
       setId: (Activity object, int id) {
         object.id = id;
@@ -248,12 +310,13 @@ obx_int.ModelDefinition getObjectBoxModel() {
       objectToFB: (Activity object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
         final groupOffset = fbb.writeString(object.group);
-        fbb.startTable(6);
+        fbb.startTable(7);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addInt64(2, object.timeSpent);
         fbb.addBool(3, object.isArchived);
         fbb.addOffset(4, groupOffset);
+        fbb.addInt64(5, object.groupRef.targetId);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -291,7 +354,22 @@ obx_int.ModelDefinition getObjectBoxModel() {
           isArchived: isArchivedParam,
           group: groupParam,
         );
-
+        object.groupRef.targetId = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          14,
+          0,
+        );
+        object.groupRef.attach(store);
+        obx_int.InternalToManyAccess.setRelInfo<Activity>(
+          object.sessions,
+          store,
+          obx_int.RelInfo<Session>.toOneBacklink(
+            8,
+            object.id,
+            (Session srcObject) => srcObject.activityRef,
+          ),
+        );
         return object;
       },
     ),
@@ -332,7 +410,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
     ),
     Session: obx_int.EntityDefinition<Session>(
       model: _entities[2],
-      toOneRelations: (Session object) => [],
+      toOneRelations: (Session object) => [object.activityRef],
       toManyRelations: (Session object) => {},
       getId: (Session object) => object.id,
       setId: (Session object, int id) {
@@ -344,12 +422,14 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final groupOffset = object.group == null
             ? null
             : fbb.writeString(object.group!);
-        fbb.startTable(7);
+        fbb.startTable(9);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, dateOffset);
         fbb.addInt64(2, object.timeSpent);
         fbb.addOffset(4, activityNameOffset);
         fbb.addOffset(5, groupOffset);
+        fbb.addInt64(6, object.durationInMinutes);
+        fbb.addInt64(7, object.activityRef.targetId);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -365,6 +445,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final dateParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 6, '');
+        final durationInMinutesParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          16,
+          0,
+        );
         final timeSpentParam = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
@@ -380,11 +466,18 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final object = Session(
           id: idParam,
           date: dateParam,
+          durationInMinutes: durationInMinutesParam,
           timeSpent: timeSpentParam,
           activityName: activityNameParam,
           group: groupParam,
         );
-
+        object.activityRef.targetId = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          18,
+          0,
+        );
+        object.activityRef.attach(store);
         return object;
       },
     ),
@@ -464,6 +557,53 @@ obx_int.ModelDefinition getObjectBoxModel() {
         return object;
       },
     ),
+    ActivityGroup: obx_int.EntityDefinition<ActivityGroup>(
+      model: _entities[4],
+      toOneRelations: (ActivityGroup object) => [],
+      toManyRelations: (ActivityGroup object) => {
+        obx_int.RelInfo<Activity>.toOneBacklink(
+          6,
+          object.id,
+          (Activity srcObject) => srcObject.groupRef,
+        ): object.activities,
+      },
+      getId: (ActivityGroup object) => object.id,
+      setId: (ActivityGroup object, int id) {
+        object.id = id;
+      },
+      objectToFB: (ActivityGroup object, fb.Builder fbb) {
+        final nameOffset = fbb.writeString(object.name);
+        fbb.startTable(3);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, nameOffset);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final idParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          4,
+          0,
+        );
+        final nameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final object = ActivityGroup(id: idParam, name: nameParam);
+        obx_int.InternalToManyAccess.setRelInfo<ActivityGroup>(
+          object.activities,
+          store,
+          obx_int.RelInfo<Activity>.toOneBacklink(
+            6,
+            object.id,
+            (Activity srcObject) => srcObject.groupRef,
+          ),
+        );
+        return object;
+      },
+    ),
   };
 
   return obx_int.ModelDefinition(model, bindings);
@@ -494,6 +634,16 @@ class Activity_ {
   /// See [Activity.group].
   static final group = obx.QueryStringProperty<Activity>(
     _entities[0].properties[4],
+  );
+
+  /// See [Activity.groupRef].
+  static final groupRef = obx.QueryRelationToOne<Activity, ActivityGroup>(
+    _entities[0].properties[5],
+  );
+
+  /// see [Activity.sessions]
+  static final sessions = obx.QueryBacklinkToMany<Session, Activity>(
+    Session_.activityRef,
   );
 }
 
@@ -536,6 +686,16 @@ class Session_ {
   static final group = obx.QueryStringProperty<Session>(
     _entities[2].properties[4],
   );
+
+  /// See [Session.durationInMinutes].
+  static final durationInMinutes = obx.QueryIntegerProperty<Session>(
+    _entities[2].properties[5],
+  );
+
+  /// See [Session.activityRef].
+  static final activityRef = obx.QueryRelationToOne<Session, Activity>(
+    _entities[2].properties[6],
+  );
 }
 
 /// [Setting] entity fields to define ObjectBox queries.
@@ -573,5 +733,23 @@ class Setting_ {
   /// See [Setting.timeOfRest].
   static final timeOfRest = obx.QueryStringProperty<Setting>(
     _entities[3].properties[6],
+  );
+}
+
+/// [ActivityGroup] entity fields to define ObjectBox queries.
+class ActivityGroup_ {
+  /// See [ActivityGroup.id].
+  static final id = obx.QueryIntegerProperty<ActivityGroup>(
+    _entities[4].properties[0],
+  );
+
+  /// See [ActivityGroup.name].
+  static final name = obx.QueryStringProperty<ActivityGroup>(
+    _entities[4].properties[1],
+  );
+
+  /// see [ActivityGroup.activities]
+  static final activities = obx.QueryBacklinkToMany<Activity, ActivityGroup>(
+    Activity_.groupRef,
   );
 }

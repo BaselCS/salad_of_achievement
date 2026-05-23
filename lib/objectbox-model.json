@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:7308131095044400048",
-      "lastPropertyId": "5:3492701836903456567",
+      "lastPropertyId": "6:4099186033111950745",
       "name": "Activity",
       "properties": [
         {
@@ -33,6 +33,14 @@
           "id": "5:3492701836903456567",
           "name": "group",
           "type": 9
+        },
+        {
+          "id": "6:4099186033111950745",
+          "name": "groupRefId",
+          "indexId": "1:1375476486268460241",
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "ActivityGroup"
         }
       ],
       "relations": []
@@ -58,7 +66,7 @@
     },
     {
       "id": "3:4144517228415667832",
-      "lastPropertyId": "6:1362406018544335599",
+      "lastPropertyId": "8:8169293960425033858",
       "name": "Session",
       "properties": [
         {
@@ -86,6 +94,19 @@
           "id": "6:1362406018544335599",
           "name": "group",
           "type": 9
+        },
+        {
+          "id": "7:2605184604548720691",
+          "name": "durationInMinutes",
+          "type": 6
+        },
+        {
+          "id": "8:8169293960425033858",
+          "name": "activityRefId",
+          "indexId": "2:6076768824629741737",
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "Activity"
         }
       ],
       "relations": []
@@ -133,10 +154,29 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "6:4235555054428622720",
+      "lastPropertyId": "2:9085437878649815716",
+      "name": "ActivityGroup",
+      "properties": [
+        {
+          "id": "1:3463886570057096586",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:9085437878649815716",
+          "name": "name",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "5:1891301343357838477",
-  "lastIndexId": "0:0",
+  "lastEntityId": "6:4235555054428622720",
+  "lastIndexId": "2:6076768824629741737",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

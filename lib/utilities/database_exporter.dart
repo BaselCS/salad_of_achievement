@@ -68,7 +68,7 @@ class DatabaseExporter {
       // 1. Create CSV String manually
       // Header
       List<List<dynamic>> rows = [];
-      rows.add(['ID', 'Date', 'Time Spent (min)', 'Activity Name']);
+      rows.add(['ID', 'Date', 'Time Spent (min)', 'Activity Name', 'Group']);
 
       // Rows
       for (var session in sessions) {
@@ -77,7 +77,7 @@ class DatabaseExporter {
           session.date,
           session.timeSpent,
           session.activityName,
-          session.group ?? 'General',
+          session.group ?? 'مرجأة',
         ]);
       }
 
@@ -98,7 +98,7 @@ class DatabaseExporter {
   }
 
   /// Imports database from a JSON file
-  Future<bool> importFromJson() async {
+  Future<bool> importFromJson({String fallbackGroup = 'مرجأة'}) async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -109,60 +109,121 @@ class DatabaseExporter {
         final file = File(result.files.single.path!);
         final content = await file.readAsString();
         final Map<String, dynamic> data = jsonDecode(content);
+        final List<dynamic> activitiesJson =
+            (data['activities'] as List<dynamic>?) ?? <dynamic>[];
+        final List<dynamic> sessionsJson =
+            (data['sessions'] as List<dynamic>?) ?? <dynamic>[];
+        final List<dynamic> fruitJson =
+            (data['fruit_usage'] as List<dynamic>?) ?? <dynamic>[];
 
-        // Clear existing data before importing (optional, but safer for consistency)
-        // Or we could merge. Given "import the DB", replacement is often expected.
-        // Let's go with adding/merging to be less destructive, but deduplicating session IDs if needed.
-        // Actually, objectbox IDs are auto-generated if we set them to 0.
+        // Replace current data with imported data.
+        objectBox.deleteAll();
+        final String currentSessionDate = objectBox.getCurrentSessionDate();
+        int currentSessionMinutes = 0;
 
-        if (data.containsKey('activities')) {
-          final List<dynamic> activitiesJson = data['activities'];
-          for (var actJson in activitiesJson) {
-            final activity = Activity(
-              name: actJson['name'],
-              timeSpent: actJson['time_spent'],
-              isArchived: actJson['is_archived'] ?? false,
-              group: actJson['group'] ?? 'General',
-            );
-            objectBox.addActivity(activity);
-          }
+        final Map<String, Activity> activitiesByName = {};
+        final Map<String, Map<String, dynamic>> activitySnapshots = {};
+        final Map<String, int> activityDurations = {};
+
+        for (final actJson in activitiesJson) {
+          final String activityName = actJson['name']?.toString() ?? 'غير محدد';
+          final String activityGroup =
+              actJson['group_name']?.toString() ??
+              actJson['group']?.toString() ??
+              fallbackGroup;
+          activitySnapshots[activityName] = Map<String, dynamic>.from(actJson);
+          final activity = Activity(
+            name: activityName,
+            timeSpent: 0,
+            isArchived: actJson['is_archived'] ?? false,
+            group: activityGroup,
+          );
+          objectBox.addActivity(activity);
+          activitiesByName[activityName] = activity;
         }
 
-        if (data.containsKey('sessions')) {
-          final List<dynamic> sessionsJson = data['sessions'];
-          for (var sessJson in sessionsJson) {
-            final String activityName = sessJson['activityName'];
-            final String group =
-                sessJson['group'] ??
-                objectBox
-                    .getAllActivities()
-                    .firstWhereOrNull(
-                      (activity) => activity.name == activityName,
-                    )
-                    ?.group ??
-                'General';
-            final session = Session(
-              date: sessJson['date'],
-              timeSpent: sessJson['time_spent'],
-              activityName: activityName,
+        for (final sessJson in sessionsJson) {
+          final String activityName =
+              sessJson['activityName']?.toString() ?? 'غير محدد';
+          final int sessionMinutes =
+              sessJson['duration_in_minutes'] ??
+              sessJson['time_spent'] ??
+              sessJson['timeSpent'] ??
+              0;
+          final String group =
+              sessJson['group_name']?.toString() ??
+              sessJson['group']?.toString() ??
+              activitiesByName[activityName]?.group ??
+              fallbackGroup;
+
+          if (!activitiesByName.containsKey(activityName)) {
+            final importedActivity = Activity(
+              name: activityName,
+              timeSpent: 0,
               group: group,
             );
-            objectBox.addSession(session);
+            objectBox.addActivity(importedActivity);
+            activitiesByName[activityName] = importedActivity;
           }
+
+          final session = Session(
+            date: sessJson['date']?.toString() ?? '',
+            timeSpent: sessionMinutes,
+            activityName: activityName,
+            group: group,
+          );
+          objectBox.addSession(session);
+          if (session.date == currentSessionDate) {
+            currentSessionMinutes += sessionMinutes;
+          }
+          activityDurations[activityName] =
+              (activityDurations[activityName] ?? 0) + sessionMinutes;
         }
 
-        if (data.containsKey('fruit_usage')) {
-          final List<dynamic> fruitJson = data['fruit_usage'];
-          for (var fJson in fruitJson) {
-            // FruitUsage handles its own logic in addFruitUsage,
-            // but for a full import we might want to set specific counts.
-            // Since addFruitUsage increments, we might need a direct put.
-            // But objectBox doesn't expose a direct put for FruitUsage in a bulk way.
-            // For now, let's just add it if usageCount > 0
-            for (int i = 0; i < (fJson['usageCount'] ?? 0); i++) {
-              objectBox.addFruitUsage(time: fJson['id']);
-            }
+        for (final entry in activitySnapshots.entries) {
+          final Activity? activity = activitiesByName[entry.key];
+          if (activity == null) {
+            continue;
           }
+          final snapshot = entry.value;
+          final int restoredTimeSpent =
+              activityDurations[entry.key] ??
+              snapshot['time_spent'] ??
+              snapshot['timeSpent'] ??
+              activity.timeSpent;
+          objectBox.updateActivity(
+            activity,
+            snapshot['name']?.toString() ?? activity.name,
+            restoredTimeSpent,
+            snapshot['group_name']?.toString() ?? snapshot['group']?.toString(),
+          );
+        }
+
+        for (final entry in activityDurations.entries) {
+          if (activitiesByName.containsKey(entry.key)) {
+            continue;
+          }
+          final Activity? activity = objectBox
+              .getAllActivities()
+              .firstWhereOrNull((item) => item.name == entry.key);
+          if (activity == null) {
+            continue;
+          }
+          objectBox.updateActivity(
+            activity,
+            activity.name,
+            entry.value,
+            activity.group,
+          );
+        }
+
+        objectBox.setDoneMinutes(currentSessionMinutes);
+
+        for (final fJson in fruitJson) {
+          objectBox.setFruitUsageCount(
+            fJson['id'] as int,
+            fJson['usageCount'] as int? ?? 0,
+          );
         }
 
         return true;
@@ -174,7 +235,7 @@ class DatabaseExporter {
   }
 
   /// Imports sessions from a CSV file
-  Future<bool> importSessionsFromCsv() async {
+  Future<bool> importSessionsFromCsv({String fallbackGroup = 'مرجأة'}) async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -188,6 +249,14 @@ class DatabaseExporter {
 
         if (rows.length <= 1) return false; // Only header or empty
 
+        // Replace current data with imported data.
+        objectBox.deleteAll();
+        final String currentSessionDate = objectBox.getCurrentSessionDate();
+        int currentSessionMinutes = 0;
+
+        final Set<String> importedActivities = <String>{};
+        final Map<String, int> activityDurations = {};
+
         // Skip header
         for (var i = 1; i < rows.length; i++) {
           final row = rows[i];
@@ -198,21 +267,58 @@ class DatabaseExporter {
           final String group =
               row.length >= 5 && row[4].toString().trim().isNotEmpty
               ? row[4].toString()
-              : objectBox
-                        .getAllActivities()
-                        .firstWhereOrNull(
-                          (activity) => activity.name == activityName,
-                        )
-                        ?.group ??
-                    'General';
+              : fallbackGroup;
           final session = Session(
             date: row[1].toString(),
             timeSpent: int.tryParse(row[2].toString()) ?? 0,
             activityName: activityName,
             group: group,
           );
+
+          final existingActivity = objectBox
+              .getAllActivities()
+              .firstWhereOrNull((activity) => activity.name == activityName);
+          if (existingActivity == null &&
+              !importedActivities.contains(activityName)) {
+            objectBox.addActivity(
+              Activity(name: activityName, timeSpent: 0, group: group),
+            );
+            importedActivities.add(activityName);
+          }
+
           objectBox.addSession(session);
+          if (session.date == currentSessionDate) {
+            currentSessionMinutes += session.timeSpent;
+          }
+          activityDurations[activityName] =
+              (activityDurations[activityName] ?? 0) + session.timeSpent;
+
+          if (existingActivity != null) {
+            objectBox.updateActivity(
+              existingActivity,
+              existingActivity.name,
+              activityDurations[activityName] ?? existingActivity.timeSpent,
+              group,
+            );
+          }
         }
+
+        for (final entry in activityDurations.entries) {
+          final activity = objectBox.getAllActivities().firstWhereOrNull(
+            (item) => item.name == entry.key,
+          );
+          if (activity == null) {
+            continue;
+          }
+          objectBox.updateActivity(
+            activity,
+            activity.name,
+            entry.value,
+            activity.group,
+          );
+        }
+
+        objectBox.setDoneMinutes(currentSessionMinutes);
         return true;
       }
     } catch (e) {

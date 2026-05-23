@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/Pages/active_session.dart';
 import 'package:salad_of_achievement/Pages/activity.dart';
 import 'package:salad_of_achievement/Pages/history.dart' hide activityName;
@@ -14,6 +13,7 @@ import 'package:salad_of_achievement/utilities/fake_data_generator.dart';
 import 'package:salad_of_achievement/utilities/page_animation.dart';
 
 import '../DB/models/object_box.dart';
+import '../main.dart' show objectBox;
 
 class MainPage extends StatelessWidget {
   const MainPage({super.key});
@@ -32,11 +32,11 @@ class MainPage extends StatelessWidget {
         ),
         actions: [
           // Debug button for generating fake data (remove in production)
-          IconButton(
-            icon: const Icon(Icons.bug_report, color: Colors.orange),
-            tooltip: 'Generate Test Data',
-            onPressed: () => showFakeDataDialog(context),
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.bug_report, color: Colors.orange),
+          //   tooltip: 'Generate Test Data',
+          //   onPressed: () => showFakeDataDialog(context),
+          // ),
           // Database viewer button (for debugging)
           // IconButton(
           //   icon: const Icon(Icons.storage, color: Colors.blue),
@@ -109,13 +109,13 @@ class MyDrawer extends StatelessWidget {
               pushWithName(context, const StatisticsPage());
             },
           ),
-          ListTile(
-            title: const Text('اختبار الإشعارات'),
-            leading: const MyIcon(Icons.notifications_active),
-            onTap: () {
-              pushWithName(context, const NotificationTestPage());
-            },
-          ),
+          // ListTile(
+          //   title: const Text('اختبار الإشعارات'),
+          //   leading: const MyIcon(Icons.notifications_active),
+          //   onTap: () {
+          //     pushWithName(context, const NotificationTestPage());
+          //   },
+          // ),
           ListTile(
             title: const Text('إعدادات'),
             leading: const MyIcon(Icons.settings),
@@ -142,15 +142,32 @@ class VisitableButtons extends StatelessWidget {
         children: fruits.entries.map((entry) {
           return GestureDetector(
             onTap: () {
-              Navigator.push(context, comeFromDownRoute(ActiveSectionPage(arguments: [entry.key, activityName, false])));
+              Navigator.push(
+                context,
+                comeFromDownRoute(
+                  ActiveSectionPage(
+                    arguments: [entry.key, activityName, false],
+                  ),
+                ),
+              );
             },
             child: Column(
               children: [
                 Expanded(
-                  child: Hero(tag: entry.key, child: Image.asset(fruitsPath[entry.key]!, width: 64, height: 64)),
+                  child: Hero(
+                    tag: entry.key,
+                    child: Image.asset(
+                      fruitsPath[entry.key]!,
+                      width: 64,
+                      height: 64,
+                    ),
+                  ),
                 ),
                 Expanded(
-                  child: Text(HijriLogic.englishToArabicNumber(entry.key), style: TextStyle(color: entry.value.last)),
+                  child: Text(
+                    HijriLogic.englishToArabicNumber(entry.key),
+                    style: TextStyle(color: entry.value.last),
+                  ),
                 ),
               ],
             ),
@@ -169,7 +186,7 @@ class BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context);
+    final dataProvider = objectBox;
     return BottomAppBar(
       height: MediaQuery.of(context).size.height * 0.15,
       padding: const EdgeInsets.fromLTRB(4, 15, 8, 4),
@@ -184,15 +201,34 @@ class BottomBar extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 3.0), child: Image.asset('$iconPath/appIcon.png', width: 32, height: 32)),
-                      const Text('إنجاز اليوم: ', style: TextStyle(color: kActionColor, fontSize: 24)),
-                      FittedBox(
-                        child: Text(
-                          HijriLogic.englishToArabicNumber(dataProvider.doneMinutes.toString()),
-                          style: const TextStyle(color: kActionColor, fontSize: 24, fontWeight: FontWeight.bold),
+                      Padding(
+                        padding: EdgeInsetsGeometry.symmetric(horizontal: 3.0),
+                        child: Image.asset(
+                          '$iconPath/appIcon.png',
+                          width: 32,
+                          height: 32,
                         ),
                       ),
-                      const Text(' دقيقة', style: TextStyle(color: kActionColor, fontSize: 24)),
+                      const Text(
+                        'إنجاز اليوم: ',
+                        style: TextStyle(color: kActionColor, fontSize: 24),
+                      ),
+                      FittedBox(
+                        child: Text(
+                          HijriLogic.englishToArabicNumber(
+                            dataProvider.doneMinutes.toString(),
+                          ),
+                          style: const TextStyle(
+                            color: kActionColor,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const Text(
+                        ' دقيقة',
+                        style: TextStyle(color: kActionColor, fontSize: 24),
+                      ),
                     ],
                   ),
                 ),
@@ -211,7 +247,10 @@ class BottomBar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: ClipRRect(
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
-                child: ProgressBar(dataProvider: dataProvider, progressHight: progressHight),
+                child: ProgressBar(
+                  dataProvider: dataProvider,
+                  progressHight: progressHight,
+                ),
               ),
             ),
           ),
@@ -222,7 +261,11 @@ class BottomBar extends StatelessWidget {
 }
 
 class ProgressBar extends StatelessWidget {
-  const ProgressBar({super.key, required this.dataProvider, required this.progressHight});
+  const ProgressBar({
+    super.key,
+    required this.dataProvider,
+    required this.progressHight,
+  });
 
   final ObjectBoxState dataProvider;
   final double progressHight;
@@ -239,8 +282,16 @@ class ProgressBar extends StatelessWidget {
         Row(
           children: <Widget>[
             //في مشكلة في التحويل
-            Spacer(progressHight, (dataProvider.star1 / dataProvider.star3) * MediaQuery.of(context).size.width),
-            Spacer(progressHight, (dataProvider.star2 / dataProvider.star3) * MediaQuery.of(context).size.width),
+            Spacer(
+              progressHight,
+              (dataProvider.star1 / dataProvider.star3) *
+                  MediaQuery.of(context).size.width,
+            ),
+            Spacer(
+              progressHight,
+              (dataProvider.star2 / dataProvider.star3) *
+                  MediaQuery.of(context).size.width,
+            ),
           ],
         ),
         if (dataProvider.doneMinutes > dataProvider.star3)
@@ -273,7 +324,11 @@ class Spacer extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: height,
-      child: VerticalDivider(thickness: 2, width: progress, color: Colors.white..withAlpha(127)),
+      child: VerticalDivider(
+        thickness: 2,
+        width: progress,
+        color: Colors.white..withAlpha(127),
+      ),
     );
   }
 }

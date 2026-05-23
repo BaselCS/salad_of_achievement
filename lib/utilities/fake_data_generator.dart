@@ -282,7 +282,7 @@ class FakeDataGenerator {
                   .getAllActivities()
                   .firstWhereOrNull((activity) => activity.name == activityName)
                   ?.group ??
-              'General',
+              'مرجأة',
         );
         objectBox.addSession(session);
       }

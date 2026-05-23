@@ -24,6 +24,9 @@ class MyCircularCountDownTimer extends StatefulWidget {
   /// Countdown duration in Seconds.
   final int duration;
 
+  /// Time acceleration factor used for testing.
+  final int timeScale;
+
   /// Countdown initial elapsed Duration in Seconds.
   final int initialDuration;
 
@@ -51,6 +54,7 @@ class MyCircularCountDownTimer extends StatefulWidget {
     required this.fillColor,
     required this.ringColor,
     required this.child,
+    this.timeScale = kTimeAccelerationFactor,
     this.initialDuration = 0,
     this.onComplete,
     this.onStart,
@@ -62,14 +66,25 @@ class MyCircularCountDownTimer extends StatefulWidget {
   }) : assert(initialDuration <= duration);
 
   @override
-  MyCircularCountDownTimerState createState() => MyCircularCountDownTimerState();
+  MyCircularCountDownTimerState createState() =>
+      MyCircularCountDownTimerState();
 }
 
-class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer> with TickerProviderStateMixin {
+class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer>
+    with TickerProviderStateMixin {
   AnimationController? _controller;
   Animation<double>? _countDownAnimation;
   CountDownControllers? countDownController;
   bool _hasStarted = false;
+
+  int get _scaledDurationSeconds {
+    if (widget.timeScale <= 1) {
+      return widget.duration;
+    }
+    return widget.duration <= 0
+        ? 0
+        : (widget.duration / widget.timeScale).ceil();
+  }
 
   String get time {
     String timeStamp = "";
@@ -80,6 +95,13 @@ class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer> with
       // If the timer is started, then show the current time
       Duration? duration = _controller!.duration! * _controller!.value;
       timeStamp = _getTimeFormatted(duration);
+      if (widget.timeScale > 1) {
+        timeStamp = _getTimeFormatted(
+          Duration(
+            milliseconds: (duration.inMilliseconds * widget.timeScale).round(),
+          ),
+        );
+      }
     }
     // Show the current time in on change callback
     if (widget.onChange != null) widget.onChange!(timeStamp);
@@ -99,6 +121,7 @@ class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer> with
     countDownController?._timerState = this;
     countDownController?._initialDuration = widget.initialDuration;
     countDownController?._duration = widget.duration;
+    countDownController?._timeScale = widget.timeScale;
     // countDownController?.isStarted.value = widget.autoStart;
     countDownController?.isStarted.value = true;
 
@@ -128,7 +151,7 @@ class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer> with
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(seconds: widget.duration),
+      duration: Duration(seconds: _scaledDurationSeconds),
     );
 
     _controller!.addStatusListener((status) {
@@ -184,12 +207,21 @@ class MyCircularCountDownTimerState extends State<MyCircularCountDownTimer> with
                       children: [
                         SizedBox(width: widget.width / 2, child: widget.child),
                         Container(
-                          decoration: BoxDecoration(color: Colors.black..withAlpha(127), borderRadius: BorderRadius.circular(36)),
+                          decoration: BoxDecoration(
+                            color: Colors.black..withAlpha(127),
+                            borderRadius: BorderRadius.circular(36),
+                          ),
                           width: widget.width / 2,
                           child: Center(
                             child: FittedBox(
                               fit: BoxFit.contain,
-                              child: Text(time, style: Theme.of(context).textTheme.displayMedium!.copyWith(color: widget.fillColor)),
+                              child: Text(
+                                time,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displayMedium!
+                                    .copyWith(color: widget.fillColor),
+                              ),
                             ),
                           ),
                         ),
@@ -222,11 +254,14 @@ class CountDownControllers {
       isResumed = ValueNotifier<bool>(false),
       isRestarted = ValueNotifier<bool>(false);
   int? _initialDuration, _duration;
+  int _timeScale = 1;
 
   /// This Method Starts the Countdown Timer
   void start() {
     if (_timerState != null && _timerState?._controller != null) {
-      _timerState?._controller?.reverse(from: _initialDuration == 0 ? 1 : 1 - (_initialDuration! / _duration!));
+      _timerState?._controller?.reverse(
+        from: _initialDuration == 0 ? 1 : 1 - (_initialDuration! / _duration!),
+      );
 
       isStarted.value = true;
       isPaused.value = false;
@@ -261,7 +296,16 @@ class CountDownControllers {
 
   void restart({int? duration}) {
     if (_timerState != null && _timerState?._controller != null) {
-      _timerState?._controller!.duration = Duration(seconds: duration ?? _timerState!._controller!.duration!.inSeconds);
+      final int virtualDuration =
+          duration ??
+          _timerState!._controller!.duration!.inSeconds * _timeScale;
+      _duration = virtualDuration;
+      final int realDuration = virtualDuration <= 0
+          ? 0
+          : (_timeScale <= 1
+                ? virtualDuration
+                : (virtualDuration / _timeScale).ceil());
+      _timerState?._controller!.duration = Duration(seconds: realDuration);
       _timerState?._controller?.reverse(from: 1);
       isStarted.value = true;
       isRestarted.value = true;
@@ -272,16 +316,30 @@ class CountDownControllers {
 
   void correctTime(int remainingTime) {
     if (_timerState != null && _timerState?._controller != null) {
-      final int totalDuration = _duration ?? _timerState!._controller!.duration!.inSeconds;
+      final int totalDuration =
+          _duration ?? _timerState!._controller!.duration!.inSeconds;
       if (totalDuration <= 0) {
         return;
       }
 
       final int clampedRemaining = remainingTime.clamp(0, totalDuration);
-      final double from = clampedRemaining / totalDuration;
+      final int scaledRemaining = clampedRemaining <= 0
+          ? 0
+          : (_timeScale <= 1
+                ? clampedRemaining
+                : (clampedRemaining / _timeScale).ceil());
+      final int realTotalDuration =
+          _timerState!._controller!.duration!.inSeconds;
+      if (realTotalDuration <= 0) {
+        return;
+      }
+      final double from = (scaledRemaining / realTotalDuration).clamp(0.0, 1.0);
       _timerState?._controller?.reverse(from: from);
 
-      AppLogger.log("تصحيح الوقت ليصبح $clampedRemaining أي ${clampedRemaining ~/ 60} دقيقة و ${clampedRemaining % 60} ثانية", tag: 'timer');
+      AppLogger.log(
+        "تصحيح الوقت ليصبح $clampedRemaining أي ${clampedRemaining ~/ 60} دقيقة و ${clampedRemaining % 60} ثانية",
+        tag: 'timer',
+      );
     }
   }
 
@@ -300,8 +358,15 @@ class CountDownControllers {
     await NotificationHelper.cancelAllNotifications();
   }
 
-  void setNonfiction({String activityName = "غير محدد", int sessionTime = 5, int seconds = 5}) async {
-    AppLogger.log("setNonfiction called with $activityName, $sessionTime, $seconds", tag: 'timer');
+  void setNonfiction({
+    String activityName = "غير محدد",
+    int sessionTime = 5,
+    int seconds = 5,
+  }) async {
+    AppLogger.log(
+      "setNonfiction called with $activityName, $sessionTime, $seconds",
+      tag: 'timer',
+    );
     await NotificationHelper.sendScheduledNotification(
       id: 1,
       title: 'أُنجزت الجلسة',
@@ -312,7 +377,10 @@ class CountDownControllers {
     );
   }
 
-  Future<void> sendImmediateNotification({String activityName = "غير محدد", int sessionTime = 5}) async {
+  Future<void> sendImmediateNotification({
+    String activityName = "غير محدد",
+    int sessionTime = 5,
+  }) async {
     await NotificationHelper.sendImmediateNotification(
       id: 1,
       title: 'أُنجزت الجلسة',
@@ -327,7 +395,14 @@ class CountDownControllers {
 
   String? getTime() {
     if (_timerState != null && _timerState?._controller != null) {
-      return _timerState?._getTimeFormatted(_timerState!._controller!.duration! * _timerState!._controller!.value);
+      final Duration remaining =
+          _timerState!._controller!.duration! * _timerState!._controller!.value;
+      if (_timeScale <= 1) {
+        return _timerState?._getTimeFormatted(remaining);
+      }
+      return _timerState?._getTimeFormatted(
+        Duration(milliseconds: (remaining.inMilliseconds * _timeScale).round()),
+      );
     }
     return "";
   }

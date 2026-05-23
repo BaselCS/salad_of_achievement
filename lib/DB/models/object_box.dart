@@ -12,6 +12,7 @@ class ObjectBoxState with ChangeNotifier {
   late final Store _store;
   late final Box<Session> _sessionBox;
   late final Box<Activity> _activityBox;
+  late final Box<ActivityGroup> _groupBox;
   late final Box<FruitUsage> _fruitUsageBox;
   late final Box<Setting> _settingBox;
 
@@ -25,6 +26,7 @@ class ObjectBoxState with ChangeNotifier {
   ObjectBoxState._create(this._store) {
     _initializeBoxes(); //تهيئة البيانات
     _initializeSettings(); // تهيئة الإعدادات
+    _normalizeLegacyData();
     _initializeResetTimer(); // تهيئة مؤقت إعادة التعيين
   }
 
@@ -38,8 +40,104 @@ class ObjectBoxState with ChangeNotifier {
   void _initializeBoxes() {
     _sessionBox = Box<Session>(_store);
     _activityBox = Box<Activity>(_store);
+    _groupBox = Box<ActivityGroup>(_store);
     _fruitUsageBox = Box<FruitUsage>(_store);
     _settingBox = Box<Setting>(_store);
+  }
+
+  ActivityGroup _ensureGroup(String? name) {
+    final String groupName = name == null || name.trim().isEmpty
+        ? 'مرجأة'
+        : name.trim();
+    final existing = _groupBox
+        .query(ActivityGroup_.name.equals(groupName))
+        .build()
+        .findFirst();
+    if (existing != null) {
+      return existing;
+    }
+    final group = ActivityGroup(name: groupName);
+    _groupBox.put(group);
+    return group;
+  }
+
+  Activity? _findActivityByName(String? name) {
+    final String activityName = name == null || name.trim().isEmpty
+        ? 'غير محدد'
+        : name.trim();
+    return _activityBox
+        .query(Activity_.name.equals(activityName))
+        .build()
+        .findFirst();
+  }
+
+  Activity _resolveActivityForSession(Session session) {
+    final existingActivity = session.activityRef.target;
+    if (existingActivity != null) {
+      final resolvedGroup = _ensureGroup(existingActivity.group);
+      existingActivity.groupRef.target = resolvedGroup;
+      _activityBox.put(existingActivity);
+      return existingActivity;
+    }
+
+    final existingByName = _findActivityByName(session.activityName);
+    if (existingByName != null) {
+      final resolvedGroup = _ensureGroup(session.group ?? existingByName.group);
+      existingByName.groupRef.target = resolvedGroup;
+      _activityBox.put(existingByName);
+      return existingByName;
+    }
+
+    final resolvedGroup = _ensureGroup(session.group);
+    final created = Activity(
+      name: session.activityName,
+      timeSpent: session.timeSpent,
+      group: resolvedGroup.name,
+      groupEntity: resolvedGroup,
+    );
+    created.groupRef.target = resolvedGroup;
+    _activityBox.put(created);
+    return created;
+  }
+
+  void _normalizeLegacyData() {
+    final defaultGroup = _ensureGroup('مرجأة');
+    final activities = _activityBox.getAll();
+    for (final activity in activities) {
+      if (activity.groupRef.target == null) {
+        final resolvedGroup = _ensureGroup(activity.group);
+        activity.groupRef.target = resolvedGroup;
+        _activityBox.put(activity);
+      }
+    }
+
+    final sessions = _sessionBox.getAll();
+    for (final session in sessions) {
+      if (session.activityRef.target == null) {
+        final resolvedActivity = _findActivityByName(session.activityName);
+        if (resolvedActivity != null) {
+          resolvedActivity.groupRef.target =
+              resolvedActivity.groupRef.target ?? _ensureGroup(session.group);
+          session.activityRef.target = resolvedActivity;
+          session.group = resolvedActivity.group;
+          _activityBox.put(resolvedActivity);
+          _sessionBox.put(session);
+          continue;
+        }
+
+        final createdActivity = Activity(
+          name: session.activityName,
+          timeSpent: session.timeSpent,
+          group: session.group ?? defaultGroup.name,
+          groupEntity: _ensureGroup(session.group),
+        );
+        createdActivity.groupRef.target = _ensureGroup(session.group);
+        _activityBox.put(createdActivity);
+        session.activityRef.target = createdActivity;
+        session.group = createdActivity.group;
+        _sessionBox.put(session);
+      }
+    }
   }
 
   /// تهيئة الإعدادات
@@ -153,6 +251,9 @@ class ObjectBoxState with ChangeNotifier {
   void addSession(Session session) {
     // Ensure the day rollover is applied before counting the new session.
     isNewDay();
+    final Activity resolvedActivity = _resolveActivityForSession(session);
+    session.activityRef.target = resolvedActivity;
+    session.group = resolvedActivity.group;
     _sessionBox.put(session);
     doneMinutes += session.timeSpent;
     addFruitUsage(time: session.timeSpent);
@@ -162,6 +263,9 @@ class ObjectBoxState with ChangeNotifier {
   }
 
   void updateSession(Session session, int oldSessionID) {
+    final Activity resolvedActivity = _resolveActivityForSession(session);
+    session.activityRef.target = resolvedActivity;
+    session.group = resolvedActivity.group;
     doneMinutes += session.timeSpent;
     deleteSession(oldSessionID);
     _sessionBox.put(session);
@@ -287,6 +391,12 @@ class ObjectBoxState with ChangeNotifier {
     _settingBox.put(currentSetting);
   }
 
+  void setDoneMinutes(int minutes) {
+    doneMinutes = minutes < 0 ? 0 : minutes;
+    _updateSettingDoneMinutes();
+    notifyListeners();
+  }
+
   void updateStares({int newStar1 = 0, int newStar2 = 0, int newStar3 = 0}) {
     if (newStar1 != 0) {
       star1 = newStar1;
@@ -338,7 +448,7 @@ class ObjectBoxState with ChangeNotifier {
 
   void addFruitUsage({int time = 5}) {
     final FruitUsage fruitUsage =
-        _fruitUsageBox.get(time) ?? FruitUsage(id: time, usageCount: 1);
+        _fruitUsageBox.get(time) ?? FruitUsage(id: time, usageCount: 0);
     fruitUsage.usageCount++;
     _fruitUsageBox.put(fruitUsage);
     AppLogger.log(
@@ -359,6 +469,11 @@ class ObjectBoxState with ChangeNotifier {
       _fruitUsageBox.put(fruitUsage);
     }
     AppLogger.log("حذفت فاكهة من سلطتك: ${fruitUsage.id}", tag: 'objectbox');
+    notifyListeners();
+  }
+
+  void setFruitUsageCount(int time, int usageCount) {
+    _fruitUsageBox.put(FruitUsage(id: time, usageCount: usageCount));
     notifyListeners();
   }
 
@@ -385,6 +500,8 @@ class ObjectBoxState with ChangeNotifier {
   }
 
   void addActivity(Activity activity) {
+    final ActivityGroup group = _ensureGroup(activity.group);
+    activity.groupRef.target = group;
     _activityBox.put(activity);
     AppLogger.log("إضيف نشاط جديد: ${activity.name}", tag: 'objectbox');
     notifyListeners();
@@ -413,7 +530,14 @@ class ObjectBoxState with ChangeNotifier {
   ]) {
     activity.name = name ?? activity.name;
     activity.timeSpent = timeSpent ?? activity.timeSpent;
-    activity.group = group ?? activity.group;
+    if (group != null) {
+      final ActivityGroup resolvedGroup = _ensureGroup(group);
+      activity.groupRef.target = resolvedGroup;
+      activity.group = resolvedGroup.name;
+    } else if (activity.groupRef.target == null) {
+      final ActivityGroup resolvedGroup = _ensureGroup(activity.group);
+      activity.groupRef.target = resolvedGroup;
+    }
     _activityBox.put(activity);
     AppLogger.log("حدث النشاط: ${activity.id}", tag: 'objectbox');
     notifyListeners();

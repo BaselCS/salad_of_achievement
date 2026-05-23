@@ -2,13 +2,12 @@ import 'dart:math' show max, min;
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../DB/models/data_model.dart';
-import '../DB/models/object_box.dart';
 import '../logical/app_logger.dart';
 import '../utilities/const.dart';
 import '../utilities/my_circular_count_down_timer.dart';
+import '../main.dart' show objectBox;
 
 CountDownControllers controller = CountDownControllers();
 Image theImage = tomato;
@@ -16,10 +15,25 @@ Color theColor = kTomatoColor;
 int sessionTime = 0;
 List<Activity> activities = [];
 int doneMinutes = 0;
+ValueNotifier<int> doneMinutesNotifier = ValueNotifier<int>(0);
 bool isFromNotification = false;
 bool isNotified = false;
 
 String? activityName;
+
+void updateDoneMinutes(int value) {
+  doneMinutes = value;
+  if (doneMinutesNotifier.value == value) {
+    return;
+  }
+
+  // استخدام Future.microtask يضمن تأجيل التحديث حتى تنتهي مرحلة البناء الحالية
+  Future.microtask(() {
+    if (doneMinutesNotifier.value != value) {
+      doneMinutesNotifier.value = value;
+    }
+  });
+}
 
 class ActiveSectionPage extends StatelessWidget {
   final List<Object?> arguments;
@@ -28,32 +42,39 @@ class ActiveSectionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String time = arguments[0]?.toString() ?? "5";
+    final int parsedTime = int.tryParse(time) ?? 5;
+    final String fruitKey = fruits.containsKey(parsedTime.toString())
+        ? parsedTime.toString()
+        : '5';
     if (arguments[0] == null) {
       AppLogger.log(
         "No session time provided in arguments, defaulting to 5 minutes.",
         tag: 'active-session',
       );
     }
-    isFromNotification = arguments[2] as bool;
+    isFromNotification = arguments.length > 2 && arguments[2] is bool
+        ? arguments[2] as bool
+        : false;
 
-    theImage = fruits[time.toString()]![0];
-    theColor = fruits[time.toString()]![1];
+    theImage = fruits[fruitKey]![0];
+    theColor = fruits[fruitKey]![1];
 
     if (isFromNotification && !isNotified) {
       isNotified = true;
       TimerLogic.instance.setEndingTime(0);
-      activityName = arguments[1] as String?;
-      sessionTime = 0;
-      doneMinutes = int.parse(time.toString());
+      activityName = arguments.length > 1 ? arguments[1] as String? : null;
+      sessionTime = parsedTime;
+      doneMinutes = parsedTime;
     } else {
       isNotified = false;
-      sessionTime = int.parse(time.toString());
+      sessionTime = parsedTime;
+      doneMinutes = 0;
     }
-    ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(
-      context,
-      listen: false,
-    );
-    activities = dataProvider.getActiveActivities();
+    final dataProvider = objectBox;
+    activities = dataProvider
+        .getActiveActivities()
+        .where((activity) => !activity.isArchived)
+        .toList();
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (_, _) {
@@ -79,7 +100,19 @@ class _BodyState extends State<Body> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+
+    // تنظيف المتغيرات العامة لضمان عدم تسرب الحالة من الجلسات السابقة
+    TimerLogic.instance.reset();
+    controller = CountDownControllers();
+    doneMinutesNotifier = ValueNotifier<int>(doneMinutes);
+
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      doneMinutesNotifier.value = doneMinutes;
+    });
   }
 
   @override
@@ -303,70 +336,114 @@ class CancelButton extends StatelessWidget {
 class SaveButton extends StatelessWidget {
   const SaveButton({super.key});
 
+  // دالة مساعدة لجلب أقرب وقت مسموح به بناءً على الدقائق المنقضية
+  int _getValidInterval(int minutes) {
+    const List<int> intervals = [5, 10, 15, 20, 25, 30, 40, 50, 60];
+    int validTime = 0;
+    for (int interval in intervals) {
+      if (minutes >= interval) {
+        validTime = interval;
+      } else {
+        break;
+      }
+    }
+    return validTime;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-      onPressed: () {
-        if (activityName == null || activityName!.trim().isEmpty) {
-          AppLogger.log(
-            "Save blocked: activity is missing.",
-            tag: 'active-session',
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              backgroundColor: Colors.red,
-              content: Text('اختر نشاطا قبل حفظ الجلسة'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-          return;
+    // جعلنا (ValueListenableBuilder) هو الجذر (Root) لنتحكم بظهور الزر بالكامل
+    return ValueListenableBuilder<int>(
+      valueListenable: doneMinutesNotifier,
+      builder: (context, doneValue, _) {
+        // حساب الثواني المنقضية الفعلية فقط لتجنب حفظ وقت الجلسة الكلي بالخطأ
+        final int elapsedSeconds = max(
+          0,
+          sessionTime * 60 - TimerLogic.instance.remainingSeconds,
+        );
+
+        int rawDone = elapsedSeconds ~/ 60;
+
+        // كإجراء احتياطي في حال تم فتح الجلسة من الإشعارات ولم يتم تحديث المؤقت
+        if (isFromNotification && rawDone == 0) {
+          rawDone = doneValue;
         }
 
-        final int remain = TimerLogic.instance.remainingSeconds;
-        final int currentDone = (sessionTime * 60 - remain) ~/ 60;
+        final int currentDone = _getValidInterval(rawDone);
 
-        if (!fruitsId.contains(currentDone)) {
-          AppLogger.log(
-            "Save blocked: current completion ($currentDone min) is not a valid milestone.",
-            tag: 'active-session',
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: theColor,
-              content: Text('لا يمكن حفظ الجلسة الآن، أكمل وقتا صالحا أولا'),
-              duration: Duration(seconds: 1),
-            ),
-          );
-          return;
-        }
+        return Opacity(
+          opacity: currentDone > 0 ? 1.0 : 0.5,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+            onPressed: () {
+              if (currentDone == 0) {
+                AppLogger.log(
+                  "Save blocked: no valid time elapsed.",
+                  tag: 'active-session',
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    backgroundColor: Colors.red,
+                    content: Text(
+                      'يجب أن تمر 5 دقائق على الأقل لحفظ الجلسة',
+                      textAlign: TextAlign.center,
+                    ),
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+                return;
+              }
+              if (activityName == null || activityName!.trim().isEmpty) {
+                AppLogger.log(
+                  "Save blocked: activity is missing.",
+                  tag: 'active-session',
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    backgroundColor: Colors.red,
+                    content: Text('اختر نشاطا قبل حفظ الجلسة'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              }
 
-        addSession(context, currentDone, activityName);
-        controller.cancelAllNotifications();
-        Navigator.pop(context);
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            GestureDetector(
-              child: CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.black,
-                child: Icon(Icons.save, color: theColor),
+              addSession(context, currentDone, activityName);
+              controller.cancelAllNotifications();
+              Navigator.pop(context);
+            },
+
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.black,
+                    child: Icon(Icons.save, color: theColor),
+                  ),
+                  Text(
+                    currentDone > 0 ? 'حفظ $currentDone دقيقة' : "حفظ الجلسة",
+                    style: Theme.of(context).textTheme.bodySmall!,
+                  ),
+                ],
               ),
             ),
-            Text('حفظ الجلسة ', style: Theme.of(context).textTheme.bodySmall!),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
 
 class CountDownTimer extends StatelessWidget {
+  int _elapsedMinutes() {
+    final int remainingSeconds = TimerLogic.instance.remainingSeconds;
+    final int elapsedSeconds = max(0, sessionTime * 60 - remainingSeconds);
+    return elapsedSeconds ~/ 60;
+  }
+
   void start() {
     TimerLogic.instance.setEndingTime(sessionTime * 60);
     controller.setNonfiction(
@@ -388,16 +465,14 @@ class CountDownTimer extends StatelessWidget {
       controller.correctTime(remain);
     }
 
-    if (fruitsId.contains(sessionTime - remain)) {
-      doneMinutes = sessionTime - remain;
-    }
+    updateDoneMinutes(_elapsedMinutes());
   }
 
   const CountDownTimer({super.key});
   @override
   Widget build(BuildContext context) {
     if (!isFromNotification) {
-      doneMinutes = 0;
+      updateDoneMinutes(0);
     }
 
     double size = min(
@@ -422,39 +497,40 @@ class CountDownTimer extends StatelessWidget {
         if (isFromNotification) {
           return;
         }
-        doneMinutes = sessionTime;
+        updateDoneMinutes(sessionTime);
       },
       child: Hero(tag: sessionTime.toString(), child: theImage),
     );
   }
 }
 
-void addSession(BuildContext context, int sessionTime, String? activityName) {
-  ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(
-    context,
-    listen: false,
-  );
+void addSession(
+  BuildContext context,
+  int elapsedMinutes,
+  String? activityName,
+) {
+  final dataProvider = objectBox;
   final Activity? activity = activities.firstWhereOrNull(
     (activity) => activity.name == activityName,
   );
-  final String activityGroup = activity?.group ?? 'General';
+  final String activityGroup = activity?.group ?? 'مرجأة';
 
   dataProvider.addSession(
     Session(
       date: dataProvider.getCurrentSessionDate(),
-      timeSpent: sessionTime,
+      timeSpent: elapsedMinutes,
       activityName: activityName ?? 'غير محدد',
       group: activityGroup,
     ),
   );
   if (activity != null) {
-    activity.timeSpent += sessionTime;
+    activity.timeSpent += elapsedMinutes;
     dataProvider.updateActivity(activity, null, activity.timeSpent);
   } else if (activityName != null) {
     dataProvider.addActivity(
       Activity(
         name: activityName,
-        timeSpent: sessionTime,
+        timeSpent: elapsedMinutes,
         group: activityGroup,
       ),
     );
@@ -465,7 +541,7 @@ void addSession(BuildContext context, int sessionTime, String? activityName) {
       backgroundColor: kContainerColor,
       duration: const Duration(milliseconds: 500),
       content: Text(
-        sessionTime == 0 ? 'تم إلغاء الجلسة' : 'تم حفظ الجلسة',
+        elapsedMinutes == 0 ? 'تم إلغاء الجلسة' : 'تم حفظ الجلسة',
         style: Theme.of(context).textTheme.bodySmall!.copyWith(color: theColor),
         textAlign: TextAlign.center,
       ),
@@ -487,8 +563,18 @@ class TimerLogic {
       return _remainingSecondsAtPause;
     }
     final DateTime dateTimeNow = DateTime.now();
-    Duration remainingTime = endingTime.difference(dateTimeNow);
-    return max(0, remainingTime.inSeconds);
+    final int remainingMilliseconds = endingTime
+        .difference(dateTimeNow)
+        .inMilliseconds;
+    return max(
+      0,
+      (remainingMilliseconds * kTimeAccelerationFactor / 1000).ceil(),
+    );
+  }
+
+  void reset() {
+    _isPaused = false;
+    _remainingSecondsAtPause = 0;
   }
 
   void pause(int remaining) {
@@ -504,7 +590,13 @@ class TimerLogic {
   void setEndingTime(int durationToEnd) {
     _isPaused = false;
     final DateTime dateTimeNow = DateTime.now();
-    endingTime = dateTimeNow.add(Duration(seconds: durationToEnd));
+    final int realDurationMilliseconds = max(
+      0,
+      (durationToEnd * 1000 / kTimeAccelerationFactor).ceil(),
+    );
+    endingTime = dateTimeNow.add(
+      Duration(milliseconds: realDurationMilliseconds),
+    );
     AppLogger.log(
       "TimerLogic setEndingTime = ${endingTime.toLocal().toString()}",
       tag: 'timer',

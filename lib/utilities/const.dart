@@ -32,6 +32,8 @@ const Color kPearsColor = Color(0xFF0BAD67);
 const Color kPumpkinColor = Color(0xFFF2B816);
 const Color kDragonColor = Color(0xFFDE5F5D);
 
+const int kTimeAccelerationFactor = 1; // سرعة المؤقت
+
 Map<String, List> fruits = {
   "5": [cherry, kCherryColor],
   "10": [lemon, kLemonColor],
@@ -64,16 +66,34 @@ class Stars extends StatelessWidget {
   final bool isStar2;
   final bool isStar3;
   final double size;
-  const Stars({super.key, this.isStar1 = false, this.isStar2 = false, this.isStar3 = false, this.size = 35});
+  const Stars({
+    super.key,
+    this.isStar1 = false,
+    this.isStar2 = false,
+    this.isStar3 = false,
+    this.size = 35,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.star, color: isStar1 ? kStartsColor : kBackGroundColor, size: size),
-        Icon(Icons.star, color: isStar2 ? kStartsColor : kBackGroundColor, size: size),
-        Icon(Icons.star, color: isStar3 ? kStartsColor : kBackGroundColor, size: size),
+        Icon(
+          Icons.star,
+          color: isStar1 ? kStartsColor : kBackGroundColor,
+          size: size,
+        ),
+        Icon(
+          Icons.star,
+          color: isStar2 ? kStartsColor : kBackGroundColor,
+          size: size,
+        ),
+        Icon(
+          Icons.star,
+          color: isStar3 ? kStartsColor : kBackGroundColor,
+          size: size,
+        ),
       ],
     );
   }

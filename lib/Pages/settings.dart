@@ -1,12 +1,12 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
 import 'package:salad_of_achievement/logical/app_logger.dart';
 import '../DB/models/object_box.dart';
 import '../utilities/const.dart';
 import '../utilities/database_exporter.dart';
+import '../main.dart' show objectBox;
 
 //ضف إعددات لمتى يحول اليوم
 class AppSettingsPage extends StatelessWidget {
@@ -39,19 +39,33 @@ class Body extends StatelessWidget {
     return Column(
       children: [
         const Spacer(),
-        const Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [Text("حدد عدد الدقائق لكل تقييم"), ReSet()]),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [Text("حدد عدد الدقائق لكل تقييم"), ReSet()],
+        ),
         const Spacer(),
         const MySlider(1),
         const MySlider(2),
         const MySlider(3),
         const Spacer(),
-        Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height * 0.001, color: Colors.black..withAlpha(127)),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height * 0.001,
+          color: Colors.black..withAlpha(127),
+        ),
         const Spacer(),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("بداية اليوم"), CustomCounter(btnRadius: 10)]),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [Text("بداية اليوم"), CustomCounter(btnRadius: 10)],
+          ),
         ),
-        Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height * 0.001, color: Colors.black..withAlpha(127)),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height * 0.001,
+          color: Colors.black..withAlpha(127),
+        ),
         const Spacer(),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -65,15 +79,20 @@ class Body extends StatelessWidget {
                     message: "تصدير كـ CSV",
                     child: OutlinedButton(
                       onPressed: () {
-                        final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
-                        DatabaseExporter(objectBox).exportSessionsToCsv();
+                        final db = objectBox;
+                        DatabaseExporter(db).exportSessionsToCsv();
                       },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: kActionColor..withAlpha(127)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
                         backgroundColor: kBackGroundColor..withAlpha(127),
                       ),
-                      child: Text("جدولية", style: TextStyle(color: kActionColor..withAlpha(127))),
+                      child: Text(
+                        "جدولية",
+                        style: TextStyle(color: kActionColor..withAlpha(127)),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -81,15 +100,20 @@ class Body extends StatelessWidget {
                     message: "تصدير كـ JSON",
                     child: OutlinedButton(
                       onPressed: () {
-                        final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
-                        DatabaseExporter(objectBox).exportToJson();
+                        final db = objectBox;
+                        DatabaseExporter(db).exportToJson();
                       },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: kActionColor..withAlpha(127)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
                         backgroundColor: kBackGroundColor..withAlpha(127),
                       ),
-                      child: Text("جيسونية", style: TextStyle(color: kActionColor..withAlpha(127))),
+                      child: Text(
+                        "جيسونية",
+                        style: TextStyle(color: kActionColor..withAlpha(127)),
+                      ),
                     ),
                   ),
                 ],
@@ -97,62 +121,22 @@ class Body extends StatelessWidget {
             ],
           ),
         ),
-        Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height * 0.001, color: Colors.black..withAlpha(127)),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height * 0.001,
+          color: Colors.black..withAlpha(127),
+        ),
         const Spacer(),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("استيراد البيانات"),
-              Row(
-                children: [
-                  Tooltip(
-                    message: "استيراد من CSV",
-                    child: OutlinedButton(
-                      onPressed: () async {
-                        final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
-                        bool success = await DatabaseExporter(objectBox).importSessionsFromCsv();
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(success ? "تم استيراد الجلسات بنجاح" : "فشل في استيراد الجلسات")));
-                        }
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: kActionColor..withAlpha(127)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                        backgroundColor: kBackGroundColor..withAlpha(127),
-                      ),
-                      child: Text("جدولية", style: TextStyle(color: kActionColor..withAlpha(127))),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Tooltip(
-                    message: "استيراد من JSON",
-                    child: OutlinedButton(
-                      onPressed: () async {
-                        final objectBox = Provider.of<ObjectBoxState>(context, listen: false);
-                        bool success = await DatabaseExporter(objectBox).importFromJson();
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(SnackBar(content: Text(success ? "تم استيراد البيانات بنجاح" : "فشل في استيراد البيانات")));
-                        }
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: kActionColor..withAlpha(127)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                        backgroundColor: kBackGroundColor..withAlpha(127),
-                      ),
-                      child: Text("جيسونية", style: TextStyle(color: kActionColor..withAlpha(127))),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          child: const ImportDataSection(),
         ),
         const Spacer(),
-        Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height * 0.001, color: Colors.black..withAlpha(127)),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height * 0.001,
+          color: Colors.black..withAlpha(127),
+        ),
         const Spacer(),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -168,18 +152,175 @@ class Body extends StatelessWidget {
                   },
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: kActionColor..withAlpha(127)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                     backgroundColor: kBackGroundColor..withAlpha(127),
                   ),
-                  child: Text("مشاركة", style: TextStyle(color: kActionColor..withAlpha(127))),
+                  child: Text(
+                    "مشاركة",
+                    style: TextStyle(color: kActionColor..withAlpha(127)),
+                  ),
                 ),
               ),
             ],
           ),
         ),
         const Spacer(),
-        Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height * 0.001, color: Colors.black..withAlpha(127)),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height * 0.001,
+          color: Colors.black..withAlpha(127),
+        ),
         const Spacer(),
+      ],
+    );
+  }
+}
+
+class ImportDataSection extends StatefulWidget {
+  const ImportDataSection({super.key});
+
+  @override
+  State<ImportDataSection> createState() => _ImportDataSectionState();
+}
+
+class _ImportDataSectionState extends State<ImportDataSection> {
+  String _fallbackGroup = 'مرجأة';
+
+  List<String> _availableGroups(ObjectBoxState objectBox) {
+    final Set<String> groups = objectBox
+        .getAllActivities()
+        .map((activity) => activity.group.trim())
+        .where((group) => group.isNotEmpty)
+        .toSet();
+    groups.add('مرجأة');
+    final List<String> sortedGroups = groups.toList()..sort();
+    return sortedGroups;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final db = objectBox;
+    final List<String> groups = _availableGroups(db);
+    if (!groups.contains(_fallbackGroup)) {
+      _fallbackGroup = groups.first;
+    }
+
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text("المجموعة الافتراضية"),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(color: kActionColor..withAlpha(127)),
+                color: kBackGroundColor..withAlpha(127),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _fallbackGroup,
+                  dropdownColor: kContainerColor,
+                  onChanged: (String? value) {
+                    if (value == null) {
+                      return;
+                    }
+                    setState(() {
+                      _fallbackGroup = value;
+                    });
+                  },
+                  items: groups
+                      .map(
+                        (group) => DropdownMenuItem<String>(
+                          value: group,
+                          child: Text(group, textAlign: TextAlign.center),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text("استيراد البيانات"),
+            Row(
+              children: [
+                Tooltip(
+                  message: "استيراد من CSV",
+                  child: OutlinedButton(
+                    onPressed: () async {
+                      bool success = await DatabaseExporter(
+                        objectBox,
+                      ).importSessionsFromCsv(fallbackGroup: _fallbackGroup);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              success
+                                  ? "تم استيراد الجلسات بنجاح"
+                                  : "فشل في استيراد الجلسات",
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: kActionColor..withAlpha(127)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      backgroundColor: kBackGroundColor..withAlpha(127),
+                    ),
+                    child: Text(
+                      "جدولية",
+                      style: TextStyle(color: kActionColor..withAlpha(127)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Tooltip(
+                  message: "استيراد من JSON",
+                  child: OutlinedButton(
+                    onPressed: () async {
+                      bool success = await DatabaseExporter(
+                        objectBox,
+                      ).importFromJson(fallbackGroup: _fallbackGroup);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              success
+                                  ? "تم استيراد البيانات بنجاح"
+                                  : "فشل في استيراد البيانات",
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: kActionColor..withAlpha(127)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      backgroundColor: kBackGroundColor..withAlpha(127),
+                    ),
+                    child: Text(
+                      "جيسونية",
+                      style: TextStyle(color: kActionColor..withAlpha(127)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -192,17 +333,23 @@ class ReSet extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton(
       onPressed: () {
-        final ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
-        dataProvider.setDefaultSettings();
+        final db = objectBox;
+        db.setDefaultSettings();
 
-        Navigator.popAndPushNamed(context, ModalRoute.of(context)!.settings.name!);
+        Navigator.popAndPushNamed(
+          context,
+          ModalRoute.of(context)!.settings.name!,
+        );
       },
       style: OutlinedButton.styleFrom(
         side: BorderSide(color: kActionColor..withAlpha(127)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         backgroundColor: kBackGroundColor..withAlpha(127),
       ),
-      child: Icon(Icons.settings_backup_restore_outlined, color: kActionColor..withAlpha(127)),
+      child: Icon(
+        Icons.settings_backup_restore_outlined,
+        color: kActionColor..withAlpha(127),
+      ),
     );
   }
 }
@@ -222,7 +369,7 @@ class MySlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ObjectBoxState dataProvider = Provider.of<ObjectBoxState>(context); // Access the provider
+    final dataProvider = objectBox; // Access the service directly
 
     int currentSliderValue = starValue == 1
         ? dataProvider.star1
@@ -256,15 +403,37 @@ class MySlider extends StatelessWidget {
             onChanged: (double value) {
               switch (starValue) {
                 case 1:
-                  dataProvider.updateStares(newStar1: value.toInt().clamp(20, 480));
-                  dataProvider.updateStares(newStar2: max(dataProvider.star2, dataProvider.star1 + 10).clamp(20, 480));
-                  dataProvider.updateStares(newStar3: max(dataProvider.star3, dataProvider.star2 + 10).clamp(20, 480));
+                  dataProvider.updateStares(
+                    newStar1: value.toInt().clamp(20, 480),
+                  );
+                  dataProvider.updateStares(
+                    newStar2: max(
+                      dataProvider.star2,
+                      dataProvider.star1 + 10,
+                    ).clamp(20, 480),
+                  );
+                  dataProvider.updateStares(
+                    newStar3: max(
+                      dataProvider.star3,
+                      dataProvider.star2 + 10,
+                    ).clamp(20, 480),
+                  );
                   break;
                 case 2:
-                  dataProvider.updateStares(newStar2: max(value.toInt(), dataProvider.star1).clamp(20, 480));
+                  dataProvider.updateStares(
+                    newStar2: max(
+                      value.toInt(),
+                      dataProvider.star1,
+                    ).clamp(20, 480),
+                  );
                   break;
                 case 3:
-                  dataProvider.updateStares(newStar3: max(value.toInt(), dataProvider.star2).clamp(20, 480));
+                  dataProvider.updateStares(
+                    newStar3: max(
+                      value.toInt(),
+                      dataProvider.star2,
+                    ).clamp(20, 480),
+                  );
                   break;
               }
             },
@@ -272,7 +441,11 @@ class MySlider extends StatelessWidget {
         ),
         SizedBox(
           width: MediaQuery.of(context).size.width * 0.15,
-          child: Center(child: Text(HijriLogic.englishToArabicNumber(currentSliderValue.toString()))),
+          child: Center(
+            child: Text(
+              HijriLogic.englishToArabicNumber(currentSliderValue.toString()),
+            ),
+          ),
         ),
       ],
     );
@@ -311,7 +484,7 @@ class _CustomCounterState extends State<CustomCounter> {
 
   @override
   Widget build(BuildContext context) {
-    dataProvider = Provider.of<ObjectBoxState>(context, listen: false);
+    dataProvider = objectBox;
 
     _counter = dataProvider.timeToRest.hour;
     return Tooltip(
@@ -332,19 +505,30 @@ class _CustomCounterState extends State<CustomCounter> {
                 child: Container(
                   height: 20,
                   width: 20,
-                  decoration: BoxDecoration(color: kActionColor, borderRadius: BorderRadius.circular(widget.btnRadius ?? 2)),
+                  decoration: BoxDecoration(
+                    color: kActionColor,
+                    borderRadius: BorderRadius.circular(widget.btnRadius ?? 2),
+                  ),
                   child: const Icon(Icons.remove, color: kWhiteColor, size: 10),
                 ),
               ),
               const SizedBox(width: 15),
-              Text(HijriLogic.englishToArabicNumber(_counter < 10 ? "0$_counter" : "$_counter"), style: const TextStyle(fontSize: 16, color: Colors.white)),
+              Text(
+                HijriLogic.englishToArabicNumber(
+                  _counter < 10 ? "0$_counter" : "$_counter",
+                ),
+                style: const TextStyle(fontSize: 16, color: Colors.white),
+              ),
               const SizedBox(width: 15),
               GestureDetector(
                 onTap: _incrementCounter,
                 child: Container(
                   height: 20,
                   width: 20,
-                  decoration: BoxDecoration(color: kActionColor, borderRadius: BorderRadius.circular(widget.btnRadius ?? 2)),
+                  decoration: BoxDecoration(
+                    color: kActionColor,
+                    borderRadius: BorderRadius.circular(widget.btnRadius ?? 2),
+                  ),
                   child: const Icon(Icons.add, color: kWhiteColor, size: 10),
                 ),
               ),
