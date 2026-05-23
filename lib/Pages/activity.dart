@@ -110,7 +110,7 @@ class GroupAutocompleteField extends StatelessWidget {
         return Align(
           alignment: Alignment.topLeft,
           child: Material(
-            color: kContainerColor,
+            color: kInnerBackGroundColor,
             elevation: 4,
             borderRadius: BorderRadius.circular(12),
             child: ConstrainedBox(

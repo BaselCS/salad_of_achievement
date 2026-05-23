@@ -32,7 +32,7 @@ const Color kPearsColor = Color(0xFF0BAD67);
 const Color kPumpkinColor = Color(0xFFF2B816);
 const Color kDragonColor = Color(0xFFDE5F5D);
 
-const int kTimeAccelerationFactor = 1; // سرعة المؤقت
+const int kTimeAccelerationFactor = 20; // سرعة المؤقت
 
 Map<String, List> fruits = {
   "5": [cherry, kCherryColor],

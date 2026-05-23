@@ -255,9 +255,8 @@ class ObjectBoxState with ChangeNotifier {
     session.activityRef.target = resolvedActivity;
     session.group = resolvedActivity.group;
     _sessionBox.put(session);
-    doneMinutes += session.timeSpent;
+    _syncDoneMinutesForCurrentSessionDate();
     addFruitUsage(time: session.timeSpent);
-    _updateSettingDoneMinutes();
     AppLogger.log("إضيفت جلسة جديدة : ${session.id}", tag: 'objectbox');
     notifyListeners();
   }
@@ -266,9 +265,9 @@ class ObjectBoxState with ChangeNotifier {
     final Activity resolvedActivity = _resolveActivityForSession(session);
     session.activityRef.target = resolvedActivity;
     session.group = resolvedActivity.group;
-    doneMinutes += session.timeSpent;
     deleteSession(oldSessionID);
     _sessionBox.put(session);
+    _syncDoneMinutesForCurrentSessionDate();
     AppLogger.log("حدثت الجلسة: ${session.id}", tag: 'objectbox');
     notifyListeners();
   }
@@ -282,10 +281,8 @@ class ObjectBoxState with ChangeNotifier {
     _sessionBox.remove(session.id);
     if (HijriLogic.englishToArabicNumber(session.date) ==
         getCurrentSessionDate()) {
-      doneMinutes -= session.timeSpent;
-      doneMinutes = doneMinutes < 0 ? 0 : doneMinutes;
+      _syncDoneMinutesForCurrentSessionDate();
     }
-    _updateSettingDoneMinutes();
     AppLogger.log("حذفت الجلسة: ${session.id}", tag: 'objectbox');
     notifyListeners();
   }
@@ -303,8 +300,7 @@ class ObjectBoxState with ChangeNotifier {
 
   void deleteAllSessions() {
     _sessionBox.removeAll();
-    doneMinutes = 0;
-    _updateSettingDoneMinutes();
+    _syncDoneMinutesForCurrentSessionDate();
     AppLogger.log("حذفت جميع الجلسات", tag: 'objectbox');
     notifyListeners();
   }
@@ -389,6 +385,19 @@ class ObjectBoxState with ChangeNotifier {
     final currentSetting = _settingBox.getAll().firstOrNull ?? Setting();
     currentSetting.doneMinutes = doneMinutes;
     _settingBox.put(currentSetting);
+  }
+
+  void _syncDoneMinutesForCurrentSessionDate() {
+    final String currentSessionDate = getCurrentSessionDate();
+    doneMinutes = _sessionBox
+        .getAll()
+        .where(
+          (session) =>
+              HijriLogic.englishToArabicNumber(session.date) ==
+              currentSessionDate,
+        )
+        .fold<int>(0, (total, session) => total + session.timeSpent);
+    _updateSettingDoneMinutes();
   }
 
   void setDoneMinutes(int minutes) {

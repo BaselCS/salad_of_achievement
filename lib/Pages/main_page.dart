@@ -4,12 +4,10 @@ import 'package:salad_of_achievement/Pages/active_session.dart';
 import 'package:salad_of_achievement/Pages/activity.dart';
 import 'package:salad_of_achievement/Pages/history.dart' hide activityName;
 import 'package:salad_of_achievement/Pages/new_session.dart';
-import 'package:salad_of_achievement/Pages/notification_test.dart';
 import 'package:salad_of_achievement/Pages/settings.dart';
 import 'package:salad_of_achievement/Pages/statistics.dart';
 import 'package:salad_of_achievement/logical/hijri_logic.dart';
 import 'package:salad_of_achievement/utilities/const.dart';
-import 'package:salad_of_achievement/utilities/fake_data_generator.dart';
 import 'package:salad_of_achievement/utilities/page_animation.dart';
 
 import '../DB/models/object_box.dart';
@@ -20,7 +18,7 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double progressHight = MediaQuery.of(context).size.height * 0.062;
+    final double progressHight = MediaQuery.of(context).size.height * 0.062;
 
     return Scaffold(
       appBar: AppBar(
@@ -82,7 +80,6 @@ class MyDrawer extends StatelessWidget {
       backgroundColor: kBackGroundColor,
       child: ListView(
         padding: EdgeInsets.zero,
-
         children: <Widget>[
           DrawerHeader(
             decoration: const BoxDecoration(color: kContainerColor),
@@ -129,7 +126,6 @@ class MyDrawer extends StatelessWidget {
   }
 }
 
-// الخضروات
 class VisitableButtons extends StatelessWidget {
   const VisitableButtons({super.key});
 
@@ -178,83 +174,120 @@ class VisitableButtons extends StatelessWidget {
   }
 }
 
-// الشريط السفلي
-class BottomBar extends StatelessWidget {
+class BottomBar extends StatefulWidget {
   const BottomBar({super.key, required this.progressHight});
 
   final double progressHight;
 
   @override
+  State<BottomBar> createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<BottomBar>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 450),
+  )..forward();
+
+  late final Animation<Offset> _slideAnimation = Tween<Offset>(
+    begin: const Offset(0, 0.18),
+    end: Offset.zero,
+  ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+  late final Animation<double> _fadeAnimation = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeOut,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final dataProvider = objectBox;
-    return BottomAppBar(
-      height: MediaQuery.of(context).size.height * 0.15,
-      padding: const EdgeInsets.fromLTRB(4, 15, 8, 4),
-      child: Column(
-        children: [
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: EdgeInsetsGeometry.symmetric(horizontal: 3.0),
-                        child: Image.asset(
-                          '$iconPath/appIcon.png',
-                          width: 32,
-                          height: 32,
+    return SlideTransition(
+      position: _slideAnimation,
+      child: FadeTransition(
+        opacity: _fadeAnimation,
+        child: AnimatedBuilder(
+          animation: dataProvider,
+          builder: (context, child) {
+            return BottomAppBar(
+              height: MediaQuery.of(context).size.height * 0.15,
+              padding: const EdgeInsets.fromLTRB(4, 15, 8, 4),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                                child: Image.asset(
+                                  '$iconPath/appIcon.png',
+                                  width: 32,
+                                  height: 32,
+                                ),
+                              ),
+                              const Text(
+                                'إنجاز اليوم: ',
+                                style: TextStyle(color: kActionColor, fontSize: 24),
+                              ),
+                              FittedBox(
+                                child: Text(
+                                  HijriLogic.englishToArabicNumber(
+                                    dataProvider.doneMinutes.toString(),
+                                  ),
+                                  style: const TextStyle(
+                                    color: kActionColor,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              const Text(
+                                ' دقيقة',
+                                style: TextStyle(color: kActionColor, fontSize: 24),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Stars(
+                            isStar1: dataProvider.doneMinutes >= dataProvider.star1,
+                            isStar2: dataProvider.doneMinutes >= dataProvider.star2,
+                            isStar3: dataProvider.doneMinutes >= dataProvider.star3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
+                        child: ProgressBar(
+                          dataProvider: dataProvider,
+                          progressHight: widget.progressHight,
                         ),
                       ),
-                      const Text(
-                        'إنجاز اليوم: ',
-                        style: TextStyle(color: kActionColor, fontSize: 24),
-                      ),
-                      FittedBox(
-                        child: Text(
-                          HijriLogic.englishToArabicNumber(
-                            dataProvider.doneMinutes.toString(),
-                          ),
-                          style: const TextStyle(
-                            color: kActionColor,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const Text(
-                        ' دقيقة',
-                        style: TextStyle(color: kActionColor, fontSize: 24),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: Stars(
-                    isStar1: dataProvider.doneMinutes >= dataProvider.star1,
-                    isStar2: dataProvider.doneMinutes >= dataProvider.star2,
-                    isStar3: dataProvider.doneMinutes >= dataProvider.star3,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                child: ProgressBar(
-                  dataProvider: dataProvider,
-                  progressHight: progressHight,
-                ),
+                ],
               ),
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -281,16 +314,13 @@ class ProgressBar extends StatelessWidget {
         ),
         Row(
           children: <Widget>[
-            //في مشكلة في التحويل
             Spacer(
               progressHight,
-              (dataProvider.star1 / dataProvider.star3) *
-                  MediaQuery.of(context).size.width,
+              (dataProvider.star1 / dataProvider.star3) * MediaQuery.of(context).size.width,
             ),
             Spacer(
               progressHight,
-              (dataProvider.star2 / dataProvider.star3) *
-                  MediaQuery.of(context).size.width,
+              (dataProvider.star2 / dataProvider.star3) * MediaQuery.of(context).size.width,
             ),
           ],
         ),
@@ -314,7 +344,6 @@ class ProgressBar extends StatelessWidget {
   }
 }
 
-// /// مقدار الفراغ بين النجوم
 class Spacer extends StatelessWidget {
   final double height;
   final double progress;
@@ -327,7 +356,7 @@ class Spacer extends StatelessWidget {
       child: VerticalDivider(
         thickness: 2,
         width: progress,
-        color: Colors.white..withAlpha(127),
+        color: Colors.white.withAlpha(127),
       ),
     );
   }
