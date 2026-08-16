@@ -1,6 +1,10 @@
 MIT License
 
+<<<<<<< HEAD
 Copyright (c) 2026 باسل احمد
+=======
+Copyright (c) 2026 BaselCS
+>>>>>>> a4af697 (refactor: remove ObjectBox database layer, update acceleration constant, add LICENSE, and include asset screenshots.)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
